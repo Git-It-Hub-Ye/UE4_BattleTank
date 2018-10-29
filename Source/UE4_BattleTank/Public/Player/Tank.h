@@ -7,6 +7,7 @@
 #include "Tank.generated.h"
 
 class UAimingComponent;
+class UCameraShake;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankDelegate);
 
@@ -37,7 +38,7 @@ private:
 	int32 CurrentHealth; // Initialised in BeginPlay().
 
 	/** Track if tank is alive */
-	bool bIsAlive;
+	bool bHasBeenDestroyed;
 
 public:
 	/** Bind functionality to input */
@@ -50,8 +51,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = Health)
 	float GetHealthPercent() const;
 
+	/** Replenish health */
+	void ReplenishHealth(float HealthToAdd);
+
 	/** Return if tank  */
-	bool IsTankAlive() const { return bIsAlive; }
+	bool IsTankDestroyed() const { return bHasBeenDestroyed; }
+
+	/** Return if current health is lower than starting health */
+	bool IsTankDamaged() { return CurrentHealth < StartingHealth; }
 
 	/** Death delegate for controllers */
 	FTankDelegate OnDeath;

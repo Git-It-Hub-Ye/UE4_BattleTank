@@ -15,7 +15,7 @@ ATank::ATank()
 
 	AimingComp = CreateDefaultSubobject<UAimingComponent>(FName("AimComponent"));
 
-	bIsAlive = true;
+	bHasBeenDestroyed = false;
 }
 
 void ATank::BeginPlay()
@@ -48,7 +48,7 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 	if (CurrentHealth <= 0)
 	{
-		bIsAlive = false;
+		bHasBeenDestroyed = true;
 		OnDeath.Broadcast();
 	}
 
@@ -63,6 +63,12 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 float ATank::GetHealthPercent() const
 {
-	return (float)CurrentHealth / (float)StartingHealth;
+	return (float)CurrentHealth;
+}
+
+void ATank::ReplenishHealth(float HealthToAdd)
+{
+	CurrentHealth = CurrentHealth + HealthToAdd;
+	CurrentHealth = FMath::Clamp<int32>(CurrentHealth, 0, StartingHealth);
 }
 

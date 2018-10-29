@@ -49,7 +49,7 @@ void ATankAIController::FindEnemy()
 	{
 		// Is pawn controlled by a player
 		ATank * EnemyPawn = Cast<ATank>(*i);
-		if (EnemyPawn && EnemyPawn->IsTankAlive() && EnemyPawn->IsPlayerControlled())
+		if (EnemyPawn && !EnemyPawn->IsTankDestroyed() && EnemyPawn->IsPlayerControlled())
 		{
 			// If this Player is closest to AI Pawn set as enemy
 			const float DistSq = (EnemyPawn->GetActorLocation() - MyLoc).SizeSquared();
@@ -80,13 +80,11 @@ void ATankAIController::FireWeapon()
 	{
 		if (LineOfSightTo(Enemy, AIBot->GetActorLocation()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Yes"))
 			bCanShoot = true;
 			BB->SetValueAsBool(CanShootKeyId, true);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("No"))
 			BB->SetValueAsBool(CanShootKeyId, false);
 		}
 

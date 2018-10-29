@@ -14,7 +14,7 @@ class UE4_BATTLETANK_API ATriggers : public AActor
 {
 	GENERATED_BODY()
 	
-private:
+protected:
 	/** Volume to trigger behaviour when an actor to overlaps */
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent * TriggerVolume;
@@ -31,9 +31,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-
-	UFUNCTION()
-	virtual void TriggerdBehaviour(ATank * Tank);
+	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	
 };
