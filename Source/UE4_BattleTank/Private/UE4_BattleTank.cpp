@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2018 Stuart McDonald.
 
 #include "UE4_BattleTank.h"
 #include "Modules/ModuleManager.h"
