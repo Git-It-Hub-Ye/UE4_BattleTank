@@ -15,20 +15,16 @@ class UE4_BATTLETANK_API UTrack : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 	
-public:
+private:
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	float TrackMaxDrivingForce = 400000;
 
 public:
 	UTrack();
 
-	UFUNCTION(BlueprintCallable, Category = Input)
 	void SetThrottle(float Throttle);
 
-private:
-	void DriveTrack(float CurrentThrottle);
+protected:
+	virtual void BeginPlay() override;
 
-	/** Get all wheels attached to track */
-	TArray<class AWheelSuspension*> GetWheels() const;
-	
 };

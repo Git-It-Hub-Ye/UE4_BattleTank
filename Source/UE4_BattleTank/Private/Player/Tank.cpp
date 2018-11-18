@@ -2,7 +2,7 @@
 
 #include "Tank.h"
 #include "TankPlayerController.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "AimingComponent.h"
 
 ATank::ATank()
@@ -10,8 +10,11 @@ ATank::ATank()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	TankBody = CreateDefaultSubobject<UStaticMeshComponent>(FName("TankBody"));
+	TankBody = CreateDefaultSubobject<USkeletalMeshComponent>(FName("TankBody"));
 	SetRootComponent(TankBody);
+
+	// Will set physics after spawn in begin play to avoid teleport flag errors.
+	TankBody->SetSimulatePhysics(false);
 
 	AimingComp = CreateDefaultSubobject<UAimingComponent>(FName("AimComponent"));
 
@@ -22,6 +25,7 @@ void ATank::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentHealth = StartingHealth;
+	TankBody->SetSimulatePhysics(true);
 }
 
 void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)

@@ -16,7 +16,6 @@ void ARepairTrigger::BeginPlay()
 void ARepairTrigger::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	Tank = Cast<ATank>(OtherActor);
-
 	if (Tank && Tank->IsPlayerControlled() && Tank->IsTankDamaged())
 	{
 		Repair();

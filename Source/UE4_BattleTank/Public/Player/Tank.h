@@ -22,9 +22,12 @@ protected:
 	UAimingComponent * AimingComp = nullptr;
 
 private:
+	UPROPERTY(VisibleDefaultsOnly, Category = "Mesh")
+	USceneComponent * TankRoot;
+
 	/** Root mesh */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Mesh")
-	UStaticMeshComponent * TankBody;
+	USkeletalMeshComponent * TankBody;
 
 	/** Camera shake when damaged */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
