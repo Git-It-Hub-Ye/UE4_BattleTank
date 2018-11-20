@@ -4,6 +4,7 @@
 #include "Tank.h"
 #include "AimingComponent.h"
 #include "Engine/World.h"
+#include "BattleTankGameModeBase.h"
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
 {
@@ -19,6 +20,12 @@ void ATankPlayerController::SetPawn(APawn * InPawn)
 
 void ATankPlayerController::OnPossessedTankDeath()
 {
+	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
+
+	if (BTGM)
+	{
+		BTGM->PlayerDestroyed();
+	}
 	StartSpectatingOnly();
 }
 

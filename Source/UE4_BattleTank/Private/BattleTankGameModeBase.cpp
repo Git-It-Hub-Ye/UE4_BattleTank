@@ -6,6 +6,8 @@
 #include "TimerManager.h"
 #include "Player/PawnSpawnBox.h"
 #include "EngineUtils.h"
+#include "GameFramework/PlayerController.h"
+#include "Player/Tank.h"
 
 ABattleTankGameModeBase::ABattleTankGameModeBase()
 {
@@ -32,6 +34,10 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+}
+
+void ABattleTankGameModeBase::Logout(AController * Exiting)
+{
 }
 
 void ABattleTankGameModeBase::StartPlay()
@@ -104,9 +110,35 @@ void ABattleTankGameModeBase::SpawnNewAIPawn()
 	}
 }
 
-void ABattleTankGameModeBase::AIBotDestroyed()
+void ABattleTankGameModeBase::AIBotDestroyed(APawn * AIPawn)
 {
-	CurrentNumOfBotsAlive--;
-	StartWave();
+	if (AIPawn && !AIPawn->IsPlayerControlled())
+	{
+		CurrentNumOfBotsAlive--;
+		StartWave();
+	}
+}
+
+void ABattleTankGameModeBase::PlayerDestroyed()
+{
+	for (FConstPlayerControllerIterator i = GetWorld()->GetPlayerControllerIterator(); i; i++)
+	{
+		APlayerController * PC = i->Get();
+		if (PC && PC->GetPawn())
+		{
+			ATank * PlayerPawn = Cast<ATank>(PC->GetPawn());
+
+			// If a player is not destroyed, then stop function
+			if (!PlayerPawn->IsTankDestroyed()) { return; }
+		}
+	}
+
+	// Only runs if all players are destroyed
+	GameOver();
+}
+
+void ABattleTankGameModeBase::GameOver()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Game Over"))
 }
 

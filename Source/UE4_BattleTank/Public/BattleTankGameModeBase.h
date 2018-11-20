@@ -51,9 +51,13 @@ public:
 
 	virtual void StartPlay() override;
 
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void PostLogin(APlayerController * NewPlayer) override;
 
-	void AIBotDestroyed();
+	virtual void Logout(AController * Exiting) override;
+
+	void AIBotDestroyed(APawn * AIPawn);
+
+	void PlayerDestroyed();
 	
 protected:
 	/** Sets timer for new wave to start spawning ai  */
@@ -71,4 +75,6 @@ protected:
 private:
 	/** Gets all spawn boxes in world */
 	void GetSpawnLocations();
+
+	void GameOver();
 };
