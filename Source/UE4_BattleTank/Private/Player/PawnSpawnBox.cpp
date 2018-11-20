@@ -14,39 +14,33 @@ APawnSpawnBox::APawnSpawnBox()
 
 	SpawnVolume = CreateDefaultSubobject<UBoxComponent>(FName("Spawn Box"));
 	SetRootComponent(SpawnVolume);
-
-	SearchRadius = 100.f;
 }
 
 void APawnSpawnBox::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnChosenActor();
 }
 
-bool APawnSpawnBox::SpawnChosenActor()
+bool APawnSpawnBox::SpawnChosenActor(TSubclassOf<APawn> ToSpawn, float SearchRadius)
 {
-	if (BP_ActorToSpawn)
+	if (ToSpawn)
 	{
-		return PlaceSpawnActor();
+		return PlaceSpawnActor(ToSpawn, SearchRadius);
 	}
 	return false;
 }
 
-bool APawnSpawnBox::PlaceSpawnActor()
+bool APawnSpawnBox::PlaceSpawnActor(TSubclassOf<APawn> ToSpawn, float SearchRadius)
 {
-	for (size_t i = 0; i < 10; i++)
+	bool bFound = FindEmptyLocation(TargetLocation, SearchRadius);
+	if (bFound)
 	{
-		bool found = FindEmptyLocation(TargetLocation);
-		if (found)
-		{
-			PlaceActor(BP_ActorToSpawn);
-		}
+		PlaceActor(ToSpawn);
 	}
-	return false;
+	return bFound;
 }
 
-bool APawnSpawnBox::FindEmptyLocation(FVector & OutLocation)
+bool APawnSpawnBox::FindEmptyLocation(FVector & OutLocation, float SearchRadius)
 {
 	FBox Bounds(SpawnVolume->GetScaledBoxExtent() * -1, SpawnVolume->GetScaledBoxExtent());
 
@@ -63,7 +57,7 @@ bool APawnSpawnBox::FindEmptyLocation(FVector & OutLocation)
 	return false;
 }
 
-bool APawnSpawnBox::CanSpawnAtLocation(FVector Location, float Radius)
+bool APawnSpawnBox::CanSpawnAtLocation(FVector Location, float SearchRadius)
 {
 	FHitResult HitResult;
 	FVector GlobalLocation = ActorToWorld().TransformPosition(Location);
@@ -73,12 +67,12 @@ bool APawnSpawnBox::CanSpawnAtLocation(FVector Location, float Radius)
 		GlobalLocation,
 		FQuat::Identity,
 		ECollisionChannel::ECC_WorldStatic,
-		FCollisionShape::MakeSphere(Radius)
+		FCollisionShape::MakeSphere(SearchRadius)
 	);
 
 	FColor Colour = HasHit ? FColor::Red : FColor::Green;
 
-	DrawDebugSphere(GetWorld(), GlobalLocation, Radius, 10.f, Colour, true);
+	DrawDebugSphere(GetWorld(), GlobalLocation, SearchRadius, 10.f, Colour, true);
 
 	return !HasHit;
 }

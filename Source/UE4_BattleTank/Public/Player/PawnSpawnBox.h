@@ -17,14 +17,6 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent * SpawnVolume;
 
-	/** Radius of search (Size of actor to spawn) */
-	UPROPERTY(EditAnywhere, Category = "Config")
-	float SearchRadius;
-
-	/** Pawn which will be spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<APawn> BP_ActorToSpawn;
-
 	FVector TargetLocation;
 	
 public:	
@@ -32,7 +24,7 @@ public:
 	APawnSpawnBox();
 
 	/** Spawns AI pawns inside box, at random empty locations or return false */
-	bool SpawnChosenActor();
+	bool SpawnChosenActor(TSubclassOf<APawn> ToSpawn, float SearchRadius);
 
 protected:
 	/** Called when the game starts or when spawned */
@@ -40,10 +32,10 @@ protected:
 
 private:
 	/** Generates random positions */
-	bool PlaceSpawnActor();
+	bool PlaceSpawnActor(TSubclassOf<APawn> ToSpawn, float SearchRadius);
 
 	/** Returns true if location is empty */
-	bool FindEmptyLocation(FVector & OutLocation);
+	bool FindEmptyLocation(FVector & OutLocation, float SearchRadius);
 
 	/** Checks if selected location is empty */
 	bool CanSpawnAtLocation(FVector Location, float Radius);
