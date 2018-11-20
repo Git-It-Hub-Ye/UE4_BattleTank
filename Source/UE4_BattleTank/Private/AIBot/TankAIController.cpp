@@ -5,6 +5,7 @@
 #include "Player/AimingComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BattleTankGameModeBase.h"
 
 ATankAIController::ATankAIController()
 {
@@ -104,6 +105,14 @@ void ATankAIController::FireWeapon()
 void ATankAIController::OnPossessedTankDeath()
 {
 	if (!GetPawn()) { return; }
+
+	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
+
+	if (BTGM)
+	{
+		BTGM->AIBotDestroyed();
+	}
+
 	GetPawn()->DetachFromControllerPendingDestroy();
 }
 

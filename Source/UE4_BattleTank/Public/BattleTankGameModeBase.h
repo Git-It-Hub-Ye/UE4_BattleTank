@@ -23,14 +23,19 @@ private:
 
 	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	int32 MaxBotsThisRound;
+	int32 NumOfBotsToSpawn;
 
 	/** Max AI bots alive in world at same time */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	int32 MaxBotsAtOnce;
 
+	/** Max number of bots this wave */
+	int32 MaxBotsThisRound;
+
 	/** Keeps track of current amount of AI bots spawned */
-	int32 CurrentNumOfBots;
+	int32 TotalBotsSpawned;
+
+	int32 CurrentNumOfBotsAlive;
 
 	/** Current wave in progress */
 	int32 CurrentWave;

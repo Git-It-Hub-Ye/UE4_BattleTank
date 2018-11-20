@@ -21,9 +21,11 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	}
 
 	TimeBetweenWaves = 5.f;
-	MaxBotsThisRound = 1;
+	NumOfBotsToSpawn = 1;
+	MaxBotsThisRound = 0;
 	MaxBotsAtOnce = 10;
-	CurrentNumOfBots = 0;
+	TotalBotsSpawned = 0;
+	CurrentNumOfBotsAlive = 0;
 	CurrentWave = 0;
 }
 
@@ -54,21 +56,28 @@ void ABattleTankGameModeBase::GetSpawnLocations()
 void ABattleTankGameModeBase::PrepareNewWave()
 {
 	CurrentWave++;
-	CurrentNumOfBots = 0;
+	TotalBotsSpawned = 0;
+	CurrentNumOfBotsAlive = 0;
+	MaxBotsThisRound = NumOfBotsToSpawn * CurrentWave;
 	GetWorldTimerManager().SetTimer(NextWaveHandle, this, &ABattleTankGameModeBase::StartWave, TimeBetweenWaves, false);
 }
 
 void ABattleTankGameModeBase::StartWave()
 {
 	GetWorldTimerManager().ClearTimer(NextWaveHandle);
-	if (CurrentNumOfBots < MaxBotsThisRound)
+	if (TotalBotsSpawned < MaxBotsThisRound)
 	{
 		SpawnNewAIPawn();
+	}
+	else if (CurrentNumOfBotsAlive <= 0)
+	{
+		EndWave();
 	}
 }
 
 void ABattleTankGameModeBase::EndWave()
 {
+	PrepareNewWave();
 }
 
 void ABattleTankGameModeBase::SpawnNewAIPawn()
@@ -76,14 +85,15 @@ void ABattleTankGameModeBase::SpawnNewAIPawn()
 	if (SpawnBoxArray.Num() > 0)
 	{
 		int32 FailedSpawns = 0;
-		for (CurrentNumOfBots; CurrentNumOfBots < MaxBotsAtOnce; CurrentNumOfBots)
+		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < MaxBotsAtOnce; CurrentNumOfBotsAlive)
 		{
 			int32 RandNum = FMath::RandRange(0, SpawnBoxArray.Num() - 1);
 			APawnSpawnBox * SpawnBox = SpawnBoxArray[RandNum];
 			if (SpawnBox->SpawnChosenActor(DefaultAIBotClass, 500.f))
 			{
-				CurrentNumOfBots++;
-				if (CurrentNumOfBots >= MaxBotsThisRound) { break; }
+				CurrentNumOfBotsAlive++;
+				TotalBotsSpawned++;
+				if (TotalBotsSpawned >= MaxBotsThisRound) { break; }
 			}
 			else
 			{
@@ -96,6 +106,7 @@ void ABattleTankGameModeBase::SpawnNewAIPawn()
 
 void ABattleTankGameModeBase::AIBotDestroyed()
 {
+	CurrentNumOfBotsAlive--;
 	StartWave();
 }
 
