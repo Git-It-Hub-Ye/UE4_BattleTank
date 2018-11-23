@@ -8,6 +8,11 @@
 
 class UBoxComponent;
 
+
+/**
+* Spawns actors and pawns within box. Can use multiple boxes in different areas or one over the world,
+* which will trace down to surface level to spawn actors on the surface.
+*/
 UCLASS()
 class UE4_BATTLETANK_API ASpawnBox : public AActor
 {
@@ -19,37 +24,39 @@ private:
 
 	FVector TargetLocation;
 
+	float SearchRadius;
+
 public:
 	/** Sets default values for this actor's properties */
 	ASpawnBox();
 
 protected:
 	/** Spawns actors inside box, at random empty locations */
-	bool PlaceActor(TSubclassOf<AActor> ToSpawn, float SearchRadius);
+	bool PlaceActor(TSubclassOf<AActor> ToSpawn, float Radius);
 
 	/** Spawns pawns inside box, at random empty locations */
-	bool PlacePawn(TSubclassOf<APawn> ToSpawn, float SearchRadius);
+	bool PlacePawn(TSubclassOf<APawn> ToSpawn, float Radius);
 
 private:
 	/** Generates random positions */
 	template<class T>
-	bool RandomlyPlaceActors(TSubclassOf<T> ToSpawn, float SearchRadius);
+	bool RandomlyPlaceActors(TSubclassOf<T> ToSpawn);
 
 	/** Returns true if location is empty */
-	bool FindEmptyLocation(FVector & OutLocation, float SearchRadius);
+	bool FindEmptyLocation(FVector & OutLocation);
 
-	/** Checks if selected location is empty */
-	bool CanSpawnAtLocation(FVector Location, float Radius);
+	/** Checks if selected location is empty. Can check between box boundries or surface below if wanting to spawn actor directly on surface */
+	bool CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow);
 
 	/** Spawns actors inside box, at random empty locations */
-	void SpawnActor(TSubclassOf<AActor> ToSpawn);
+	bool SpawnActor(TSubclassOf<AActor> ToSpawn);
 
 	/** Spawns pawns inside box, at random empty locations */
-	void SpawnActor(TSubclassOf<APawn> ToSpawn);
+	bool SpawnActor(TSubclassOf<APawn> ToSpawn);
 
 	/** Find floor location under spawned actor */
 	bool FindFloorLocation(FVector & OutLocation);
 
-	bool CanSpawnAtFloor(FVector Location, float SearchRadius);
+	bool CanSpawnAtFloor(FVector Location);
 	
 };

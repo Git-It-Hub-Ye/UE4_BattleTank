@@ -25,7 +25,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	}
 
 	TimeBetweenWaves = 5.f;
-	NumOfBotsToSpawn = 1;
+	NumOfBotsToSpawn = 10;
 	MaxBotsThisRound = 0;
 	MaxBotsAtOnce = 10;
 	TotalBotsSpawned = 0;

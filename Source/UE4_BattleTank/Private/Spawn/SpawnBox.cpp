@@ -15,30 +15,33 @@ ASpawnBox::ASpawnBox()
 
 	SpawnVolume = CreateDefaultSubobject<UBoxComponent>(FName("Spawn Box"));
 	SetRootComponent(SpawnVolume);
+
+	SearchRadius = 100.f;
 }
 
-bool ASpawnBox::PlaceActor(TSubclassOf<AActor> ToSpawn, float SearchRadius)
+bool ASpawnBox::PlaceActor(TSubclassOf<AActor> ToSpawn, float Radius)
 {
-	return RandomlyPlaceActors(ToSpawn, SearchRadius);
+	SearchRadius = Radius;
+	return RandomlyPlaceActors(ToSpawn);
 }
 
-bool ASpawnBox::PlacePawn(TSubclassOf<APawn> ToSpawn, float SearchRadius)
+bool ASpawnBox::PlacePawn(TSubclassOf<APawn> ToSpawn, float Radius)
 {
-	return RandomlyPlaceActors(ToSpawn, SearchRadius);
+	SearchRadius = Radius;
+	return RandomlyPlaceActors(ToSpawn);
 }
 
 template<class T>
-bool ASpawnBox::RandomlyPlaceActors(TSubclassOf<T> ToSpawn, float SearchRadius)
+bool ASpawnBox::RandomlyPlaceActors(TSubclassOf<T> ToSpawn)
 {
-	bool bFound = FindEmptyLocation(TargetLocation, SearchRadius);
-	if (bFound)
+	if (FindEmptyLocation(TargetLocation))
 	{
-		SpawnActor(ToSpawn);
+		return SpawnActor(ToSpawn);
 	}
-	return bFound;
+	return false;
 }
 
-bool ASpawnBox::FindEmptyLocation(FVector & OutLocation, float SearchRadius)
+bool ASpawnBox::FindEmptyLocation(FVector & OutLocation)
 {
 	FBox Bounds(SpawnVolume->GetScaledBoxExtent() * -1, SpawnVolume->GetScaledBoxExtent());
 
@@ -46,7 +49,7 @@ bool ASpawnBox::FindEmptyLocation(FVector & OutLocation, float SearchRadius)
 	for (size_t i = 0; i < MAX_ATTEMPTS; i++)
 	{
 		FVector CandidatePoint = FMath::RandPointInBox(Bounds);
-		if (CanSpawnAtLocation(CandidatePoint, SearchRadius))
+		if (CanSpawnAtLocation(CandidatePoint, false))
 		{
 			OutLocation = CandidatePoint;
 			return true;
@@ -55,10 +58,10 @@ bool ASpawnBox::FindEmptyLocation(FVector & OutLocation, float SearchRadius)
 	return false;
 }
 
-bool ASpawnBox::CanSpawnAtLocation(FVector Location, float SearchRadius)
+bool ASpawnBox::CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow)
 {
 	FHitResult HitResult;
-	FVector GlobalLocation = ActorToWorld().TransformPosition(Location);
+	FVector GlobalLocation = bCheckSurfaceBelow ? Location : ActorToWorld().TransformPosition(Location);
 	bool HasHit = GetWorld()->SweepSingleByChannel(
 		HitResult,
 		GlobalLocation,
@@ -75,7 +78,7 @@ bool ASpawnBox::CanSpawnAtLocation(FVector Location, float SearchRadius)
 	return !HasHit;
 }
 
-void ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
+bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
 {
 	FVector FloorLocation = FVector::ZeroVector;
 	if (FindFloorLocation(FloorLocation))
@@ -87,20 +90,28 @@ void ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
 			Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 			UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
 		}
+		return true;
 	}
+	return false;
 }
 
-void ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
+bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
 {
-	FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
-
-	APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
-	if (Spawned)
+	FVector FloorLocation = FVector::ZeroVector;
+	if (FindFloorLocation(FloorLocation))
 	{
-		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-		Spawned->SpawnDefaultController();
-		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
+		FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
+		APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
+		if (Spawned)
+		{
+			// Using keep relative so physics can drop pawns onto surface, as with KeepWorldTransform some pawn meshes get caught on or sink through surface when spawned. 
+			Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+			Spawned->SpawnDefaultController();
+			UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
+			return true;
+		}
 	}
+	return false;
 }
 
 bool ASpawnBox::FindFloorLocation(FVector & OutLocation)
@@ -121,12 +132,12 @@ bool ASpawnBox::FindFloorLocation(FVector & OutLocation)
 	{
 		DrawDebugLine(GetWorld(), StartTrace, HitResult.ImpactPoint, FColor::Red, true);
 		OutLocation = HitResult.ImpactPoint;
-		return CanSpawnAtFloor(HitResult.ImpactPoint, 600.f);
+		return CanSpawnAtLocation(HitResult.ImpactPoint, true);
 	}
 	return false;
 }
 
-bool ASpawnBox::CanSpawnAtFloor(FVector Location, float SearchRadius)
+bool ASpawnBox::CanSpawnAtFloor(FVector Location)
 {
 	FHitResult HitResult;
 	bool HasHit = GetWorld()->SweepSingleByChannel(
