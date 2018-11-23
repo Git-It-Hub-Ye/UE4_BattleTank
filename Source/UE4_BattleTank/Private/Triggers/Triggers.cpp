@@ -3,7 +3,6 @@
 #include "Triggers.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "Player/Tank.h"
 
 
 ATriggers::ATriggers()
@@ -11,11 +10,8 @@ ATriggers::ATriggers()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("Static Mesh"));
-	SetRootComponent(VisualMesh);
-
 	TriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("Trigger Volume"));
-	TriggerVolume->SetupAttachment(RootComponent);
+	SetRootComponent(TriggerVolume);
 }
 
 void ATriggers::BeginPlay()

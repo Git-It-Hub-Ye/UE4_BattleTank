@@ -6,7 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "BattleTankGameModeBase.generated.h"
 
-class APawnSpawnBox;
+class ASpawnBox_Pawn;
+class ASpawnBox_Actor;
 
 UCLASS()
 class UE4_BATTLETANK_API ABattleTankGameModeBase : public AGameModeBase
@@ -19,7 +20,10 @@ private:
 	TSubclassOf<APawn> DefaultAIBotClass;
 
 	/** Array of spawn boxes to spawn ai within */
-	TArray<APawnSpawnBox*> SpawnBoxArray;
+	TArray<ASpawnBox_Pawn*> BotSpawnBoxArray;
+
+	/** Array of spawn boxes to spawn actors within */
+	TArray<ASpawnBox_Actor*> ActorSpawnBoxArray;
 
 	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")

@@ -7,7 +7,6 @@
 #include "Triggers.generated.h"
 
 class UBoxComponent;
-class ATank;
 
 UCLASS()
 class UE4_BATTLETANK_API ATriggers : public AActor
@@ -18,10 +17,6 @@ protected:
 	/** Volume to trigger behaviour when an actor to overlaps */
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent * TriggerVolume;
-
-	/** Visual mesh */
-	UPROPERTY(VisibleDefaultsOnly)
-	UStaticMeshComponent * VisualMesh;
 
 public:
 	// Sets default values for this actor's properties

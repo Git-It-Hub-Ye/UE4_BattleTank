@@ -4,7 +4,9 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
-#include "Player/PawnSpawnBox.h"
+#include "Spawn/SpawnBox.h"
+#include "Spawn/SpawnBox_Pawn.h"
+#include "Spawn/SpawnBox_Actor.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "Player/Tank.h"
@@ -49,13 +51,20 @@ void ABattleTankGameModeBase::StartPlay()
 
 void ABattleTankGameModeBase::GetSpawnLocations()
 {
-	for (TActorIterator<APawnSpawnBox> i(GetWorld()); i; ++i)
+	for (TActorIterator<ASpawnBox> i(GetWorld()); i; ++i)
 	{
-		APawnSpawnBox * SpawnBox = Cast<APawnSpawnBox>(*i);
-		if (SpawnBox)
+		ASpawnBox_Pawn * BotSpawnBox = Cast<ASpawnBox_Pawn>(*i);
+		if (BotSpawnBox)
 		{
-			SpawnBoxArray.Add(SpawnBox);
+			BotSpawnBoxArray.Add(BotSpawnBox);
 		}
+
+		ASpawnBox_Actor * ActorSpawnBox = Cast<ASpawnBox_Actor>(*i);
+		if (ActorSpawnBox)
+		{
+			ActorSpawnBoxArray.Add(ActorSpawnBox);
+		}
+
 	}
 }
 
@@ -71,7 +80,7 @@ void ABattleTankGameModeBase::PrepareNewWave()
 void ABattleTankGameModeBase::StartWave()
 {
 	GetWorldTimerManager().ClearTimer(NextWaveHandle);
-	if (TotalBotsSpawned < MaxBotsThisRound)
+	if (MaxBotsThisRound > 0 && TotalBotsSpawned < MaxBotsThisRound)
 	{
 		SpawnNewAIPawn();
 	}
@@ -88,14 +97,14 @@ void ABattleTankGameModeBase::EndWave()
 
 void ABattleTankGameModeBase::SpawnNewAIPawn()
 {
-	if (SpawnBoxArray.Num() > 0)
+	if (BotSpawnBoxArray.Num() > 0)
 	{
 		int32 FailedSpawns = 0;
 		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < MaxBotsAtOnce; CurrentNumOfBotsAlive)
 		{
-			int32 RandNum = FMath::RandRange(0, SpawnBoxArray.Num() - 1);
-			APawnSpawnBox * SpawnBox = SpawnBoxArray[RandNum];
-			if (SpawnBox->SpawnChosenActor(DefaultAIBotClass, 500.f))
+			int32 RandNum = FMath::RandRange(0, BotSpawnBoxArray.Num() - 1);
+			ASpawnBox_Pawn * SpawnBox = BotSpawnBoxArray[RandNum];
+			if (SpawnBox->PlacePawns(DefaultAIBotClass, 500.f))
 			{
 				CurrentNumOfBotsAlive++;
 				TotalBotsSpawned++;

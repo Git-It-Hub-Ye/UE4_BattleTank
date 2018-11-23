@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 
-#define SURFACE_GRASS				SurfaceType1
-#define SURFACE_DIRT				SurfaceType2
-#define SURFACE_METAL				SurfaceType3
+#define SURFACE_GRASS	SurfaceType1
+#define SURFACE_DIRT	SurfaceType2
+#define SURFACE_METAL	SurfaceType3
+
+#define TRACE_SPAWN		ECC_GameTraceChannel4
 
