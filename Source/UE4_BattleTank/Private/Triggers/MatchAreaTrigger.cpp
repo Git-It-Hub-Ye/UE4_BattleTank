@@ -10,6 +10,9 @@
 
 AMatchAreaTrigger::AMatchAreaTrigger()
 {
+	ArmourVolume->bHiddenInGame = true;
+	ArmourVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	DeathTimer = 10.f;
 }
 

@@ -62,6 +62,8 @@ public:
 	void AIBotDestroyed(APawn * AIPawn);
 
 	void PlayerDestroyed();
+
+	void TriggerDestroyed();
 	
 protected:
 	/** Sets timer for new wave to start spawning ai  */
@@ -75,6 +77,8 @@ protected:
 
 	/** Spawns ai at empty location */
 	void SpawnNewAIPawn();
+
+	void SpawnNewTrigger();
 
 private:
 	/** Gets all spawn boxes in world */

@@ -18,6 +18,15 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent * TriggerVolume;
 
+	/** Outer shell of Trigger, used for visibility and armour */
+	UPROPERTY(VisibleDefaultsOnly)
+	UBoxComponent * ArmourVolume;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	int32 StartingArmour;
+
+	int32 CurrentArmour;
+
 public:
 	// Sets default values for this actor's properties
 	ATriggers();
@@ -27,5 +36,7 @@ protected:
 
 	UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 	
 };

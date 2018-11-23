@@ -104,7 +104,7 @@ void ABattleTankGameModeBase::SpawnNewAIPawn()
 		{
 			int32 RandNum = FMath::RandRange(0, BotSpawnBoxArray.Num() - 1);
 			ASpawnBox_Pawn * SpawnBox = BotSpawnBoxArray[RandNum];
-			if (SpawnBox->PlacePawns(DefaultAIBotClass, 500.f))
+			if (SpawnBox && SpawnBox->PlacePawns(DefaultAIBotClass, 500.f))
 			{
 				CurrentNumOfBotsAlive++;
 				TotalBotsSpawned++;
@@ -115,6 +115,19 @@ void ABattleTankGameModeBase::SpawnNewAIPawn()
 				FailedSpawns++;
 				if (FailedSpawns >= 10) { break; }
 			}
+		}
+	}
+}
+
+void ABattleTankGameModeBase::SpawnNewTrigger()
+{
+	if (ActorSpawnBoxArray.Num() > 0)
+	{
+		int32 RandNum = FMath::RandRange(0, ActorSpawnBoxArray.Num() - 1);
+		ASpawnBox_Actor * SpawnBox = ActorSpawnBoxArray[RandNum];
+		if (SpawnBox)
+		{
+			SpawnBox->PlaceActors();
 		}
 	}
 }
@@ -144,6 +157,11 @@ void ABattleTankGameModeBase::PlayerDestroyed()
 
 	// Only runs if all players are destroyed
 	GameOver();
+}
+
+void ABattleTankGameModeBase::TriggerDestroyed()
+{
+	SpawnNewTrigger();
 }
 
 void ABattleTankGameModeBase::GameOver()
