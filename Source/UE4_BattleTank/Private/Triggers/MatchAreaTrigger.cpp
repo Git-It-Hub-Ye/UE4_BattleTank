@@ -10,6 +10,7 @@
 
 AMatchAreaTrigger::AMatchAreaTrigger()
 {
+	bCanBeDamaged = false;
 	ArmourVolume->bHiddenInGame = true;
 	ArmourVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	

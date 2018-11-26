@@ -27,6 +27,8 @@ protected:
 
 	int32 CurrentArmour;
 
+	FTimerHandle DestroyTimerHandle;
+
 public:
 	// Sets default values for this actor's properties
 	ATriggers();
@@ -38,5 +40,8 @@ protected:
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
+
+private:
+	void HasBeenDestroyed();
 	
 };

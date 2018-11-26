@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "BattleTankGameModeBase.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 
 
 ATriggers::ATriggers()
@@ -16,11 +17,13 @@ ATriggers::ATriggers()
 	SetRootComponent(TriggerVolume);
 	TriggerVolume->bGenerateOverlapEvents = true;
 	TriggerVolume->bHiddenInGame = true;
+	TriggerVolume->bApplyImpulseOnDamage = false;
 
 	ArmourVolume = CreateDefaultSubobject<UBoxComponent>(FName("Armour Volume"));
 	ArmourVolume->SetupAttachment(RootComponent);
 	ArmourVolume->bGenerateOverlapEvents = false;
 	ArmourVolume->bHiddenInGame = false;
+	ArmourVolume->bApplyImpulseOnDamage = false;
 
 	StartingArmour = 10.f;
 	CurrentArmour = 0.f;
@@ -45,16 +48,27 @@ float ATriggers::TakeDamage(float DamageAmount, struct FDamageEvent const & Dama
 	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentArmour);
 
 	CurrentArmour -= DamageToApply;
+	UE_LOG(LogTemp, Warning, TEXT("%d"), CurrentArmour)
 
 	if (CurrentArmour <= 0)
 	{
-		ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (BTGM)
-		{
-			BTGM->TriggerDestroyed();
-		}
-		Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Dead"))
+		GetWorldTimerManager().ClearAllTimersForObject(this);
+		ArmourVolume->DestroyComponent();
+		TriggerVolume->Deactivate();
+		GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ATriggers::HasBeenDestroyed, 3.f, false);
 	}
 	return DamageToApply;
+}
+
+void ATriggers::HasBeenDestroyed()
+{
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (BTGM)
+	{
+		BTGM->TriggerDestroyed();
+	}
+	Destroy();
 }
 
