@@ -113,7 +113,6 @@ void ATankAIController::OnPossessedTankDeath()
 		BTGM->AIBotDestroyed(GetPawn());
 		BTGM->PlayerDestroyed();
 	}
-
 	GetPawn()->DetachFromControllerPendingDestroy();
 }
 

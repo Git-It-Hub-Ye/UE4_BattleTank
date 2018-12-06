@@ -1,6 +1,7 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "MatchAreaTrigger.h"
+#include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Player/Tank.h"
 #include "TimerManager.h"

@@ -15,7 +15,7 @@ UAimingComponent::UAimingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	CurrentFiringState = EFiringState::Locked;
+	CurrentFiringState = EFiringState::Aiming;
 	bWantsToFire = false;
 	bIsLoaded = false;
 	bPendingReload = false;
@@ -107,7 +107,7 @@ void UAimingComponent::FireProjectile()
 
 void UAimingComponent::DetermineWeaponState()
 {
-	EFiringState FireState = EFiringState::Locked;
+	EFiringState FireState = EFiringState::Aiming;
 
 	if (!bIsLoaded)
 	{

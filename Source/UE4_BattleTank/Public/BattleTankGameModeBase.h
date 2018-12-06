@@ -59,6 +59,8 @@ public:
 
 	virtual void Logout(AController * Exiting) override;
 
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
 	void AIBotDestroyed(APawn * AIPawn);
 
 	void PlayerDestroyed();

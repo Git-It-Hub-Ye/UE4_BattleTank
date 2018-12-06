@@ -7,6 +7,7 @@
 #include "Triggers.generated.h"
 
 class UBoxComponent;
+class USphereComponent;
 
 UCLASS()
 class UE4_BATTLETANK_API ATriggers : public AActor
@@ -16,11 +17,11 @@ class UE4_BATTLETANK_API ATriggers : public AActor
 protected:
 	/** Volume to trigger behaviour when an actor to overlaps */
 	UPROPERTY(VisibleDefaultsOnly)
-	UBoxComponent * TriggerVolume;
+	UBoxComponent  * TriggerVolume;
 
 	/** Outer shell of Trigger, used for visibility and armour */
-	UPROPERTY(VisibleDefaultsOnly)
-	UBoxComponent * ArmourVolume;
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent  * ArmourVolume;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	int32 StartingArmour;

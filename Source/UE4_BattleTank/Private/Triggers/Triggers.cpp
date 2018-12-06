@@ -2,6 +2,7 @@
 
 #include "Triggers.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "BattleTankGameModeBase.h"
 #include "Engine/World.h"
@@ -13,13 +14,13 @@ ATriggers::ATriggers()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	TriggerVolume = CreateDefaultSubobject<UBoxComponent>(FName("Trigger Volume"));
+	TriggerVolume = CreateDefaultSubobject<UBoxComponent >(FName("Trigger Volume"));
 	SetRootComponent(TriggerVolume);
 	TriggerVolume->bGenerateOverlapEvents = true;
 	TriggerVolume->bHiddenInGame = true;
 	TriggerVolume->bApplyImpulseOnDamage = false;
 
-	ArmourVolume = CreateDefaultSubobject<UBoxComponent>(FName("Armour Volume"));
+	ArmourVolume = CreateDefaultSubobject<USphereComponent >(FName("Armour Volume"));
 	ArmourVolume->SetupAttachment(RootComponent);
 	ArmourVolume->bGenerateOverlapEvents = false;
 	ArmourVolume->bHiddenInGame = false;
@@ -48,13 +49,12 @@ float ATriggers::TakeDamage(float DamageAmount, struct FDamageEvent const & Dama
 	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentArmour);
 
 	CurrentArmour -= DamageToApply;
-	UE_LOG(LogTemp, Warning, TEXT("%d"), CurrentArmour)
-
 	if (CurrentArmour <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dead"))
 		GetWorldTimerManager().ClearAllTimersForObject(this);
-		ArmourVolume->DestroyComponent();
+
+		if (ArmourVolume) { ArmourVolume->DestroyComponent(); }
+		TriggerVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		TriggerVolume->Deactivate();
 		GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ATriggers::HasBeenDestroyed, 3.f, false);
 	}

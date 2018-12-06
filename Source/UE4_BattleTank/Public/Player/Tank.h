@@ -7,6 +7,7 @@
 #include "Tank.generated.h"
 
 class UAimingComponent;
+class UTankMovement;
 class UCameraShake;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankDelegate);
@@ -17,33 +18,58 @@ class UE4_BATTLETANK_API ATank : public APawn
 	GENERATED_BODY()
 
 protected:
+	/** Root mesh */
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent * TankBody;
+
 	/** Aim tank weapons */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UAimingComponent * AimingComp = nullptr;
 
+	/** Move tank */
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UTankMovement * MovementComp = nullptr;
+
 private:
-	UPROPERTY(VisibleDefaultsOnly, Category = "Mesh")
-	USceneComponent * TankRoot;
-
-	/** Root mesh */
-	UPROPERTY(VisibleDefaultsOnly, Category = "Mesh")
-	USkeletalMeshComponent * TankBody;
-
 	/** Camera shake when damaged */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	TSubclassOf<UCameraShake> DamageCamShakeBP;
 
+	UParticleSystemComponent * ParticleComp;
+
+	/** Destroy fx */
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UParticleSystem * DestroyedFX;
+
 	/** Starting health */
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
-	int32 StartingHealth = 100;
+	int32 StartingHealth;
 
-	/** Curent health */
-	int32 CurrentHealth; // Initialised in BeginPlay().
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	int32 MaxArmour;
+
+	/** Curent health, Initialised in BeginPlay() */
+	int32 CurrentHealth;
+
+	/** Current shield */
+	int32 CurrentArmour;
+
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	TArray<FName> WheelBodies;
+
+	/** Time till tank is destroyed */
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	float DestroyTimer;
+
+	/** Handler for destroy timer */
+	FTimerHandle DestroyHandle;
 
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
 public:
+	ATank();
+
 	/** Bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -54,14 +80,21 @@ public:
 	UFUNCTION(BlueprintPure, Category = Health)
 	float GetHealthPercent() const;
 
+	/** Return current health as a percentage of starting health, between 0 and 1 */
+	UFUNCTION(BlueprintPure, Category = Health)
+	float GetArmourPercent() const { return (float)CurrentArmour / (float)MaxArmour; }
+
 	/** Replenish health */
 	void ReplenishHealth(float HealthToAdd);
+
+	/** Replenish shield */
+	void ReplenishArmour();
 
 	/** Return if tank  */
 	bool IsTankDestroyed() const { return bHasBeenDestroyed; }
 
 	/** Return if current health is lower than starting health */
-	bool IsTankDamaged() { return CurrentHealth < StartingHealth; }
+	bool IsTankDamaged() const { return CurrentHealth < StartingHealth; }
 
 	/** Death delegate for controllers */
 	FTankDelegate OnDeath;
@@ -72,7 +105,11 @@ protected:
 	/** Fire aiming component */
 	void Fire();
 
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	void ApplyHandbrake(bool bBrake);
+
 private:
-	ATank();
+	/** Destroys Tank */
+	void DestroyTank();
 	
 };

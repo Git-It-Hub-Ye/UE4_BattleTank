@@ -13,12 +13,12 @@
 
 ABattleTankGameModeBase::ABattleTankGameModeBase()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_PlayerTank"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_Player"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_AITank"));
+	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AIBot"));
 	if (AIBotPawnBPClass.Class != NULL)
 	{
 		DefaultAIBotClass = AIBotPawnBPClass.Class;
@@ -40,6 +40,11 @@ void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
 
 void ABattleTankGameModeBase::Logout(AController * Exiting)
 {
+}
+
+AActor * ABattleTankGameModeBase::ChoosePlayerStart_Implementation(AController * Player)
+{
+	return Super::ChoosePlayerStart_Implementation(Player);
 }
 
 void ABattleTankGameModeBase::StartPlay()

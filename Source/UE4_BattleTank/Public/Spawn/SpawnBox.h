@@ -57,6 +57,4 @@ private:
 	/** Find floor location under spawned actor */
 	bool FindFloorLocation(FVector & OutLocation);
 
-	bool CanSpawnAtFloor(FVector Location);
-	
 };

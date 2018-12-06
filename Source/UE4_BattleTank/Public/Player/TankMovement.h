@@ -16,6 +16,11 @@ class UE4_BATTLETANK_API UTankMovement : public UNavMovementComponent
 {
 	GENERATED_BODY()
 	
+private:
+	UTrack * LeftTrack = nullptr;
+
+	UTrack * RightTrack = nullptr;
+
 public:
 	UTankMovement();
 
@@ -31,8 +36,4 @@ public:
 private:
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;
 
-private:
-	UTrack * LeftTrack = nullptr;
-	UTrack * RightTrack = nullptr;
-	
 };

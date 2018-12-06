@@ -52,7 +52,10 @@ bool ASpawnBox::FindEmptyLocation(FVector & OutLocation)
 		if (CanSpawnAtLocation(CandidatePoint, false))
 		{
 			OutLocation = CandidatePoint;
-			return true;
+			if (FindFloorLocation(OutLocation))
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -67,7 +70,7 @@ bool ASpawnBox::CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow)
 		GlobalLocation,
 		GlobalLocation,
 		FQuat::Identity,
-		ECollisionChannel::ECC_WorldStatic,
+		TRACE_SPAWN_SWEEP,
 		FCollisionShape::MakeSphere(SearchRadius)
 	);
 
@@ -80,16 +83,12 @@ bool ASpawnBox::CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow)
 
 bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
 {
-	FVector FloorLocation = FVector::ZeroVector;
-	if (FindFloorLocation(FloorLocation))
+	FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
+	AActor * Spawned = GetWorld()->SpawnActorDeferred<AActor>(ToSpawn, SpawnT);
+	if (Spawned)
 	{
-		FTransform SpawnT(FRotator(0.f, 0.f, 0.f), FloorLocation);
-		AActor * Spawned = GetWorld()->SpawnActorDeferred<AActor>(ToSpawn, SpawnT);
-		if (Spawned)
-		{
-			Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-			UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
-		}
+		Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
 		return true;
 	}
 	return false;
@@ -97,19 +96,14 @@ bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
 
 bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
 {
-	FVector FloorLocation = FVector::ZeroVector;
-	if (FindFloorLocation(FloorLocation))
+	FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
+	APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
+	if (Spawned)
 	{
-		FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
-		APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
-		if (Spawned)
-		{
-			// Using keep relative so physics can drop pawns onto surface, as with KeepWorldTransform some pawn meshes get caught on or sink through surface when spawned. 
-			Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-			Spawned->SpawnDefaultController();
-			UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
-			return true;
-		}
+		Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		Spawned->SpawnDefaultController();
+		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
+		return true;
 	}
 	return false;
 }
@@ -117,7 +111,7 @@ bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
 bool ASpawnBox::FindFloorLocation(FVector & OutLocation)
 {
 	FHitResult HitResult;
-	FVector StartTrace = ActorToWorld().TransformPosition(TargetLocation);
+	FVector StartTrace = ActorToWorld().TransformPosition(OutLocation);
 	FVector EndTrace = StartTrace + (FVector(0.f, 0.f, -10000.f));
 	FCollisionQueryParams TraceParams;
 
@@ -125,34 +119,14 @@ bool ASpawnBox::FindFloorLocation(FVector & OutLocation)
 		HitResult,
 		StartTrace,
 		EndTrace,
-		TRACE_SPAWN,
-		TraceParams
-	)
+		TRACE_SPAWN_TRACE,
+		TraceParams)
 		)
 	{
 		DrawDebugLine(GetWorld(), StartTrace, HitResult.ImpactPoint, FColor::Red, true);
 		OutLocation = HitResult.ImpactPoint;
-		return CanSpawnAtLocation(HitResult.ImpactPoint, true);
+		return CanSpawnAtLocation(OutLocation, true);
 	}
 	return false;
-}
-
-bool ASpawnBox::CanSpawnAtFloor(FVector Location)
-{
-	FHitResult HitResult;
-	bool HasHit = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		Location,
-		Location,
-		FQuat::Identity,
-		ECollisionChannel::ECC_WorldStatic,
-		FCollisionShape::MakeSphere(SearchRadius)
-	);
-
-	FColor Colour = HasHit ? FColor::Red : FColor::Green;
-
-	DrawDebugSphere(GetWorld(), Location, SearchRadius, 10.f, Colour, true);
-
-	return !HasHit;
 }
 

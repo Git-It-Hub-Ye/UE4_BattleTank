@@ -19,7 +19,6 @@ class USoundBase;
 // Enum for Aiming state.
 UENUM()
 enum class EFiringState : uint8 {
-	Locked,
 	Aiming,
 	Reloading,
 	OutOfAmmo,
