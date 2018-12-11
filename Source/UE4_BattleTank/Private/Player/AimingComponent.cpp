@@ -25,7 +25,6 @@ void UAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentRoundsRemaining = WeaponData.MaxRounds;
-
 	if (!bIsLoaded)
 	{
 		ReloadProjectile();
@@ -98,6 +97,10 @@ void UAimingComponent::FireProjectile()
 	{
 		bWantsToFire = true;
 		DetermineWeaponState();
+	}
+	else if (CurrentFiringState == EFiringState::OutOfAmmo)
+	{
+		UpdatePlayerHud();
 	}
 }
 
@@ -193,6 +196,8 @@ void UAimingComponent::ReloadProjectile()
 	bWantsToFire = false;
 	bIsLoaded = false;
 	DetermineWeaponState();
+	UpdatePlayerHud();
+
 	if (CurrentFiringState == EFiringState::Reloading)
 	{
 		GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &UAimingComponent::OnReloadFinished, WeaponData.ReloadTimeInSeconds, false);
@@ -208,6 +213,7 @@ void UAimingComponent::OnReloadFinished()
 	}
 	bIsLoaded = true;
 	DetermineWeaponState();
+	UpdatePlayerHud();
 }
 
 void UAimingComponent::CollectAmmo(int32 AmmoToAdd)
@@ -217,6 +223,7 @@ void UAimingComponent::CollectAmmo(int32 AmmoToAdd)
 	AmmoToAdd = FMath::Min(AmmoToAdd, AmmoUsed);
 
 	CurrentRoundsRemaining += AmmoToAdd;
+	UpdatePlayerHud();
 
 	if (!bIsLoaded)
 	{
@@ -268,5 +275,17 @@ bool UAimingComponent::CanFire() const
 {
 	bool bCanFire = CurrentFiringState != EFiringState::Reloading || CurrentFiringState != EFiringState::OutOfAmmo;
 	return bCanFire && bIsLoaded;
+}
+
+void UAimingComponent::UpdatePlayerHud()
+{
+	APawn * Owner = CompOwner ? CompOwner : Cast<APawn>(GetOwner());
+	ATankPlayerController * PC = Cast<ATankPlayerController>(Owner->GetController());
+	if (PC)
+	{
+		PC->UpdateFiringStateDisplay();
+		CurrentFiringState == EFiringState::OutOfAmmo ? PC->WarnOutOfAmmo(true) : PC->WarnOutOfAmmo(false);
+		CurrentFiringState != EFiringState::OutOfAmmo && CurrentRoundsRemaining  <= 10 ? PC->WarnOfLowAmmo(true) : PC->WarnOfLowAmmo(false);
+	}
 }
 

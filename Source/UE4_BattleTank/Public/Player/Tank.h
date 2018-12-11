@@ -111,5 +111,7 @@ protected:
 private:
 	/** Destroys Tank */
 	void DestroyTank();
+
+	void UpdatePlayerHud();
 	
 };

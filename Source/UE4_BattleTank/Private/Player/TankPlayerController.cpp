@@ -5,6 +5,51 @@
 #include "AimingComponent.h"
 #include "Engine/World.h"
 #include "BattleTankGameModeBase.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/PlayerWidget.h"
+#include "UI/InGameMenuWidget.h"
+#include "UI/ScoreboardWidget.h"
+
+ATankPlayerController::ATankPlayerController()
+{
+	ConstructorHelpers::FClassFinder<UUserWidget> DefaultPlayerUIWidget(TEXT("/Game/Dynamic/UI/WBP_PlayerUI"));
+	if (DefaultPlayerUIWidget.Class)
+	{
+		PlayerUI = DefaultPlayerUIWidget.Class;
+	}
+
+	ConstructorHelpers::FClassFinder<UUserWidget> DefaultInGameMenuWidget(TEXT("/Game/Dynamic/UI/WBP_InGameMenu"));
+	if (DefaultInGameMenuWidget.Class)
+	{
+		InGameMenu = DefaultInGameMenuWidget.Class;
+	}
+
+	ConstructorHelpers::FClassFinder<UUserWidget> DefaultScoreboardWidget(TEXT("/Game/Dynamic/UI/WBP_Scoreboard"));
+	if (DefaultScoreboardWidget.Class)
+	{
+		ScoreboardUI = DefaultScoreboardWidget.Class;
+	}
+}
+
+void ATankPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	ATank * PlayerPawn = Cast<ATank>(GetPawn());
+	if (!PlayerPawn) return;
+
+	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
+	if (!ensure(AimingComponent)) { return; }
+
+	PlayerWidget = CreateWidget<UPlayerWidget>(this, PlayerUI);
+	if (!PlayerWidget) { return; }
+
+	PlayerWidget->InitialiseAimingComp(AimingComponent, PlayerPawn);
+	PlayerWidget->AddToViewport();
+
+	InGameMenuWidget = CreateWidget<UInGameMenuWidget>(this, InGameMenu);
+	ScoreboardWidget = CreateWidget<UScoreboardWidget>(this, ScoreboardUI);
+}
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
 {
@@ -18,6 +63,14 @@ void ATankPlayerController::SetPawn(APawn * InPawn)
 	}
 }
 
+void ATankPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("InGameMenu", IE_Released, this, &ATankPlayerController::ToggleInGameMenu);
+	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::ToggleScoreboard);
+}
+
 void ATankPlayerController::OnPossessedTankDeath()
 {
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -27,16 +80,6 @@ void ATankPlayerController::OnPossessedTankDeath()
 		BTGM->PlayerDestroyed();
 	}
 	StartSpectatingOnly();
-}
-
-void ATankPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (!GetPawn()) return;
-	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
-	if (!ensure(AimingComponent)) { return; }
-	FoundAimingComponent(AimingComponent);
 }
 
 FVector ATankPlayerController::GetCrosshairLocation() const
@@ -93,5 +136,67 @@ FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, F
 		ECollisionChannel::ECC_Camera
 	);
 	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;
+}
+
+void ATankPlayerController::ToggleInGameMenu()
+{
+	if (InGameMenuWidget)
+	{
+		if (!InGameMenuWidget->IsVisible())
+		{
+			InGameMenuWidget->AddToViewport();
+		}
+		else
+		{
+			InGameMenuWidget->RemoveFromViewport();
+		}
+	}
+}
+
+void ATankPlayerController::ToggleScoreboard()
+{
+	if (ScoreboardWidget)
+	{
+		if (!ScoreboardWidget->IsVisible())
+		{
+			ScoreboardWidget->AddToViewport();
+		}
+		else
+		{
+			ScoreboardWidget->RemoveFromViewport();
+		}
+	}
+}
+
+void ATankPlayerController::UpdateFiringStateDisplay()
+{
+	if (PlayerWidget)
+	{
+		PlayerWidget->AdjustFiringDisplay();
+	}
+}
+
+void ATankPlayerController::UpdateHealthDisplay()
+{
+	if (PlayerWidget)
+	{
+		PlayerWidget->AdjustHealthDisplay();
+	}
+}
+
+void ATankPlayerController::WarnOfLowAmmo(bool bLowAmmo)
+{
+	if (PlayerWidget)
+	{
+		PlayerWidget->NotifyLowAmmo(bLowAmmo);
+	}
+}
+
+void ATankPlayerController::WarnOutOfAmmo(bool bOutOfAmmo)
+{
+	if (PlayerWidget)
+	{
+		PlayerWidget->NotifyOutOfAmmo(bOutOfAmmo);
+	}
 }
 

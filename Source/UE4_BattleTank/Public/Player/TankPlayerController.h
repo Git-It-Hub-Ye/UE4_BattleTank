@@ -7,6 +7,9 @@
 #include "TankPlayerController.generated.h"
 
 class UAimingComponent;
+class UPlayerWidget;
+class UInGameMenuWidget;
+class UScoreboardWidget;
 
 UCLASS()
 class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
@@ -14,6 +17,21 @@ class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TSubclassOf<class UUserWidget> PlayerUI;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TSubclassOf<class UUserWidget> InGameMenu;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TSubclassOf<class UUserWidget> ScoreboardUI;
+
+	UPlayerWidget * PlayerWidget;
+
+	UInGameMenuWidget * InGameMenuWidget;
+
+	UScoreboardWidget * ScoreboardWidget;
+
 	UPROPERTY(EditDefaultsOnly)
 	float CrosshairXLocation = 0.5;
 
@@ -26,11 +44,20 @@ private:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = Setup)
-	void FoundAimingComponent(UAimingComponent * AimCompRef);
-
 public:
+	ATankPlayerController();
+
+	void ATankPlayerController::SetupInputComponent();
+
 	FVector GetCrosshairLocation() const;
+
+	void UpdateFiringStateDisplay();
+
+	void UpdateHealthDisplay();
+
+	void WarnOfLowAmmo(bool bLowAmmo);
+
+	void WarnOutOfAmmo(bool bOutOfAmmo);
 
 private:
 	// Returns an out parameter, true if hit landscape.
@@ -46,5 +73,9 @@ private:
 
 	UFUNCTION()
 	void OnPossessedTankDeath();
+
+	void ToggleInGameMenu();
+
+	void ToggleScoreboard();
 
 };

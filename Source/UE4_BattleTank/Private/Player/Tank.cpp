@@ -33,6 +33,7 @@ void ATank::BeginPlay()
 	CurrentHealth = StartingHealth;
 	CurrentArmour = MaxArmour;
 	TankBody->SetSimulatePhysics(true);
+	UpdatePlayerHud();
 }
 
 void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
@@ -99,6 +100,8 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 			CurrentHealth -= DamageDealt;
 		}
 
+		UpdatePlayerHud();
+
 		if (CurrentHealth <= 0)
 		{
 			if (DestroyedFX)
@@ -117,13 +120,21 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 			PC->ClientPlayCameraShake(DamageCamShakeBP);
 		}
 	}
-
 	return DamageToApply;
-}
+}	
 
 void ATank::DestroyTank()
 {
 	Destroy();
+}
+
+void ATank::UpdatePlayerHud()
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	if (PC)
+	{
+		PC->UpdateHealthDisplay();
+	}
 }
 
 float ATank::GetHealthPercent() const
@@ -135,10 +146,12 @@ void ATank::ReplenishHealth(float HealthToAdd)
 {
 	CurrentHealth = CurrentHealth + HealthToAdd;
 	CurrentHealth = FMath::Clamp<int32>(CurrentHealth, 0, StartingHealth);
+	UpdatePlayerHud();
 }
 
 void ATank::ReplenishArmour()
 {
 	CurrentArmour = MaxArmour;
+	UpdatePlayerHud();
 }
 

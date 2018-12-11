@@ -218,5 +218,7 @@ private:
 
 	/** Check if component is in correct state to fire */
 	bool CanFire() const;
+
+	void UpdatePlayerHud();
 	
 };
