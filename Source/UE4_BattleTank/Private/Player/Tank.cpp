@@ -45,7 +45,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 
 void ATank::Fire()
 {
-	if (AimingComp)
+	if (AimingComp && CanRecieveInput())
 	{
 		AimingComp->FireProjectile();
 	}
@@ -135,6 +135,17 @@ void ATank::UpdatePlayerHud()
 	{
 		PC->UpdateHealthDisplay();
 	}
+}
+
+bool ATank::CanRecieveInput()
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	if (PC)
+	{
+		return PC->CanRecieveInput();
+	}
+
+	return true;
 }
 
 float ATank::GetHealthPercent() const

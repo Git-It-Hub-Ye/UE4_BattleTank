@@ -13,7 +13,7 @@
 
 ATankPlayerController::ATankPlayerController()
 {
-	ConstructorHelpers::FClassFinder<UUserWidget> DefaultPlayerUIWidget(TEXT("/Game/Dynamic/UI/WBP_PlayerUI"));
+	ConstructorHelpers::FClassFinder<UUserWidget> DefaultPlayerUIWidget(TEXT("/Game/Dynamic/UI/WBP_PlayerHud"));
 	if (DefaultPlayerUIWidget.Class)
 	{
 		PlayerUI = DefaultPlayerUIWidget.Class;
@@ -30,6 +30,9 @@ ATankPlayerController::ATankPlayerController()
 	{
 		ScoreboardUI = DefaultScoreboardWidget.Class;
 	}
+
+	bLookAtInGameMenu = false;
+	bLookAtScoreboard = false;
 }
 
 void ATankPlayerController::BeginPlay()
@@ -46,9 +49,6 @@ void ATankPlayerController::BeginPlay()
 
 	PlayerWidget->InitialiseAimingComp(AimingComponent, PlayerPawn);
 	PlayerWidget->AddToViewport();
-
-	InGameMenuWidget = CreateWidget<UInGameMenuWidget>(this, InGameMenu);
-	ScoreboardWidget = CreateWidget<UScoreboardWidget>(this, ScoreboardUI);
 }
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
@@ -63,14 +63,6 @@ void ATankPlayerController::SetPawn(APawn * InPawn)
 	}
 }
 
-void ATankPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	InputComponent->BindAction("InGameMenu", IE_Released, this, &ATankPlayerController::ToggleInGameMenu);
-	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::ToggleScoreboard);
-}
-
 void ATankPlayerController::OnPossessedTankDeath()
 {
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -81,6 +73,62 @@ void ATankPlayerController::OnPossessedTankDeath()
 	}
 	StartSpectatingOnly();
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Input
+
+void ATankPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("InGameMenu", IE_Released, this, &ATankPlayerController::ToggleInGameMenu);
+	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &ATankPlayerController::ShowScoreboard);
+	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::HideScoreboard);
+}
+
+void ATankPlayerController::ToggleInGameMenu()
+{
+	if (bLookAtInGameMenu)
+	{
+		HideInGameMenu();
+	}
+	else
+	{
+		ShowInGameMenu();
+	}
+}
+
+void ATankPlayerController::ShowScoreboard()
+{
+	ScoreboardWidget = CreateWidget<UScoreboardWidget>(this, ScoreboardUI);
+	if (ScoreboardWidget->IsValidLowLevel())
+	{
+		if (!bLookAtInGameMenu && !ScoreboardWidget->IsVisible())
+		{
+			ScoreboardWidget->AddToViewport();
+			bLookAtScoreboard = true;
+			WarnOutOfMatchArea(true);
+		}
+	}
+}
+
+void ATankPlayerController::HideScoreboard()
+{
+	if (ScoreboardWidget->IsValidLowLevel())
+	{
+		if (!bLookAtInGameMenu && ScoreboardWidget->IsVisible())
+		{
+			ScoreboardWidget->RemoveFromParent();
+			bLookAtScoreboard = false;
+			WarnOutOfMatchArea(false);
+		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Weapon usage
 
 FVector ATankPlayerController::GetCrosshairLocation() const
 {
@@ -138,34 +186,42 @@ FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, F
 	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;
 }
 
-void ATankPlayerController::ToggleInGameMenu()
+
+////////////////////////////////////////////////////////////////////////////////
+// UI
+
+void ATankPlayerController::ShowInGameMenu()
 {
-	if (InGameMenuWidget)
+	InGameMenuWidget = CreateWidget<UInGameMenuWidget>(this, InGameMenu);
+
+	if (InGameMenuWidget->IsValidLowLevel())
 	{
-		if (!InGameMenuWidget->IsVisible())
+		InGameMenuWidget->InitialisePlayerController(this);
+		if (bLookAtScoreboard)
 		{
-			InGameMenuWidget->AddToViewport();
+			HideScoreboard();
 		}
-		else
-		{
-			InGameMenuWidget->RemoveFromViewport();
-		}
+		InGameMenuWidget->AddToViewport();
+		bShowMouseCursor = true;
+		bLookAtInGameMenu = true;
 	}
 }
 
-void ATankPlayerController::ToggleScoreboard()
+void ATankPlayerController::HideInGameMenu()
 {
-	if (ScoreboardWidget)
+	if (InGameMenuWidget->IsValidLowLevel())
 	{
-		if (!ScoreboardWidget->IsVisible())
-		{
-			ScoreboardWidget->AddToViewport();
-		}
-		else
-		{
-			ScoreboardWidget->RemoveFromViewport();
-		}
+
+		SetInputMode(FInputModeGameOnly());
+		InGameMenuWidget->RemoveFromParent();
+		bShowMouseCursor = false;
+		bLookAtInGameMenu = false;
 	}
+}
+
+void ATankPlayerController::NotifyMenuRemoved()
+{
+	bLookAtInGameMenu = false;
 }
 
 void ATankPlayerController::UpdateFiringStateDisplay()
@@ -197,6 +253,14 @@ void ATankPlayerController::WarnOutOfAmmo(bool bOutOfAmmo)
 	if (PlayerWidget)
 	{
 		PlayerWidget->NotifyOutOfAmmo(bOutOfAmmo);
+	}
+}
+
+void ATankPlayerController::WarnOutOfMatchArea(bool bOutOfArea)
+{
+	if (PlayerWidget)
+	{
+		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
 	}
 }
 

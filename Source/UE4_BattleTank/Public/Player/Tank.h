@@ -113,5 +113,7 @@ private:
 	void DestroyTank();
 
 	void UpdatePlayerHud();
+
+	bool CanRecieveInput();
 	
 };

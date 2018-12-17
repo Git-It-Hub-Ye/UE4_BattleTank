@@ -17,6 +17,22 @@ class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
+	////////////////////////////////////////////////////////////////////////////////
+	// Weapon usuage
+
+	UPROPERTY(EditDefaultsOnly)
+	float CrosshairXLocation = 0.5;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CrosshairYLocation = 0.33333;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LineTraceRange = 100000;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// UI
+
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	TSubclassOf<class UUserWidget> PlayerUI;
 
@@ -32,24 +48,28 @@ private:
 
 	UScoreboardWidget * ScoreboardWidget;
 
-	UPROPERTY(EditDefaultsOnly)
-	float CrosshairXLocation = 0.5;
+	bool bLookAtInGameMenu;
 
-	UPROPERTY(EditDefaultsOnly)
-	float CrosshairYLocation = 0.33333;
-
-	UPROPERTY(EditDefaultsOnly)
-	float LineTraceRange = 100000;
-
-protected:
-	virtual void BeginPlay() override;
+	bool bLookAtScoreboard;
 
 public:
 	ATankPlayerController();
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Input
+
 	void ATankPlayerController::SetupInputComponent();
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Weapon usuage
+
 	FVector GetCrosshairLocation() const;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// UI
 
 	void UpdateFiringStateDisplay();
 
@@ -59,7 +79,25 @@ public:
 
 	void WarnOutOfAmmo(bool bOutOfAmmo);
 
+	void WarnOutOfMatchArea(bool bOutOfArea);
+
+	void NotifyMenuRemoved();
+
+	bool CanRecieveInput() const { return !bLookAtInGameMenu; }
+
+protected:
+	virtual void BeginPlay() override;
+
 private:
+	virtual void SetPawn(APawn * InPawn) override;
+
+	UFUNCTION()
+	void OnPossessedTankDeath();
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Weapon usage
+
 	// Returns an out parameter, true if hit landscape.
 	FVector GetSightRayHitLocation(FVector & HitLocation) const;
 
@@ -69,13 +107,18 @@ private:
 	// Get Hit Location from player Look Direction.
 	FVector GetLookVectorHitLocation(FVector LookDirection, FVector & HitLocation) const;
 
-	virtual void SetPawn(APawn * InPawn) override;
 
-	UFUNCTION()
-	void OnPossessedTankDeath();
+	////////////////////////////////////////////////////////////////////////////////
+	// UI
 
 	void ToggleInGameMenu();
 
-	void ToggleScoreboard();
+	void ShowInGameMenu();
+
+	void HideInGameMenu();
+
+	void ShowScoreboard();
+
+	void HideScoreboard();
 
 };
