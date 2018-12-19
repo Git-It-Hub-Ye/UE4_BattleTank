@@ -15,6 +15,7 @@ class UE4_BATTLETANK_API UBTTaskNode_Fire : public UBTTaskNode
 	GENERATED_BODY()
 	
 public:
+	/** Fire at enemy */
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
 };

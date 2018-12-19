@@ -19,15 +19,15 @@ struct FProjectileData {
 	GENERATED_USTRUCT_BODY()
 
 	/** Damage dealt */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
 	float ProjectileDamage;
 
 	/** Time till destroy */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 10.f))
 	float DestroyDelay;
 
 	/** Radius of damage */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 1000.f))
 	float DamageRadius;
 
 	/** Damage type */
@@ -57,6 +57,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Movement")
 	UProjectileMovementComponent * ProjectileMovement = nullptr;
 
+	/** Force added to hit actors */
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	URadialForceComponent * ExplosionForce = nullptr;
 

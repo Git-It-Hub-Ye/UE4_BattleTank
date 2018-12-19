@@ -256,7 +256,7 @@ void UAimingComponent::SpawnParticleEffect(UParticleSystem * Particle)
 {
 	if (Particle != nullptr && Barrel != nullptr)
 	{
-		ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, Particle, Barrel->GetSocketLocation(FName("Projectile")));
+		ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, Particle, Barrel->GetSocketLocation(FName("Projectile")), Barrel->GetSocketRotation(FName("Projectile")));
 	}
 }
 

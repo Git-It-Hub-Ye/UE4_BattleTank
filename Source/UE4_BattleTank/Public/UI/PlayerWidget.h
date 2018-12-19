@@ -28,17 +28,23 @@ protected:
 	UAimingComponent * AimCompRef;
 
 public:
+	/** Initialise references */
 	void InitialiseAimingComp(UAimingComponent * AimingComp, ATank * Pawn);
 
+	/** Update weapon ui */
 	void AdjustFiringDisplay();
 
+	/** Update health ui */
 	void AdjustHealthDisplay();
 
+	/** Update when low ammo */
 	void NotifyLowAmmo(bool bShowLowAmmo);
 
-	void NotifyOutOfMatchArea(bool bOutMatchArea);
-
+	/** Update when no ammo */
 	void NotifyOutOfAmmo(bool bShowOutOfAmmo);
+
+	/** Update when out of bounds */
+	void NotifyOutOfMatchArea(bool bOutMatchArea);
 
 protected:
 	/** Shows new player ammo and crosshair colour in BP */

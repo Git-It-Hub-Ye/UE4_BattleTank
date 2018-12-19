@@ -24,8 +24,8 @@ protected:
 	UPROPERTY()
 	UBlackboardComponent * BB;
 
-	// How close can AI tank get.
-	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	/** How close can AI tank get */
+	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (ClampMin = 5000.f, ClampMax = 20000.f))
 	float AcceptanceRadius = 8000;
 
 	/** Key for enemy value */
@@ -45,6 +45,7 @@ public:
 	void FireWeapon();
 
 private:
+	/** Set pawn and delegates */
 	virtual void SetPawn(APawn * InPawn) override;
 
 	/** Detach from controller on death */

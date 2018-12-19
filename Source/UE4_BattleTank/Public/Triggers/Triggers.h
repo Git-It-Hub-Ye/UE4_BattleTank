@@ -15,7 +15,7 @@ class UE4_BATTLETANK_API ATriggers : public AActor
 	GENERATED_BODY()
 	
 protected:
-	/** Volume to trigger behaviour when an actor to overlaps */
+	/** Volume to trigger behaviour when an actor overlaps */
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent  * TriggerVolume;
 
@@ -23,26 +23,31 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent  * ArmourVolume;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	/** Armour amount at start */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
 	int32 StartingArmour;
 
+	/** Current armour amount */
 	int32 CurrentArmour;
 
+	/** Timer to handle destruction */
 	FTimerHandle DestroyTimerHandle;
 
 public:
-	// Sets default values for this actor's properties
 	ATriggers();
 
 protected:
 	virtual void BeginPlay() override;
 
+	/** Checks for overlaps */
 	UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
+	/** Adjust armour when damaged */
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
 private:
+	/** Notify gamemode when destroyed and destroy object */
 	void HasBeenDestroyed();
 	
 };

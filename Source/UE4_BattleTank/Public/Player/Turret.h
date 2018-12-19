@@ -14,7 +14,7 @@ class UE4_BATTLETANK_API UTurret : public UStaticMeshComponent
 	
 private:
 	/** Speed turret can rotate */
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditAnywhere, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 360.f))
 	float MaxDegreesPerSecond = 25.0;
 
 public:

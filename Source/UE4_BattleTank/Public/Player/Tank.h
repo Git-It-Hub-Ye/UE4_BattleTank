@@ -41,24 +41,26 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UParticleSystem * DestroyedFX;
 
-	/** Starting health */
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	/** Starting health value */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
 	int32 StartingHealth;
 
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	/** Starting shield value */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
 	int32 MaxArmour;
 
 	/** Curent health, Initialised in BeginPlay() */
 	int32 CurrentHealth;
 
-	/** Current shield */
+	/** Current shield, Initialised in BeginPlay() */
 	int32 CurrentArmour;
 
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	/** Name of wheel bones to get collision bodies from */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	TArray<FName> WheelBodies;
 
 	/** Time till tank is destroyed */
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 10.f))
 	float DestroyTimer;
 
 	/** Handler for destroy timer */
@@ -77,11 +79,11 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
 	/** Return current health as a percentage of starting health, between 0 and 1 */
-	UFUNCTION(BlueprintPure, Category = Health)
+	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetHealthPercent() const;
 
 	/** Return current health as a percentage of starting health, between 0 and 1 */
-	UFUNCTION(BlueprintPure, Category = Health)
+	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetArmourPercent() const { return (float)CurrentArmour / (float)MaxArmour; }
 
 	/** Replenish health */
@@ -112,8 +114,10 @@ private:
 	/** Destroys Tank */
 	void DestroyTank();
 
+	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
 
+	/** If false, restricts some input */
 	bool CanRecieveInput();
 	
 };

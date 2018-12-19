@@ -7,7 +7,7 @@
 #include "ScoreboardWidget.generated.h"
 
 /**
- * 
+ * Display Scoreboard
  */
 UCLASS()
 class UE4_BATTLETANK_API UScoreboardWidget : public UUserWidget

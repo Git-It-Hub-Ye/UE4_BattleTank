@@ -14,15 +14,15 @@ class UE4_BATTLETANK_API UBarrel : public UStaticMeshComponent
 	
 private:
 	/** Speed barrel can elevate */
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 360.f))
 	float MaxDegreesPerSecond = 10.0;
 
 	/** Max degrees barrel can elevate */
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	float MaxElevationDegrees = 40.;
 
 	/** Min degrees barrel can elevate */
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	float MinElevationDegrees = 0.;
 
 public:

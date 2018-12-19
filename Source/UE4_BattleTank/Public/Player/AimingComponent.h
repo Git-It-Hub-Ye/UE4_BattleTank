@@ -219,6 +219,7 @@ private:
 	/** Check if component is in correct state to fire */
 	bool CanFire() const;
 
+	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
 	
 };

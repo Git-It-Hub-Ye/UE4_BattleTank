@@ -16,6 +16,7 @@ class UE4_BATTLETANK_API ASpawnBox_Pawn : public ASpawnBox
 	GENERATED_BODY()
 	
 public:
+	/** Try place pawn */
 	bool PlacePawns(TSubclassOf<APawn> ToSpawn, float SearchRadius);
 	
 };

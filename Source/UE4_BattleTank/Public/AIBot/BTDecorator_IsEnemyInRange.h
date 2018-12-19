@@ -26,6 +26,7 @@ protected:
 public:
 	UBTDecorator_IsEnemyInRange();
 
+	/** Notify when to check for enemy within radius */
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	/** Checks if ai is within a certain radius to enemy */

@@ -19,11 +19,14 @@ class UE4_BATTLETANK_API ASpawnBox : public AActor
 	GENERATED_BODY()
 	
 private:
+	/** Spawn area */
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent * SpawnVolume;
 
+	/** Location to spawn at */
 	FVector TargetLocation;
 
+	/** Radius to search */
 	float SearchRadius;
 
 public:

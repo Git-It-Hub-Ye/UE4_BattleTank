@@ -21,18 +21,20 @@ private:
 	TArray<TSubclassOf<AActor>> SpawnActorArray;
 
 	/** Initial amount of each actor in array to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 5.f))
 	float InitialSpawnCount;
 	
 public:
 	ASpawnBox_Actor();
 
+	/** Try place actor */
 	bool PlaceActors();
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	/** Place initial amount of each actor */
 	void PlaceInitialActors();
 	
 };
