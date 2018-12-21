@@ -254,9 +254,9 @@ UAudioComponent * UAimingComponent::PlayFireSound(USoundBase * Sound)
 
 void UAimingComponent::SpawnParticleEffect(UParticleSystem * Particle)
 {
-	if (Particle != nullptr && Barrel != nullptr)
+	if (Particle && Barrel)
 	{
-		ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, Particle, Barrel->GetSocketLocation(FName("Projectile")), Barrel->GetSocketRotation(FName("Projectile")));
+		ParticleComp = UGameplayStatics::SpawnEmitterAttached(Particle, Barrel, "Projectile");
 	}
 }
 
