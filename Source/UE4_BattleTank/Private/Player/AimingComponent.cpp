@@ -184,7 +184,13 @@ void UAimingComponent::OnFire()
 
 			UGameplayStatics::FinishSpawningActor(Projectile, SpawnT);
 			Projectile->LaunchProjectile(WeaponData.LaunchSpeed);
-			PlayFireSound(FireSound);
+			PlaySoundFX(FireSound);
+		}
+
+		ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
+		if (PC)
+		{
+			PC->ClientPlayCameraShake(FireCamShakeBP);
 		}
 
 		ReloadProjectile();
@@ -197,6 +203,7 @@ void UAimingComponent::ReloadProjectile()
 	bIsLoaded = false;
 	DetermineWeaponState();
 	UpdatePlayerHud();
+	PlaySoundFX(LoadSound);
 
 	if (CurrentFiringState == EFiringState::Reloading)
 	{
@@ -207,6 +214,7 @@ void UAimingComponent::ReloadProjectile()
 void UAimingComponent::OnReloadFinished()
 {
 	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
+
 	if (!WeaponData.bInfiniteAmmo)
 	{
 		CurrentRoundsRemaining--;
@@ -235,14 +243,8 @@ void UAimingComponent::CollectAmmo(int32 AmmoToAdd)
 ////////////////////////////////////////////////////////////////////////////////
 // FX
 
-UAudioComponent * UAimingComponent::PlayFireSound(USoundBase * Sound)
+UAudioComponent * UAimingComponent::PlaySoundFX(USoundBase * Sound)
 {
-	ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
-	if (PC)
-	{
-		PC->ClientPlayCameraShake(FireCamShakeBP);
-	}
-
 	UAudioComponent * AC = nullptr;
 	if (Sound && CompOwner)
 	{

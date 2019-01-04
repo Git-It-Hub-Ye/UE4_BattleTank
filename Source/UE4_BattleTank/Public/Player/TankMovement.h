@@ -7,6 +7,8 @@
 #include "TankMovement.generated.h"
 
 class UTrack;
+class USoundBase;
+class UAudioComponent;
 
 /**
 * Responsible for driving the tank wheels.
@@ -22,6 +24,21 @@ private:
 
 	/** Right track reference */
 	UTrack * RightTrack = nullptr;
+
+	/** Tank engine sound loop */
+	UPROPERTY(EditdefaultsOnly, Category = "Audio")
+	USoundBase * EngineLoopSfx;
+
+	/** Max pitch for tank sound, when rotating fast */
+	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
+	float MaxSoundPitch = 2.f;
+
+	/** Min pitch for tank sound, when rotating slow */
+	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
+	float MinSoundPitch = 1.f;
+
+	/** Component for start & end sounds */
+	UAudioComponent * TankAudio = nullptr;
 
 public:
 	UTankMovement();
@@ -41,5 +58,14 @@ public:
 private:
 	/** Add force to tracks to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;
+
+	/** How fast is tank moving */
+	float GetMovementSpeed(float Throw);
+
+	/** Set pitch of sound */
+	void TankSFXPitch(float PitchRange);
+
+	/** Play sound on tank */
+	UAudioComponent * SFXPlay(USoundBase * SoundFX);
 
 };

@@ -207,7 +207,7 @@ private:
 
 	/** Play sounds on fire */
 	UFUNCTION()
-	UAudioComponent * PlayFireSound(USoundBase * Sound);
+	UAudioComponent * PlaySoundFX(USoundBase * Sound);
 
 	/** Play particle FX */
 	void SpawnParticleEffect(UParticleSystem * Particle);
