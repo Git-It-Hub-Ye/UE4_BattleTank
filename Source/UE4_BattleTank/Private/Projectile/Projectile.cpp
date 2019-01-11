@@ -1,6 +1,7 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "Projectile.h"
+#include "UE4_BattleTank.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/AudioComponent.h"
@@ -20,6 +21,7 @@ AProjectile::AProjectile()
 	SetRootComponent(CollisionMesh);
 	CollisionMesh->SetNotifyRigidBodyCollision(true);
 	CollisionMesh->SetVisibility(true);
+	CollisionMesh->bReturnMaterialOnMove = true;
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Projectile Movement"));
 	ProjectileMovement->bAutoActivate = false;
@@ -48,15 +50,17 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 
 	ProjectileSound->Deactivate();
 	TrailFX->Deactivate();
+	ProjectileMovement->Deactivate();
+
 	SetRootComponent(TrailFX);
 	CollisionMesh->DestroyComponent();
-
 	ExplosionForce->FireImpulse();
+
 	SpawnExplosionFX(Hit);
 
 	UGameplayStatics::ApplyRadialDamage(
 		this,
-		ProjectileData.ProjectileDamage,
+		ProjectileData.BaseDamage,
 		GetActorLocation(),
 		ProjectileData.DamageRadius,
 		ProjectileData.DamageType,

@@ -50,7 +50,7 @@ float UTankMovement::GetMovementSpeed(float Throw)
 	if (!GetOwner()) { return Throw; }
 
 	float Speed = FVector::DotProduct(GetOwner()->GetActorForwardVector(), GetOwner()->GetVelocity());
-	float PitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 610.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(Speed));
+	float PitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 300.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(Speed));
 	return PitchRange;
 }
 

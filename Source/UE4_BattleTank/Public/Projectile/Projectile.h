@@ -18,17 +18,21 @@ USTRUCT(BlueprintType)
 struct FProjectileData {
 	GENERATED_USTRUCT_BODY()
 
-	/** Damage dealt */
+	/** Normal damage dealt */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
-	float ProjectileDamage;
+	float BaseDamage;
 
 	/** Time till destroy */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 10.f))
 	float DestroyDelay;
 
-	/** Radius of damage */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 1000.f))
+	/** Radius of damage, actors within this are will recieve damage */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 2000.f))
 	float DamageRadius;
+
+	/** Radius of effect, actors within this radius will recieve effects from projectile ie.(Camera shake) */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 2000.f))
+	float EffectRadius;
 
 	/** Damage type */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
@@ -37,9 +41,11 @@ struct FProjectileData {
 	/** Defaults */
 	FProjectileData()
 	{
-		ProjectileDamage = 20.f;
+		BaseDamage = 10.f;
 		DestroyDelay = 10.f;
 		DamageRadius = 1000.f;
+		EffectRadius = 1500.f;
+		DamageType = UDamageType::StaticClass();
 	}
 };
 
