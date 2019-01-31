@@ -17,11 +17,24 @@ class UE4_BATTLETANK_API UTrack : public UStaticMeshComponent
 	
 private:
 	/** Max force to add to track */
-	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	float TrackMaxDrivingForce = 400000;
 
-	/** How many actros are tracks overlapping */
-	int32 OverlappedActors = 0;
+	/** Name of wheel bones to get constraints from */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TArray<FName> WheelBoneNames;
+
+	/** Array of wheel bones */
+	TArray<FName> WheelBones;
+
+	/** Array of wheel bodies to apply force too */
+	TArray<FConstraintInstance*> WheelConstraints;
+
+	/** Root owner of this track */
+	USkeletalMeshComponent * RootBody;
+
+	/** Brakes applied */
+	bool bBrake = false;
 
 public:
 	UTrack();
@@ -29,16 +42,20 @@ public:
 	/** Set how much force to add to track */
 	void SetThrottle(float Throttle);
 
+	/** Restrict wheel movement */
+	void ApplyBrakes();
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	/** How many ovelapping actors */
-	UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	/** Get all wheel bones and constraints */
+	void GetWheels();
 
-	/** How many ovelapping actors */
-	UFUNCTION()
-	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	/** Apply force to each wheel bone */
+	void DriveWheels(float CurrentThrottle);
+
+	/** Limit constraint movement */
+	void LimitWheelBoneConstraints(bool bBraking);
 
 };

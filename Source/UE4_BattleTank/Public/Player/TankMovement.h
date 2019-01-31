@@ -29,9 +29,13 @@ private:
 	UPROPERTY(EditdefaultsOnly, Category = "Audio")
 	USoundBase * EngineLoopSfx;
 
-	/** Max pitch for tank sound, when rotating fast */
+	/** Max pitch for tank sound, when moving fast */
 	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
 	float MaxSoundPitch = 2.f;
+
+	/** Max pitch for tank sound, when rotating fast */
+	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
+	float MaxTurnSoundPitch = 2.f;
 
 	/** Min pitch for tank sound, when rotating slow */
 	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
@@ -39,6 +43,9 @@ private:
 
 	/** Component for start & end sounds */
 	UAudioComponent * TankAudio = nullptr;
+
+	/** Is tank turning */
+	bool TurningRight = false;
 
 public:
 	UTankMovement();
@@ -58,6 +65,9 @@ public:
 private:
 	/** Add force to tracks to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;
+
+	/** Apply brakes on each track */
+	void ApplyBrakes();
 
 	/** How fast is tank moving */
 	float GetMovementSpeed(float Throw);

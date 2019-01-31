@@ -2,6 +2,8 @@
 
 #include "Track.h"
 #include "Engine/StaticMesh.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "PhysicsEngine/ConstraintInstance.h"
 
 
 UTrack::UTrack()
@@ -12,36 +14,78 @@ UTrack::UTrack()
 void UTrack::BeginPlay()
 {
 	Super::BeginPlay();
-	this->OnComponentBeginOverlap.AddDynamic(this, &UTrack::OnOverlap);
-	this->OnComponentEndOverlap.AddDynamic(this, &UTrack::OnEndOverlap);
+	GetWheels();
 }
 
-void UTrack::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void UTrack::GetWheels()
 {
-	if (OtherActor)
-	{
-		OverlappedActors++;
-	}
-}
+	if (!GetOwner()) { return; }
+	RootBody = Cast<USkeletalMeshComponent>(GetOwner()->GetRootComponent());
 
-void UTrack::OnEndOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor)
+	if (!RootBody) { return; }
+
+	if (WheelBoneNames.Num() > 0 && RootBody->Constraints.Num() > 0)
 	{
-		OverlappedActors--;
+		for (int32 i = 0; i < RootBody->Constraints.Num(); i++)
+		{
+			for (int32 j = 0; j < WheelBoneNames.Num(); j++)
+			{
+				if (RootBody->Constraints[i]->JointName == WheelBoneNames[j])
+				{
+					FConstraintInstance * WheelCon = RootBody->Constraints[i];
+					if (!WheelCon) { continue; }
+
+					WheelConstraints.Add(WheelCon);
+					WheelBones.Add(WheelCon->JointName);
+				}
+			}
+		}
 	}
 }
 
 void UTrack::SetThrottle(float Throttle)
 {
-	if (OverlappedActors > 0)
-	{
-		auto ForceApplied = GetForwardVector() * Throttle * TrackMaxDrivingForce;
-		auto ForceLocation = GetComponentLocation();
-		auto TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
+	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	if (CurrentThrottle != 0.f && bBrake) { bBrake = false; LimitWheelBoneConstraints(bBrake); }
+	DriveWheels(CurrentThrottle);
+}
 
-		if (!TankRoot) { return; }
-		TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);
+void UTrack::DriveWheels(float CurrentThrottle)
+{
+	if (WheelBones.Num() <= 0) { return; }
+
+	auto ForceApplied = CurrentThrottle * TrackMaxDrivingForce;
+	auto ForcePerWheel = ForceApplied / WheelBones.Num();
+
+	for (FName Wheel : WheelBones)
+	{
+		if (!RootBody) { return; }
+		RootBody->AddForce(GetForwardVector() * ForcePerWheel, Wheel);
+	}
+}
+
+void UTrack::ApplyBrakes()
+{
+	if (bBrake) { return; }
+	bBrake = true;
+	LimitWheelBoneConstraints(bBrake);
+}
+
+void UTrack::LimitWheelBoneConstraints(bool bBraking)
+{
+	if (WheelConstraints.Num() <= 0) { return; }
+
+	for (FConstraintInstance * Constraint : WheelConstraints)
+	{
+		if (!Constraint) { continue; }
+		if (bBrake)
+		{
+			Constraint->SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 170.f);
+		}
+		else
+		{
+			Constraint->SetAngularSwing2Motion(EAngularConstraintMotion::ACM_Free);
+		}
 	}
 }
 

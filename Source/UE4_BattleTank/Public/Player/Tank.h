@@ -107,9 +107,6 @@ protected:
 	/** Fire aiming component */
 	void Fire();
 
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	void ApplyHandbrake(bool bBrake);
-
 private:
 	/** Destroys Tank */
 	void DestroyTank();
@@ -119,5 +116,5 @@ private:
 
 	/** If false, restricts some input */
 	bool CanRecieveInput();
-	
+
 };

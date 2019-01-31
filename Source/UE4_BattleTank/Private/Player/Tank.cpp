@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
+
 ATank::ATank()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -48,32 +49,6 @@ void ATank::Fire()
 	if (AimingComp && CanRecieveInput())
 	{
 		AimingComp->FireProjectile();
-	}
-}
-
-void ATank::ApplyHandbrake(bool bBrake)
-{
-	if (WheelBodies.Num() != 0 && TankBody->Bodies.Num() != 0)
-	{
-		for (int32 i = 0; i < WheelBodies.Num(); i++)
-		{
-			FBodyInstance * Body = TankBody->GetBodyInstance(WheelBodies[i], false);
-			if (Body)
-			{
-				if (bBrake)
-				{
-					Body->bLockXRotation = true;
-					Body->bLockYRotation = true;
-					Body->SetDOFLock(EDOFMode::SixDOF);
-				}
-				else
-				{
-					Body->bLockXRotation = false;
-					Body->bLockYRotation = true;
-					Body->SetDOFLock(EDOFMode::None);
-				}
-			}
-		}
 	}
 }
 
