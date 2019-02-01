@@ -43,10 +43,15 @@ void UTrack::GetWheels()
 	}
 }
 
-void UTrack::SetThrottle(float Throttle)
+void UTrack::SetThrottle(float Throttle, bool bIsTurning)
 {
 	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
-	if (CurrentThrottle != 0.f && bBrake) { bBrake = false; LimitWheelBoneConstraints(bBrake); }
+	bTurningHalfSpeed = bIsTurning;
+
+	if (CurrentThrottle == 0.f  && !bBrake) { ApplyBrakes(); }
+	else if (CurrentThrottle != 0.f && bBrake) { bBrake = false; LimitWheelBoneConstraints(bBrake); }
+
+	SetFrontAndRearWheelSpeed(CurrentThrottle);
 	DriveWheels(CurrentThrottle);
 }
 
@@ -87,5 +92,17 @@ void UTrack::LimitWheelBoneConstraints(bool bBraking)
 			Constraint->SetAngularSwing2Motion(EAngularConstraintMotion::ACM_Free);
 		}
 	}
+}
+
+void UTrack::SetFrontAndRearWheelSpeed(float Throttle)
+{
+	if (bTurningHalfSpeed) { Throttle /= 2; }
+	float InitialSpeed = FMath::Lerp<float>(0, FrontAndRearWheelSpeed, Throttle);
+	CurrentWheelSpeed = FMath::Clamp<float>(InitialSpeed, -FrontAndRearWheelSpeed, FrontAndRearWheelSpeed);
+}
+
+float UTrack::GetFrontAndRearWheelSpeed()
+{
+	return CurrentWheelSpeed;
 }
 

@@ -45,7 +45,7 @@ private:
 	UAudioComponent * TankAudio = nullptr;
 
 	/** Is tank turning */
-	bool TurningRight = false;
+	bool bTurningRight = false;
 
 public:
 	UTankMovement();
@@ -62,12 +62,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void IntendTurnRight(float Throw);
 
+	/** Speed of wheel for this track */
+	UFUNCTION(BlueprintCallable, Category = "AnimBP")
+	float GetRightTrackWheelSpeed();
+
+	/** Speed of wheel for this track */
+	UFUNCTION(BlueprintCallable, Category = "AnimBP")
+	float GetLeftTrackWheelSpeed();
+
 private:
 	/** Add force to tracks to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;
-
-	/** Apply brakes on each track */
-	void ApplyBrakes();
 
 	/** How fast is tank moving */
 	float GetMovementSpeed(float Throw);

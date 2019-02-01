@@ -37,28 +37,32 @@ void UTankMovement::IntendMoveForward(float Throw)
 	TankSFXPitch(FGenericPlatformMath::Abs<float>(GetMovementSpeed(Throw)));
 
 	if (!ensure(LeftTrack && RightTrack)) { return; }
-	if (Throw == 0.f && !TurningRight) { ApplyBrakes(); return; }
-	if (Throw == 0.f) { return; }
+	if (Throw == 0.f && bTurningRight) { return; }
 	
-	LeftTrack->SetThrottle(Throw);
-	RightTrack->SetThrottle(Throw);
+	LeftTrack->SetThrottle(Throw, bTurningRight);
+	RightTrack->SetThrottle(Throw, bTurningRight);
 }
 
 void UTankMovement::IntendTurnRight(float Throw)
 {
 	if (!ensure(LeftTrack && RightTrack)) { return; }
-	if (Throw == 0.f) { TurningRight = false; return; }
+	if (Throw == 0.f) { bTurningRight = false; return; }
 
-	TurningRight = true;
-	LeftTrack->SetThrottle(Throw);
-	RightTrack->SetThrottle(-Throw);
+	bTurningRight = true;
+	LeftTrack->SetThrottle(Throw, bTurningRight);
+	RightTrack->SetThrottle(-Throw, bTurningRight);
 }
 
-void UTankMovement::ApplyBrakes()
+float UTankMovement::GetRightTrackWheelSpeed()
 {
-	if (!ensure(LeftTrack && RightTrack)) { return; }
-	LeftTrack->ApplyBrakes();
-	RightTrack->ApplyBrakes();
+	if (!ensure(RightTrack)) { return 0.f; }
+	return RightTrack->GetFrontAndRearWheelSpeed();
+}
+
+float UTankMovement::GetLeftTrackWheelSpeed()
+{
+	if (!ensure(LeftTrack)) { return 0.f; }
+	return LeftTrack->GetFrontAndRearWheelSpeed();
 }
 
 float UTankMovement::GetMovementSpeed(float Throw)
