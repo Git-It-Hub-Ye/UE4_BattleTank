@@ -64,11 +64,11 @@ public:
 
 	/** Speed of wheel for this track */
 	UFUNCTION(BlueprintCallable, Category = "AnimBP")
-	float GetRightTrackWheelSpeed();
+	float GetRightTrackWheelSpeed() const;
 
 	/** Speed of wheel for this track */
 	UFUNCTION(BlueprintCallable, Category = "AnimBP")
-	float GetLeftTrackWheelSpeed();
+	float GetLeftTrackWheelSpeed() const;
 
 private:
 	/** Add force to tracks to restrict ai movement to same as players */

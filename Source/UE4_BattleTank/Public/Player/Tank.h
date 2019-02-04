@@ -80,7 +80,7 @@ public:
 
 	/** Return current health as a percentage of starting health, between 0 and 1 */
 	UFUNCTION(BlueprintPure, Category = "Health")
-	float GetHealthPercent() const;
+	float GetHealthPercent() const { return (float)CurrentHealth / (float)StartingHealth; }
 
 	/** Return current health as a percentage of starting health, between 0 and 1 */
 	UFUNCTION(BlueprintPure, Category = "Health")
@@ -115,6 +115,6 @@ private:
 	void UpdatePlayerHud();
 
 	/** If false, restricts some input */
-	bool CanRecieveInput();
+	bool CanRecieveInput() const;
 
 };

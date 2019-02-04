@@ -114,7 +114,7 @@ void ATank::UpdatePlayerHud()
 	}
 }
 
-bool ATank::CanRecieveInput()
+bool ATank::CanRecieveInput() const
 {
 	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
 	if (PC)
@@ -123,11 +123,6 @@ bool ATank::CanRecieveInput()
 	}
 
 	return true;
-}
-
-float ATank::GetHealthPercent() const
-{
-	return (float)CurrentHealth / (float)StartingHealth;
 }
 
 void ATank::ReplenishHealth(float HealthToAdd)

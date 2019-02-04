@@ -53,13 +53,13 @@ void UTankMovement::IntendTurnRight(float Throw)
 	RightTrack->SetThrottle(-Throw, bTurningRight);
 }
 
-float UTankMovement::GetRightTrackWheelSpeed()
+float UTankMovement::GetRightTrackWheelSpeed() const
 {
 	if (!ensure(RightTrack)) { return 0.f; }
 	return RightTrack->GetFrontAndRearWheelSpeed();
 }
 
-float UTankMovement::GetLeftTrackWheelSpeed()
+float UTankMovement::GetLeftTrackWheelSpeed() const
 {
 	if (!ensure(LeftTrack)) { return 0.f; }
 	return LeftTrack->GetFrontAndRearWheelSpeed();

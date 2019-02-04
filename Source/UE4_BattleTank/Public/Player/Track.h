@@ -6,6 +6,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Track.generated.h"
 
+class UWheelComponent;
+
 /**
 * Track is used to set maximum driving force and apply force to the wheels
 */
@@ -34,6 +36,9 @@ private:
 	/** Array of wheel bones */
 	TArray<FName> WheelBones;
 
+	/** Array of wheel components */
+	TArray<UWheelComponent*> WheelComponents;
+
 	/** Array of wheel bodies to apply force too */
 	TArray<FConstraintInstance*> WheelConstraints;
 
@@ -59,7 +64,7 @@ public:
 	void SetFrontAndRearWheelSpeed(float Throttle);
 
 	/** Returns current speed of wheels */
-	float GetFrontAndRearWheelSpeed();
+	float GetFrontAndRearWheelSpeed() const { return CurrentWheelSpeed; }
 
 protected:
 	virtual void BeginPlay() override;
