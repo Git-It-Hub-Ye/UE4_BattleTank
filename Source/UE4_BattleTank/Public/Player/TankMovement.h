@@ -70,6 +70,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AnimBP")
 	float GetLeftTrackWheelSpeed() const;
 
+	/** Stops engine sound */
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void StopEngineSound();
+
 private:
 	/** Add force to tracks to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;

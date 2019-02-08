@@ -97,3 +97,11 @@ UAudioComponent * UTankMovement::SFXPlay(USoundBase * SoundFX)
 	return AC;
 }
 
+void UTankMovement::StopEngineSound()
+{
+	if (TankAudio)
+	{
+		TankAudio->Stop();
+	}
+}
+

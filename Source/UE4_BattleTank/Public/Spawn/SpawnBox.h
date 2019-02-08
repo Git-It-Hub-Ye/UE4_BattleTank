@@ -26,6 +26,9 @@ private:
 	/** Location to spawn at */
 	FVector TargetLocation;
 
+	/** Rotation of terrain */
+	FRotator TargetRotation;
+
 	/** Radius to search */
 	float SearchRadius;
 
@@ -58,6 +61,6 @@ private:
 	bool SpawnActor(TSubclassOf<APawn> ToSpawn);
 
 	/** Find floor location under spawned actor */
-	bool FindFloorLocation(FVector & OutLocation);
+	bool FindFloorLocation(FVector & OutLocation, FVector & OutRotation);
 
 };

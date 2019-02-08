@@ -75,3 +75,11 @@ UAudioComponent * UTurret::SFXPlay(USoundBase * SoundFX)
 	}
 	return AC;
 }
+
+void UTurret::StopTurretAudio()
+{
+	if (TurretAudio)
+	{
+		TurretAudio->Stop();
+	}
+}

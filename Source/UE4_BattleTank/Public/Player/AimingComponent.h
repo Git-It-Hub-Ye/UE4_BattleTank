@@ -113,7 +113,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	TSubclassOf<UCameraShake> FireCamShakeBP;
 
-	/** Component for fx on fp mesh */
+	/** Component for fx on component */
 	UParticleSystemComponent * ParticleComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")

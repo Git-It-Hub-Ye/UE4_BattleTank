@@ -61,7 +61,6 @@ void ATankAIController::FindEnemy()
 			}
 		}
 	}
-
 	if (BestEnemy && BB)
 	{
 		BB->SetValueAsObject(EnemyKeyId, BestEnemy);

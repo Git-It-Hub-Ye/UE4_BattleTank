@@ -17,6 +17,11 @@ class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
+	
+	/** Location for camera to aim on death */
+	FVector LocationOfEnemy;
+
+
 	////////////////////////////////////////////////////////////////////////////////
 	// Weapon usuage
 
@@ -66,12 +71,14 @@ private:
 public:
 	ATankPlayerController();
 
+	void EnemyThatKilledPlayer(FVector  EnemyLocation);
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Input
 
 	/** Setup player input */
-	void ATankPlayerController::SetupInputComponent();
+	virtual void SetupInputComponent() override;
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +122,9 @@ private:
 	/** Deposses controlled pawn and notify Gamemode */
 	UFUNCTION()
 	void OnPossessedTankDeath();
+
+	/** Rotates camera to aim at location of enemy that killed player */
+	void ATankPlayerController::AimCameraAfterDeath(FVector CurrentLocation, FVector LookAtLocation);
 
 
 	////////////////////////////////////////////////////////////////////////////////

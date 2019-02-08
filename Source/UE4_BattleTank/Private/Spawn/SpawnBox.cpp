@@ -51,9 +51,11 @@ bool ASpawnBox::FindEmptyLocation(FVector & OutLocation)
 		FVector CandidatePoint = FMath::RandPointInBox(Bounds);
 		if (CanSpawnAtLocation(CandidatePoint, false))
 		{
+			FVector InitalRotation = FVector(0.f, 0.f, 0.f);
 			OutLocation = CandidatePoint;
-			if (FindFloorLocation(OutLocation))
+			if (FindFloorLocation(OutLocation, InitalRotation))
 			{
+				TargetRotation = FRotationMatrix::MakeFromZ(InitalRotation).Rotator();
 				return true;
 			}
 		}
@@ -83,7 +85,7 @@ bool ASpawnBox::CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow)
 
 bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
 {
-	FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
+	FTransform SpawnT(TargetRotation, TargetLocation);
 	AActor * Spawned = GetWorld()->SpawnActorDeferred<AActor>(ToSpawn, SpawnT);
 	if (Spawned)
 	{
@@ -96,7 +98,8 @@ bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
 
 bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
 {
-	FTransform SpawnT(FRotator(0.f, 0.f, 0.f), TargetLocation);
+	TargetLocation.Z += 150.f; // Ensure pawn spawns above surface
+	FTransform SpawnT(FRotator(0.f, GetActorForwardVector().Rotation().Yaw, 0.f), TargetLocation);
 	APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
 	if (Spawned)
 	{
@@ -108,7 +111,7 @@ bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
 	return false;
 }
 
-bool ASpawnBox::FindFloorLocation(FVector & OutLocation)
+bool ASpawnBox::FindFloorLocation(FVector & OutLocation, FVector & OutRotation)
 {
 	FHitResult HitResult;
 	FVector StartTrace = ActorToWorld().TransformPosition(OutLocation);
@@ -125,6 +128,7 @@ bool ASpawnBox::FindFloorLocation(FVector & OutLocation)
 	{
 		DrawDebugLine(GetWorld(), StartTrace, HitResult.ImpactPoint, FColor::Red, true);
 		OutLocation = HitResult.ImpactPoint;
+		OutRotation = HitResult.ImpactNormal;
 		return CanSpawnAtLocation(OutLocation, true);
 	}
 	return false;

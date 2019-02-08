@@ -7,6 +7,7 @@
 #include "TankMovement.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 
 ATank::ATank()
@@ -23,7 +24,7 @@ ATank::ATank()
 	MovementComp = CreateDefaultSubobject<UTankMovement>(FName("MoveComponent"));
 
 	StartingHealth = 100;
-	MaxArmour = 50;
+	StartingArmour = 50;
 	DestroyTimer = 5.f;
 	bHasBeenDestroyed = false;
 }
@@ -32,7 +33,7 @@ void ATank::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentHealth = StartingHealth;
-	CurrentArmour = MaxArmour;
+	CurrentArmour = StartingArmour;
 	TankBody->SetSimulatePhysics(true);
 	UpdatePlayerHud();
 }
@@ -79,6 +80,12 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 		UpdatePlayerHud();
 
+		ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
+		if (PC)
+		{
+			PC->ClientPlayCameraShake(DamageCamShakeBP);
+		}
+
 		if (CurrentHealth <= 0)
 		{
 			if (DestroyedFX)
@@ -87,15 +94,17 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 			}
 			TankBody->SetCollisionProfileName("DestroyedTank");
 			bHasBeenDestroyed = true;
+
+			if (PC && EventInstigator && EventInstigator->GetPawn())
+			{
+				PC->EnemyThatKilledPlayer(EventInstigator->GetPawn()->GetActorLocation());
+			}
+
+			OnTankDestroyed(bHasBeenDestroyed);
 			OnDeath.Broadcast();
 			GetWorldTimerManager().SetTimer(DestroyHandle, this, &ATank::DestroyTank, DestroyTimer, false);
 		}
 
-		ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
-		if (PC)
-		{
-			PC->ClientPlayCameraShake(DamageCamShakeBP);
-		}
 	}
 	return DamageToApply;
 }	
@@ -134,7 +143,7 @@ void ATank::ReplenishHealth(float HealthToAdd)
 
 void ATank::ReplenishArmour()
 {
-	CurrentArmour = MaxArmour;
+	CurrentArmour = StartingArmour;
 	UpdatePlayerHud();
 }
 

@@ -18,7 +18,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AIBot"));
+	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AI"));
 	if (AIBotPawnBPClass.Class != NULL)
 	{
 		DefaultAIBotClass = AIBotPawnBPClass.Class;

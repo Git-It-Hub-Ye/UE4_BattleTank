@@ -35,6 +35,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	TSubclassOf<UCameraShake> DamageCamShakeBP;
 
+	/** Component for fx on actor */
 	UParticleSystemComponent * ParticleComp;
 
 	/** Destroy fx */
@@ -46,8 +47,8 @@ private:
 	int32 StartingHealth;
 
 	/** Starting shield value */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
-	int32 MaxArmour;
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	int32 StartingArmour;
 
 	/** Curent health, Initialised in BeginPlay() */
 	int32 CurrentHealth;
@@ -84,7 +85,7 @@ public:
 
 	/** Return current health as a percentage of starting health, between 0 and 1 */
 	UFUNCTION(BlueprintPure, Category = "Health")
-	float GetArmourPercent() const { return (float)CurrentArmour / (float)MaxArmour; }
+	float GetArmourPercent() const { return (float)CurrentArmour / (float)StartingArmour; }
 
 	/** Replenish health */
 	void ReplenishHealth(float HealthToAdd);
@@ -106,6 +107,9 @@ protected:
 
 	/** Fire aiming component */
 	void Fire();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Health")
+	void OnTankDestroyed(bool bDestroyed);
 
 private:
 	/** Destroys Tank */

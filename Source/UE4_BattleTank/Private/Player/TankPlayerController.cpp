@@ -10,6 +10,8 @@
 #include "UI/PlayerWidget.h"
 #include "UI/InGameMenuWidget.h"
 #include "UI/ScoreboardWidget.h"
+#include "Camera/CameraActor.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ATankPlayerController::ATankPlayerController()
 {
@@ -63,6 +65,11 @@ void ATankPlayerController::SetPawn(APawn * InPawn)
 	}
 }
 
+void ATankPlayerController::EnemyThatKilledPlayer(FVector EnemyLocation)
+{
+	LocationOfEnemy = EnemyLocation;
+}
+
 void ATankPlayerController::OnPossessedTankDeath()
 {
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -71,7 +78,18 @@ void ATankPlayerController::OnPossessedTankDeath()
 	{
 		BTGM->PlayerDestroyed();
 	}
-	StartSpectatingOnly();
+
+	AimCameraAfterDeath(GetPawn()->GetActorLocation(), LocationOfEnemy);
+}
+
+void ATankPlayerController::AimCameraAfterDeath(FVector CurrentLocation, FVector LookAtLocation)
+{
+	UnPossess();
+	CurrentLocation.Z += 400.f;
+	FRotator GetRot = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, LookAtLocation);
+	FRotator CamRot = FRotator(GetRot.Pitch, GetRot.Yaw, 0.f);
+
+	SetInitialLocationAndRotation(CurrentLocation, CamRot);
 }
 
 
@@ -104,11 +122,10 @@ void ATankPlayerController::ShowScoreboard()
 	ScoreboardWidget = CreateWidget<UScoreboardWidget>(this, ScoreboardUI);
 	if (ScoreboardWidget->IsValidLowLevel())
 	{
-		if (!bLookAtInGameMenu && !ScoreboardWidget->IsVisible())
+		if (!ScoreboardWidget->IsVisible())
 		{
 			ScoreboardWidget->AddToViewport();
 			bLookAtScoreboard = true;
-			WarnOutOfMatchArea(true);
 		}
 	}
 }
@@ -117,11 +134,10 @@ void ATankPlayerController::HideScoreboard()
 {
 	if (ScoreboardWidget->IsValidLowLevel())
 	{
-		if (!bLookAtInGameMenu && ScoreboardWidget->IsVisible())
+		if (ScoreboardWidget->IsVisible())
 		{
 			ScoreboardWidget->RemoveFromParent();
 			bLookAtScoreboard = false;
-			WarnOutOfMatchArea(false);
 		}
 	}
 }
@@ -197,10 +213,6 @@ void ATankPlayerController::ShowInGameMenu()
 	if (InGameMenuWidget->IsValidLowLevel())
 	{
 		InGameMenuWidget->InitialisePlayerController(this);
-		if (bLookAtScoreboard)
-		{
-			HideScoreboard();
-		}
 		InGameMenuWidget->AddToViewport();
 		bShowMouseCursor = true;
 		bLookAtInGameMenu = true;

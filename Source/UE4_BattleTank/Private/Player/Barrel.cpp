@@ -77,3 +77,12 @@ UAudioComponent * UBarrel::SFXPlay(USoundBase * SoundFX)
 	}
 	return AC;
 }
+
+void UBarrel::StopBarrelAudio()
+{
+	if (BarrelAudio)
+	{
+		BarrelAudio->Stop();
+	}
+}
+
