@@ -42,7 +42,7 @@ private:
 	float MinSoundPitch = 1.f;
 
 	/** Component for start & end sounds */
-	UAudioComponent * TankAudio = nullptr;
+	UAudioComponent * EngineAudio = nullptr;
 
 	/** Is tank turning */
 	bool bTurningRight = false;

@@ -19,11 +19,11 @@ class UE4_BATTLETANK_API UInGameMenuWidget : public UUserWidget
 protected:
 	/** Owning PC */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
-	ATankPlayerController * PC;
+	APlayerController * PC;
 	
 public:
 	/** Initialises the PC variable */
-	void InitialisePlayerController(ATankPlayerController * PlayerCon);
+	void InitialisePlayerController(APlayerController * PlayerCon);
 
 protected:
 	/** Removes widget and reset input mode */

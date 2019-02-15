@@ -2,8 +2,10 @@
 
 #include "Tank.h"
 #include "TankPlayerController.h"
+#include "BattleTankGameModeBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "AimingComponent.h"
+#include "UI/BattleHUD.h"
 #include "TankMovement.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -95,31 +97,31 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 			TankBody->SetCollisionProfileName("DestroyedTank");
 			bHasBeenDestroyed = true;
 
-			if (PC && EventInstigator && EventInstigator->GetPawn())
+			ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
+			if (GM && Controller)
+			{
+				GM->HandleKill(Controller, EventInstigator);
+			}
+			if (PC && EventInstigator->GetPawn())
 			{
 				PC->EnemyThatKilledPlayer(EventInstigator->GetPawn()->GetActorLocation());
 			}
 
 			OnTankDestroyed(bHasBeenDestroyed);
 			OnDeath.Broadcast();
-			GetWorldTimerManager().SetTimer(DestroyHandle, this, &ATank::DestroyTank, DestroyTimer, false);
+			SetLifeSpan(DestroyTimer);
 		}
-
 	}
 	return DamageToApply;
 }	
 
-void ATank::DestroyTank()
-{
-	Destroy();
-}
-
 void ATank::UpdatePlayerHud()
 {
 	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
-	if (PC)
+	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD)
 	{
-		PC->UpdateHealthDisplay();
+		BHUD->UpdateHealthDisplay();
 	}
 }
 

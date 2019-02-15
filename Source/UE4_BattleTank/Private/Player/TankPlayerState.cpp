@@ -1,0 +1,36 @@
+// Copyright 2018 Stuart McDonald.
+
+#include "TankPlayerState.h"
+#include "TankPlayerController.h"
+
+
+ATankPlayerState::ATankPlayerState()
+{
+	Score = 0;
+	KillCount = 0;
+	KillAssistCount = 0;
+	DeathCount = 0;
+}
+
+void ATankPlayerState::ScoreKill(int32 Points)
+{
+	KillCount++;
+	AddToScore(Points);
+}
+
+void ATankPlayerState::ScoreAssist(int32 Points)
+{
+	KillAssistCount++;
+	AddToScore(Points);
+}
+
+void ATankPlayerState::ScoreDeath()
+{
+	DeathCount++;
+}
+
+void ATankPlayerState::AddToScore(int32 ScoreDelta)
+{
+	Score += ScoreDelta;
+}
+

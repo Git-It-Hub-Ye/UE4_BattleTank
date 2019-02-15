@@ -16,7 +16,7 @@ void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet
 	LeftTrack = LeftTrackToSet;
 	RightTrack = RightTrackToSet;
 	
-	TankAudio = SFXPlay(EngineLoopSfx);
+	EngineAudio = SFXPlay(EngineLoopSfx);
 }
 
 void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
@@ -55,13 +55,13 @@ void UTankMovement::IntendTurnRight(float Throw)
 
 float UTankMovement::GetRightTrackWheelSpeed() const
 {
-	if (!ensure(RightTrack)) { return 0.f; }
+	if (!RightTrack) { return 0.f; }
 	return RightTrack->GetFrontAndRearWheelSpeed();
 }
 
 float UTankMovement::GetLeftTrackWheelSpeed() const
 {
-	if (!ensure(LeftTrack)) { return 0.f; }
+	if (!LeftTrack) { return 0.f; }
 	return LeftTrack->GetFrontAndRearWheelSpeed();
 }
 
@@ -80,9 +80,9 @@ float UTankMovement::GetMovementSpeed(float Throw)
 
 void UTankMovement::TankSFXPitch(float PitchRange)
 {
-	if (TankAudio)
+	if (EngineAudio)
 	{
-		TankAudio->SetPitchMultiplier(PitchRange);
+		EngineAudio->SetPitchMultiplier(PitchRange);
 	}
 }
 
@@ -99,9 +99,9 @@ UAudioComponent * UTankMovement::SFXPlay(USoundBase * SoundFX)
 
 void UTankMovement::StopEngineSound()
 {
-	if (TankAudio)
+	if (EngineAudio)
 	{
-		TankAudio->Stop();
+		EngineAudio->Stop();
 	}
 }
 

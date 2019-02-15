@@ -5,37 +5,9 @@
 #include "AimingComponent.h"
 #include "Engine/World.h"
 #include "BattleTankGameModeBase.h"
-#include "UObject/ConstructorHelpers.h"
-#include "Blueprint/UserWidget.h"
-#include "UI/PlayerWidget.h"
-#include "UI/InGameMenuWidget.h"
-#include "UI/ScoreboardWidget.h"
-#include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "UI/BattleHUD.h"
 
-ATankPlayerController::ATankPlayerController()
-{
-	ConstructorHelpers::FClassFinder<UUserWidget> DefaultPlayerUIWidget(TEXT("/Game/Dynamic/UI/WBP_PlayerHud"));
-	if (DefaultPlayerUIWidget.Class)
-	{
-		PlayerUI = DefaultPlayerUIWidget.Class;
-	}
-
-	ConstructorHelpers::FClassFinder<UUserWidget> DefaultInGameMenuWidget(TEXT("/Game/Dynamic/UI/WBP_InGameMenu"));
-	if (DefaultInGameMenuWidget.Class)
-	{
-		InGameMenu = DefaultInGameMenuWidget.Class;
-	}
-
-	ConstructorHelpers::FClassFinder<UUserWidget> DefaultScoreboardWidget(TEXT("/Game/Dynamic/UI/WBP_Scoreboard"));
-	if (DefaultScoreboardWidget.Class)
-	{
-		ScoreboardUI = DefaultScoreboardWidget.Class;
-	}
-
-	bLookAtInGameMenu = false;
-	bLookAtScoreboard = false;
-}
 
 void ATankPlayerController::BeginPlay()
 {
@@ -45,12 +17,12 @@ void ATankPlayerController::BeginPlay()
 
 	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }
-
-	PlayerWidget = CreateWidget<UPlayerWidget>(this, PlayerUI);
-	if (!PlayerWidget) { return; }
-
-	PlayerWidget->InitialiseAimingComp(AimingComponent, PlayerPawn);
-	PlayerWidget->AddToViewport();
+	
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowPlayerHud(true, AimingComponent, PlayerPawn);
+	}
 }
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
@@ -107,39 +79,41 @@ void ATankPlayerController::SetupInputComponent()
 
 void ATankPlayerController::ToggleInGameMenu()
 {
-	if (bLookAtInGameMenu)
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
 	{
-		HideInGameMenu();
-	}
-	else
-	{
-		ShowInGameMenu();
+		BHUD->ShowInGameMenu();
 	}
 }
 
 void ATankPlayerController::ShowScoreboard()
 {
-	ScoreboardWidget = CreateWidget<UScoreboardWidget>(this, ScoreboardUI);
-	if (ScoreboardWidget->IsValidLowLevel())
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
 	{
-		if (!ScoreboardWidget->IsVisible())
-		{
-			ScoreboardWidget->AddToViewport();
-			bLookAtScoreboard = true;
-		}
+		BHUD->ShowScoreboard(true);
 	}
 }
 
 void ATankPlayerController::HideScoreboard()
 {
-	if (ScoreboardWidget->IsValidLowLevel())
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
 	{
-		if (ScoreboardWidget->IsVisible())
-		{
-			ScoreboardWidget->RemoveFromParent();
-			bLookAtScoreboard = false;
-		}
+		BHUD->ShowScoreboard(false);
 	}
+}
+
+bool ATankPlayerController::CanRecieveInput() const
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	
+	return BHUD ? !BHUD->IsGameMenuInViewport() : true;
+}
+
+ABattleHUD * ATankPlayerController::GetPlayerHud() const
+{
+	return Cast<ABattleHUD>(GetHUD());
 }
 
 
@@ -200,79 +174,5 @@ FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, F
 		ECollisionChannel::ECC_Camera
 	);
 	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// UI
-
-void ATankPlayerController::ShowInGameMenu()
-{
-	InGameMenuWidget = CreateWidget<UInGameMenuWidget>(this, InGameMenu);
-
-	if (InGameMenuWidget->IsValidLowLevel())
-	{
-		InGameMenuWidget->InitialisePlayerController(this);
-		InGameMenuWidget->AddToViewport();
-		bShowMouseCursor = true;
-		bLookAtInGameMenu = true;
-	}
-}
-
-void ATankPlayerController::HideInGameMenu()
-{
-	if (InGameMenuWidget->IsValidLowLevel())
-	{
-
-		SetInputMode(FInputModeGameOnly());
-		InGameMenuWidget->RemoveFromParent();
-		bShowMouseCursor = false;
-		bLookAtInGameMenu = false;
-	}
-}
-
-void ATankPlayerController::NotifyMenuRemoved()
-{
-	bLookAtInGameMenu = false;
-}
-
-void ATankPlayerController::UpdateFiringStateDisplay()
-{
-	if (PlayerWidget)
-	{
-		PlayerWidget->AdjustFiringDisplay();
-	}
-}
-
-void ATankPlayerController::UpdateHealthDisplay()
-{
-	if (PlayerWidget)
-	{
-		PlayerWidget->AdjustHealthDisplay();
-	}
-}
-
-void ATankPlayerController::WarnOfLowAmmo(bool bLowAmmo)
-{
-	if (PlayerWidget)
-	{
-		PlayerWidget->NotifyLowAmmo(bLowAmmo);
-	}
-}
-
-void ATankPlayerController::WarnOutOfAmmo(bool bOutOfAmmo)
-{
-	if (PlayerWidget)
-	{
-		PlayerWidget->NotifyOutOfAmmo(bOutOfAmmo);
-	}
-}
-
-void ATankPlayerController::WarnOutOfMatchArea(bool bOutOfArea)
-{
-	if (PlayerWidget)
-	{
-		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
-	}
 }
 

@@ -64,9 +64,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 10.f))
 	float DestroyTimer;
 
-	/** Handler for destroy timer */
-	FTimerHandle DestroyHandle;
-
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
@@ -112,9 +109,6 @@ protected:
 	void OnTankDestroyed(bool bDestroyed);
 
 private:
-	/** Destroys Tank */
-	void DestroyTank();
-
 	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
 

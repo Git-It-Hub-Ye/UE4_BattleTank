@@ -15,9 +15,9 @@ class UE4_BATTLETANK_API ABattleTankGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 private:
-	/** The bot pawn class */
+	/** The ai pawn class */
 	UPROPERTY(EditDefaultsOnly, Category = "Classes")
-	TSubclassOf<APawn> DefaultAIBotClass;
+	TSubclassOf<APawn> DefaultPawnAIClass;
 
 	/** Array of spawn boxes to spawn ai within */
 	TArray<ASpawnBox_Pawn*> BotSpawnBoxArray;
@@ -26,11 +26,11 @@ private:
 	TArray<ASpawnBox_Actor*> ActorSpawnBoxArray;
 
 	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 20.f))
 	int32 NumOfBotsToSpawn;
 
 	/** Max AI bots alive in world at same time */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 20.f))
 	int32 MaxBotsAtOnce;
 
 	/** Max number of bots this wave */
@@ -38,7 +38,8 @@ private:
 
 	/** Keeps track of current amount of AI bots spawned */
 	int32 TotalBotsSpawned;
-
+	
+	/** Number of bots currently active */
 	int32 CurrentNumOfBotsAlive;
 
 	/** Current wave in progress */
@@ -49,6 +50,10 @@ private:
 	
 	/** Timer handle for start of new wave */
 	FTimerHandle NextWaveHandle;
+
+	/** Points for a kill */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
+	int32 KillPoints;
 
 public:
 	ABattleTankGameModeBase();
@@ -66,6 +71,8 @@ public:
 	void PlayerDestroyed();
 
 	void TriggerDestroyed();
+
+	void HandleKill(AController* KilledPawn, AController* KillerPawn);
 	
 protected:
 	/** Sets timer for new wave to start spawning ai  */
@@ -86,5 +93,15 @@ private:
 	/** Gets all spawn boxes in world */
 	void GetSpawnLocations();
 
+	/** Updates player data on scoreboard */
+	void UpdatePlayerScoreboard();
+
+	/** Updates scoreboard of current match state */
+	void UpdateMatchStateScoreboard();
+
+	/** Update scoreboard of players current data */
+	void ShowEndMatchScoreboard();
+
 	void GameOver();
+
 };

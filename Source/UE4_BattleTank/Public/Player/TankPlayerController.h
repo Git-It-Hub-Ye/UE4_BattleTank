@@ -7,9 +7,7 @@
 #include "TankPlayerController.generated.h"
 
 class UAimingComponent;
-class UPlayerWidget;
-class UInGameMenuWidget;
-class UScoreboardWidget;
+class ABattleHUD;
 
 UCLASS()
 class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
@@ -37,39 +35,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 100000.f))
 	float LineTraceRange = 100000;
 
-
-	////////////////////////////////////////////////////////////////////////////////
-	// UI
-
-	/** BP widget for player ui */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> PlayerUI;
-
-	/** BP widget for in game menu */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> InGameMenu;
-
-	/** BP widget for scoreboard */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> ScoreboardUI;
-
-	/** Player ui */
-	UPlayerWidget * PlayerWidget;
-
-	/** In game menu */
-	UInGameMenuWidget * InGameMenuWidget;
-
-	/** Scoreboard */
-	UScoreboardWidget * ScoreboardWidget;
-
-	/** Is player looking at game menu */
-	bool bLookAtInGameMenu;
-
-	/** Is player looking at scoreboard */
-	bool bLookAtScoreboard;
-
 public:
-	ATankPlayerController();
 
 	void EnemyThatKilledPlayer(FVector  EnemyLocation);
 
@@ -91,26 +57,11 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 	// UI
 
-	/** Update player ui of current firing state */
-	void UpdateFiringStateDisplay();
-
-	/** Update player ui of current health */
-	void UpdateHealthDisplay();
-
-	/** Update player ui when low on ammo */
-	void WarnOfLowAmmo(bool bLowAmmo);
-
-	/** Update player ui when out of ammo */
-	void WarnOutOfAmmo(bool bOutOfAmmo);
-
-	/** Update player ui when out of match area */
-	void WarnOutOfMatchArea(bool bOutOfArea);
-
-	/** Sets bLookAtInGameMenu to false when menu removed through widget */
-	void NotifyMenuRemoved();
-
 	/** Return false if currently looking at menu to prevent some inputs */
-	bool CanRecieveInput() const { return !bLookAtInGameMenu; }
+	bool CanRecieveInput() const;
+
+	/** Get Hud for this player */
+	ABattleHUD * GetPlayerHud() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -145,12 +96,6 @@ private:
 
 	/** Toggle menu on or off */
 	void ToggleInGameMenu();
-
-	/** Show menu */
-	void ShowInGameMenu();
-
-	/** Hide menu */
-	void HideInGameMenu();
 
 	/** Show scoreboard */
 	void ShowScoreboard();

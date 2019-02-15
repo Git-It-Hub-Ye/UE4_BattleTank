@@ -119,6 +119,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UParticleSystem * FireFX;
 
+	/** Component for start & end sounds */
+	UAudioComponent * AimCompAudio = nullptr;
+
 	/** Fire sound fx */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	USoundBase * FireSound;
@@ -128,12 +131,16 @@ private:
 	USoundBase * LoadSound;
 
 public:
-	// Sets default values for this component's properties
+
 	UAimingComponent();
 
 	/** Initialise the barrel and turret from owner */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, ATank * NewOwner);
+
+	/** Stop actions, (eg. on death) */
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void StopActions();
 
 
 	////////////////////////////////////////////////////////////////////////////////

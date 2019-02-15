@@ -9,10 +9,19 @@
 #include "Spawn/SpawnBox_Actor.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
+#include "Player/TankPlayerState.h"
+#include "UI/BattleHUD.h"
 #include "Player/Tank.h"
+#include "GameFramework/GameState.h"
+
 
 ABattleTankGameModeBase::ABattleTankGameModeBase()
 {
+	HUDClass = ABattleHUD::StaticClass();
+	PlayerStateClass = ATankPlayerState::StaticClass();
+	DefaultPawnAIClass = ATank::StaticClass();
+	DefaultPawnClass = ATank::StaticClass();
+
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_Player"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
@@ -21,7 +30,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AI"));
 	if (AIBotPawnBPClass.Class != NULL)
 	{
-		DefaultAIBotClass = AIBotPawnBPClass.Class;
+		DefaultPawnAIClass = AIBotPawnBPClass.Class;
 	}
 
 	TimeBetweenWaves = 5.f;
@@ -31,6 +40,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	TotalBotsSpawned = 0;
 	CurrentNumOfBotsAlive = 0;
 	CurrentWave = 0;
+	KillPoints = 100.f;
 }
 
 void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
@@ -63,13 +73,12 @@ void ABattleTankGameModeBase::GetSpawnLocations()
 		{
 			BotSpawnBoxArray.Add(BotSpawnBox);
 		}
-
+		
 		ASpawnBox_Actor * ActorSpawnBox = Cast<ASpawnBox_Actor>(*i);
 		if (ActorSpawnBox)
 		{
 			ActorSpawnBoxArray.Add(ActorSpawnBox);
 		}
-
 	}
 }
 
@@ -109,7 +118,7 @@ void ABattleTankGameModeBase::SpawnNewAIPawn()
 		{
 			int32 RandNum = FMath::RandRange(0, BotSpawnBoxArray.Num() - 1);
 			ASpawnBox_Pawn * SpawnBox = BotSpawnBoxArray[RandNum];
-			if (SpawnBox && SpawnBox->PlacePawns(DefaultAIBotClass, 500.f))
+			if (SpawnBox && SpawnBox->PlacePawns(DefaultPawnAIClass, 500.f))
 			{
 				CurrentNumOfBotsAlive++;
 				TotalBotsSpawned++;
@@ -169,8 +178,58 @@ void ABattleTankGameModeBase::TriggerDestroyed()
 	SpawnNewTrigger();
 }
 
+void ABattleTankGameModeBase::HandleKill(AController * KilledPawn, AController * KillerPawn)
+{
+	ATankPlayerState * KillerPlayerState = KillerPawn ? Cast<ATankPlayerState>(KillerPawn->PlayerState) : NULL;
+	ATankPlayerState * VictimPlayerState = KilledPawn ? Cast<ATankPlayerState>(KilledPawn->PlayerState) : NULL;
+
+	if (KillerPlayerState && KillerPlayerState != VictimPlayerState)
+	{
+		KillerPlayerState->ScoreKill(KillPoints);
+	}
+
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->ScoreDeath();
+	}
+
+	if (KillerPlayerState || VictimPlayerState) { UpdatePlayerScoreboard(); }
+}
+
+void ABattleTankGameModeBase::UpdatePlayerScoreboard()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+		if (BHUD)
+		{
+			BHUD->UpdateScoreboard();
+		}
+	}
+}
+
+void ABattleTankGameModeBase::UpdateMatchStateScoreboard()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Point"))
+}
+
+void ABattleTankGameModeBase::ShowEndMatchScoreboard()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+		if (BHUD)
+		{
+			BHUD->ShowScoreboard(true);
+		}
+	}
+}
+
 void ABattleTankGameModeBase::GameOver()
 {
+	ShowEndMatchScoreboard();
 	UE_LOG(LogTemp, Warning, TEXT("Game Over"))
 }
 

@@ -2,10 +2,10 @@
 
 #include "InGameMenuWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Player/TankPlayerController.h"
+#include "GameFramework/PlayerController.h"
 
 
-void UInGameMenuWidget::InitialisePlayerController(ATankPlayerController * PlayerCon)
+void UInGameMenuWidget::InitialisePlayerController(APlayerController * PlayerCon)
 {
 	PC = PlayerCon;
 }
@@ -17,7 +17,6 @@ void UInGameMenuWidget::ResumeGame()
 	{
 		PC->SetInputMode(FInputModeGameOnly());
 		PC->bShowMouseCursor = false;
-		PC->NotifyMenuRemoved();
 	}
 }
 

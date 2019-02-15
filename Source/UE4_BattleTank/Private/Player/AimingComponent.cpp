@@ -4,12 +4,14 @@
 #include "Tank.h"
 #include "TankPlayerController.h"
 #include "AIBot/TankAIController.h"
+#include "UI/BattleHUD.h"
 #include "Turret.h"
 #include "Barrel.h"
 #include "Projectile.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "Components/AudioComponent.h"
 
 
 UAimingComponent::UAimingComponent()
@@ -37,6 +39,15 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
 	CompOwner = NewOwner;
+}
+
+void UAimingComponent::StopActions()
+{
+	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
+	if (AimCompAudio)
+	{
+		AimCompAudio->Stop();
+	}
 }
 
 
@@ -204,7 +215,7 @@ void UAimingComponent::ReloadProjectile()
 	bIsLoaded = false;
 	DetermineWeaponState();
 	UpdatePlayerHud();
-	PlaySoundFX(LoadSound);
+	AimCompAudio = PlaySoundFX(LoadSound);
 
 	if (CurrentFiringState == EFiringState::Reloading)
 	{
@@ -284,11 +295,12 @@ void UAimingComponent::UpdatePlayerHud()
 {
 	APawn * Owner = CompOwner ? CompOwner : Cast<APawn>(GetOwner());
 	ATankPlayerController * PC = Cast<ATankPlayerController>(Owner->GetController());
-	if (PC)
+	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD)
 	{
-		PC->UpdateFiringStateDisplay();
-		CurrentFiringState == EFiringState::OutOfAmmo ? PC->WarnOutOfAmmo(true) : PC->WarnOutOfAmmo(false);
-		CurrentFiringState != EFiringState::OutOfAmmo && CurrentRoundsRemaining  <= 10 ? PC->WarnOfLowAmmo(true) : PC->WarnOfLowAmmo(false);
+		BHUD->UpdateFiringStateDisplay();
+		CurrentFiringState == EFiringState::OutOfAmmo ? BHUD->WarnOutOfAmmo(true) : BHUD->WarnOutOfAmmo(false);
+		CurrentFiringState != EFiringState::OutOfAmmo && CurrentRoundsRemaining  <= 10 ? BHUD->WarnOfLowAmmo(true) : BHUD->WarnOfLowAmmo(false);
 	}
 }
 
