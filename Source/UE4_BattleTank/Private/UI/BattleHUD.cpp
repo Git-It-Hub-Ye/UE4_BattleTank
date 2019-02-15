@@ -32,20 +32,99 @@ ABattleHUD::ABattleHUD()
 	}
 }
 
-void ABattleHUD::ShowPlayerHud(bool DisplayThisUI, UAimingComponent * AimingComp, ATank * Pawn)
+
+////////////////////////////////////////////////////////////////////////////////
+// Display widgets
+
+void ABattleHUD::ShowPlayerHud(bool bDisplayThisUI)
 {
-	DisplayPlayerHud(DisplayThisUI, AimingComp, Pawn);
+	DisplayPlayerHud(bDisplayThisUI);
 }
 
-void ABattleHUD::ShowInGameMenu()
+void ABattleHUD::ShowInGameMenu(bool bOnGameOver)
 {
-	DisplayInGameMenu();
+	DisplayInGameMenu(bOnGameOver);
 }
 
-void ABattleHUD::ShowScoreboard(bool DisplayThisUI)
+void ABattleHUD::ShowScoreboard(bool bDisplayThisUI)
 {
-	DisplayScoreboard(DisplayThisUI);
+	DisplayScoreboard(bDisplayThisUI);
 }
+
+void ABattleHUD::RemoveWidgetsOnGameOver()
+{
+	DisplayInGameMenu(true);
+	DisplayScoreboard(false);
+	DisplayPlayerHud(false);
+}
+
+void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
+{
+	if (!PlayerOwner) { return; }
+
+	if (bDisplayThisUI)
+	{
+		PlayerWidget = CreateWidget<UPlayerWidget>(PlayerOwner, PlayerUI);
+		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && !PlayerWidget->IsVisible())
+		{
+			PlayerWidget->InitialiseRefs(PlayerOwner);
+			PlayerWidget->AddToViewport();
+		}
+	}
+	else
+	{
+		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
+		{
+			PlayerWidget->RemoveFromParent();
+		}
+	}
+}
+
+void ABattleHUD::DisplayInGameMenu(bool bOnGameOver)
+{
+	if (!PlayerOwner) { return; }
+
+	if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && InGameMenuWidget->IsVisible())
+	{
+		PlayerOwner->SetInputMode(FInputModeGameOnly());
+		InGameMenuWidget->RemoveFromParent();
+	}
+	else if (!bOnGameOver)
+	{
+		InGameMenuWidget = CreateWidget<UInGameMenuWidget>(PlayerOwner, InGameMenu);
+
+		if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && !InGameMenuWidget->IsVisible())
+		{
+			InGameMenuWidget->InitialisePlayerController(PlayerOwner);
+			InGameMenuWidget->AddToViewport();
+		}
+	}
+}
+
+void ABattleHUD::DisplayScoreboard(bool bDisplayThisUI)
+{
+	if (!PlayerOwner) { return; }
+
+	if (bDisplayThisUI)
+	{
+		ScoreboardWidget = CreateWidget<UScoreboardWidget>(PlayerOwner, ScoreboardUI);
+		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && !ScoreboardWidget->IsVisible())
+		{
+			ScoreboardWidget->AddToViewport();
+		}
+	}
+	else
+	{
+		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
+		{
+			ScoreboardWidget->RemoveFromParent();
+		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Updating hud
 
 void ABattleHUD::UpdateHealthDisplay()
 {
@@ -60,6 +139,14 @@ void ABattleHUD::UpdateFiringStateDisplay()
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
 		PlayerWidget->AdjustFiringDisplay();
+	}
+}
+
+void ABattleHUD::UpdateScoreboard()
+{
+	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
+	{
+		ScoreboardWidget->UpdateData();
 	}
 }
 
@@ -84,78 +171,6 @@ void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
 		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
-	}
-}
-
-void ABattleHUD::DisplayPlayerHud(bool DisplayThisUI, UAimingComponent * AimingComp, ATank * Pawn)
-{
-	if (!PlayerOwner) { return; }
-
-	if (DisplayThisUI)
-	{
-		PlayerWidget = CreateWidget<UPlayerWidget>(PlayerOwner, PlayerUI);
-		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && !PlayerWidget->IsVisible())
-		{
-			PlayerWidget->InitialiseAimingComp(AimingComp, Pawn);
-			PlayerWidget->AddToViewport();
-		}
-	}
-	else
-	{
-		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
-		{
-			PlayerWidget->RemoveFromParent();
-		}
-	}
-}
-
-void ABattleHUD::DisplayInGameMenu()
-{
-	if (!PlayerOwner) { return; }
-
-	if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && InGameMenuWidget->IsVisible())
-	{
-		PlayerOwner->SetInputMode(FInputModeGameOnly());
-		InGameMenuWidget->RemoveFromParent();
-	}
-	else
-	{
-		InGameMenuWidget = CreateWidget<UInGameMenuWidget>(PlayerOwner, InGameMenu);
-
-		if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && !InGameMenuWidget->IsVisible())
-		{
-			InGameMenuWidget->InitialisePlayerController(PlayerOwner);
-			InGameMenuWidget->AddToViewport();
-		}
-	}
-}
-
-void ABattleHUD::DisplayScoreboard(bool DisplayThisUI)
-{
-	if (!PlayerOwner) { return; }
-	
-	if (DisplayThisUI)
-	{
-		ScoreboardWidget = CreateWidget<UScoreboardWidget>(PlayerOwner, ScoreboardUI);
-		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && !ScoreboardWidget->IsVisible())
-		{
-			ScoreboardWidget->AddToViewport();
-		}
-	}
-	else
-	{
-		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
-		{
-			ScoreboardWidget->RemoveFromParent();
-		}
-	}
-}
-
-void ABattleHUD::UpdateScoreboard()
-{
-	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
-	{
-		ScoreboardWidget->UpdateData();
 	}
 }
 

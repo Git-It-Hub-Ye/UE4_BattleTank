@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerWidget.generated.h"
 
+class APlayerController;
 class ATank;
 class UAimingComponent;
 
@@ -29,7 +30,7 @@ protected:
 
 public:
 	/** Initialise references */
-	void InitialiseAimingComp(UAimingComponent * AimingComp, ATank * Pawn);
+	void InitialiseRefs(APlayerController * PlayerController);
 
 	/** Update weapon ui */
 	void AdjustFiringDisplay();

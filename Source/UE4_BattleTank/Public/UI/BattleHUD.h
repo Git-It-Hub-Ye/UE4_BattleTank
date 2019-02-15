@@ -46,14 +46,18 @@ public:
 	ABattleHUD();
 
 	/** Show or hide hud. Request from player controller */
-	void ShowPlayerHud(bool DisplayThisUI, UAimingComponent * AimingComp, ATank * Pawn);
+	void ShowPlayerHud(bool bDisplayThisUI);
 
 	/** Show or hide menu. Request from player controller */
-	void ShowInGameMenu();
+	void ShowInGameMenu(bool bOnGameOver);
 
 	/** Show or hide scoreboard. Request from player controller */
-	void ShowScoreboard(bool DisplayThisUI);
+	void ShowScoreboard(bool bDisplayThisUI);
 
+	/** Remove all widget from viewport. Request from Game mode when game over */
+	void RemoveWidgetsOnGameOver();
+
+	/** Updates scoreboard data when currently being viewed and player data has changed */
 	void UpdateScoreboard();
 
 	/** Update player ui of current health. Request from player pawn */
@@ -76,12 +80,12 @@ public:
 
 private:
 	/** Show or hide hud */
-	void DisplayPlayerHud(bool DisplayThisUI, UAimingComponent * AimingComp, ATank * Pawn);
+	void DisplayPlayerHud(bool bDisplayThisUI);
 
 	/** Show or hide menu */
-	void DisplayInGameMenu();
+	void DisplayInGameMenu(bool bOnGameOver);
 
 	/** Show or hide scoreboard */
-	void DisplayScoreboard(bool DisplayThisUI);
+	void DisplayScoreboard(bool bDisplayThisUI);
 	
 };

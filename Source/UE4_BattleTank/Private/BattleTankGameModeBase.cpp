@@ -222,6 +222,8 @@ void ABattleTankGameModeBase::ShowEndMatchScoreboard()
 		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
 		if (BHUD)
 		{
+			PC->DisableInput(PC);
+			BHUD->RemoveWidgetsOnGameOver();
 			BHUD->ShowScoreboard(true);
 		}
 	}

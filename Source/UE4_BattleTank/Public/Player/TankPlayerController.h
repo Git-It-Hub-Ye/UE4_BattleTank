@@ -60,6 +60,8 @@ public:
 	/** Return false if currently looking at menu to prevent some inputs */
 	bool CanRecieveInput() const;
 
+	UAimingComponent * GetAimCompRef() const;
+
 	/** Get Hud for this player */
 	ABattleHUD * GetPlayerHud() const;
 
@@ -93,6 +95,9 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// UI
+
+	/** Show player hud */
+	void TogglePlayerHud(bool bShowHud);
 
 	/** Toggle menu on or off */
 	void ToggleInGameMenu();

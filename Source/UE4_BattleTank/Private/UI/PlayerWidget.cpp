@@ -3,21 +3,28 @@
 #include "PlayerWidget.h"
 #include "Player/Tank.h"
 #include "Player/AimingComponent.h"
+#include "Player/TankPlayerController.h"
 
 
-void UPlayerWidget::InitialiseAimingComp(UAimingComponent * AimingComp, ATank * Pawn)
+void UPlayerWidget::InitialiseRefs(APlayerController * PlayerController)
 {
-	AimCompRef = AimingComp;
-	PlayerPawn = Pawn;
+	ATankPlayerController * PC = PlayerController ? Cast<ATankPlayerController>(PlayerController) : nullptr;
+	if (PC && PC->GetPawn())
+	{
+		PlayerPawn = Cast<ATank>(PC->GetPawn());
+		AimCompRef = PC->GetAimCompRef();
+	}
 }
 
 void UPlayerWidget::AdjustFiringDisplay()
 {
+	if (!AimCompRef) { return; }
 	UpdateAmmoAndCrosshair();
 }
 
 void UPlayerWidget::AdjustHealthDisplay()
 {
+	if (!PlayerPawn) { return; }
 	UpdateHealthAndArmour();
 }
 

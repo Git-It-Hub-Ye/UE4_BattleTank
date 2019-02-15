@@ -14,15 +14,8 @@ void ATankPlayerController::BeginPlay()
 	Super::BeginPlay();
 	ATank * PlayerPawn = Cast<ATank>(GetPawn());
 	if (!PlayerPawn) return;
-
-	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
-	if (!ensure(AimingComponent)) { return; }
 	
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
-	{
-		BHUD->ShowPlayerHud(true, AimingComponent, PlayerPawn);
-	}
+	TogglePlayerHud(true);
 }
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
@@ -44,14 +37,15 @@ void ATankPlayerController::EnemyThatKilledPlayer(FVector EnemyLocation)
 
 void ATankPlayerController::OnPossessedTankDeath()
 {
+	TogglePlayerHud(false);
+	AimCameraAfterDeath(GetPawn()->GetActorLocation(), LocationOfEnemy);
+
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
 
 	if (BTGM)
 	{
 		BTGM->PlayerDestroyed();
 	}
-
-	AimCameraAfterDeath(GetPawn()->GetActorLocation(), LocationOfEnemy);
 }
 
 void ATankPlayerController::AimCameraAfterDeath(FVector CurrentLocation, FVector LookAtLocation)
@@ -77,12 +71,21 @@ void ATankPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::HideScoreboard);
 }
 
+void ATankPlayerController::TogglePlayerHud(bool bShowHud)
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowPlayerHud(bShowHud);
+	}
+}
+
 void ATankPlayerController::ToggleInGameMenu()
 {
 	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
 	if (BHUD)
 	{
-		BHUD->ShowInGameMenu();
+		BHUD->ShowInGameMenu(false);
 	}
 }
 
@@ -109,6 +112,13 @@ bool ATankPlayerController::CanRecieveInput() const
 	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
 	
 	return BHUD ? !BHUD->IsGameMenuInViewport() : true;
+}
+
+UAimingComponent * ATankPlayerController::GetAimCompRef() const
+{
+	if (!GetPawn()) { return nullptr; }
+	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
+	return AimingComponent;
 }
 
 ABattleHUD * ATankPlayerController::GetPlayerHud() const
