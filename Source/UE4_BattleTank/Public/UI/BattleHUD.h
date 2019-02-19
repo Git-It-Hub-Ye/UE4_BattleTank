@@ -9,6 +9,7 @@
 class UPlayerWidget;
 class UInGameMenuWidget;
 class UScoreboardWidget;
+class UMatchDisplayWidget;
 class ATank;
 class UAimingComponent;
 
@@ -33,6 +34,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	TSubclassOf<class UUserWidget> ScoreboardUI;
 
+	/** BP widget for game end ui */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TSubclassOf<class UUserWidget> MatchDisplayWidget;
+
 	/** Player ui */
 	UPlayerWidget * PlayerWidget;
 
@@ -42,17 +47,23 @@ private:
 	/** Scoreboard */
 	UScoreboardWidget * ScoreboardWidget;
 
+	/** Match display */
+	UMatchDisplayWidget * InMacthDisplay;
+
 public:
 	ABattleHUD();
 
-	/** Show or hide hud. Request from player controller */
+	/** Calls DisplayPlayerHud */
 	void ShowPlayerHud(bool bDisplayThisUI);
 
-	/** Show or hide menu. Request from player controller */
+	/** Calls DisplayInGameMenu */
 	void ShowInGameMenu(bool bOnGameOver);
 
-	/** Show or hide scoreboard. Request from player controller */
+	/** Calls DisplayScoreboard */
 	void ShowScoreboard(bool bDisplayThisUI);
+
+	/** Calls DisplayInMatchWidget */
+	void ShowInMatchDisplay(bool bDisplayThisUI);
 
 	/** Remove all widget from viewport. Request from Game mode when game over */
 	void RemoveWidgetsOnGameOver();
@@ -75,6 +86,9 @@ public:
 	/** Update player ui when out of match area. Request from Match area trigger */
 	void WarnOutOfMatchArea(bool bOutOfArea);
 
+	/** Show final result of match */
+	void UpdateMatchEndDisplay();
+
 	/** Is menu currently in player viewport */
 	bool IsGameMenuInViewport();
 
@@ -87,5 +101,8 @@ private:
 
 	/** Show or hide scoreboard */
 	void DisplayScoreboard(bool bDisplayThisUI);
+
+	/** Show or hide match display */
+	void DisplayInMatchWidget(bool bDisplayThisUI);
 	
 };

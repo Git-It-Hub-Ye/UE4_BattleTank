@@ -77,7 +77,7 @@ private:
 	void OnPossessedTankDeath();
 
 	/** Rotates camera to aim at location of enemy that killed player */
-	void ATankPlayerController::AimCameraAfterDeath(FVector CurrentLocation, FVector LookAtLocation);
+	void ATankPlayerController::AimCameraAfterDeath(FVector LookAtLocation);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -107,5 +107,8 @@ private:
 
 	/** Hide scoreboard */
 	void HideScoreboard();
+
+	/** Show match hud */
+	void ShowMatchHud();
 
 };

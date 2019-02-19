@@ -109,6 +109,10 @@ protected:
 	void OnTankDestroyed(bool bDestroyed);
 
 private:
+	
+	/** Death behaviour */
+	void OnDeathBehaviour(AController * EventInstigator);
+
 	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
 

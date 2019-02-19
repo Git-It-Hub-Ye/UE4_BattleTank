@@ -16,6 +16,7 @@ void ATankPlayerController::BeginPlay()
 	if (!PlayerPawn) return;
 	
 	TogglePlayerHud(true);
+	ShowMatchHud();
 }
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
@@ -38,7 +39,6 @@ void ATankPlayerController::EnemyThatKilledPlayer(FVector EnemyLocation)
 void ATankPlayerController::OnPossessedTankDeath()
 {
 	TogglePlayerHud(false);
-	AimCameraAfterDeath(GetPawn()->GetActorLocation(), LocationOfEnemy);
 
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
 
@@ -46,15 +46,27 @@ void ATankPlayerController::OnPossessedTankDeath()
 	{
 		BTGM->PlayerDestroyed();
 	}
+
+	if (GetPawn())
+	{
+		AimCameraAfterDeath(LocationOfEnemy);
+	}
+	else if (BTGM)
+	{
+		BTGM->TransitionToMapCamera(this);
+	}
 }
 
-void ATankPlayerController::AimCameraAfterDeath(FVector CurrentLocation, FVector LookAtLocation)
+void ATankPlayerController::AimCameraAfterDeath(FVector LookAtLocation)
 {
-	UnPossess();
+	FVector CurrentLocation;
+	CurrentLocation = GetPawn()->GetActorLocation();
 	CurrentLocation.Z += 400.f;
+
 	FRotator GetRot = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, LookAtLocation);
 	FRotator CamRot = FRotator(GetRot.Pitch, GetRot.Yaw, 0.f);
 
+	GetPawn()->DetachFromControllerPendingDestroy();
 	SetInitialLocationAndRotation(CurrentLocation, CamRot);
 }
 
@@ -104,6 +116,15 @@ void ATankPlayerController::HideScoreboard()
 	if (BHUD)
 	{
 		BHUD->ShowScoreboard(false);
+	}
+}
+
+void ATankPlayerController::ShowMatchHud()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowInMatchDisplay(true);
 	}
 }
 

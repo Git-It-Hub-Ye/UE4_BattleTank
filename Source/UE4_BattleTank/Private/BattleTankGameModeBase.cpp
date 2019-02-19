@@ -13,6 +13,7 @@
 #include "UI/BattleHUD.h"
 #include "Player/Tank.h"
 #include "GameFramework/GameState.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ABattleTankGameModeBase::ABattleTankGameModeBase()
@@ -33,14 +34,16 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 		DefaultPawnAIClass = AIBotPawnBPClass.Class;
 	}
 
-	TimeBetweenWaves = 5.f;
+	TimeBetweenWaves = 10;
+
 	NumOfBotsToSpawn = 10;
-	MaxBotsThisRound = 0;
 	MaxBotsAtOnce = 10;
+
+	MaxBotsThisRound = 0;
 	TotalBotsSpawned = 0;
 	CurrentNumOfBotsAlive = 0;
 	CurrentWave = 0;
-	KillPoints = 100.f;
+	KillPoints = 100;
 }
 
 void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
@@ -146,9 +149,9 @@ void ABattleTankGameModeBase::SpawnNewTrigger()
 	}
 }
 
-void ABattleTankGameModeBase::AIBotDestroyed(APawn * AIPawn)
+void ABattleTankGameModeBase::AIBotDestroyed(AController * AICon)
 {
-	if (AIPawn && !AIPawn->IsPlayerControlled())
+	if (AICon)
 	{
 		CurrentNumOfBotsAlive--;
 		StartWave();
@@ -157,20 +160,18 @@ void ABattleTankGameModeBase::AIBotDestroyed(APawn * AIPawn)
 
 void ABattleTankGameModeBase::PlayerDestroyed()
 {
-	for (FConstPlayerControllerIterator i = GetWorld()->GetPlayerControllerIterator(); i; i++)
+	if (GameState && GameState->PlayerArray.Num() > 0)
 	{
-		APlayerController * PC = i->Get();
-		if (PC && PC->GetPawn())
+		for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
 		{
-			ATank * PlayerPawn = Cast<ATank>(PC->GetPawn());
-
-			// If a player is not destroyed, then stop function
-			if (!PlayerPawn->IsTankDestroyed()) { return; }
+			ATankPlayerState * PState = Cast<ATankPlayerState>(GameState->PlayerArray[i]);
+			if (PState && !PState->GetIsPlayerDead()) { return; }
 		}
 	}
-
+	
 	// Only runs if all players are destroyed
-	GameOver();
+	UpdateMatchEndDisplay();
+	GetWorldTimerManager().SetTimer(GameOverHandle, this, &ABattleTankGameModeBase::GameOver, 5, false);
 }
 
 void ABattleTankGameModeBase::TriggerDestroyed()
@@ -232,6 +233,43 @@ void ABattleTankGameModeBase::ShowEndMatchScoreboard()
 void ABattleTankGameModeBase::GameOver()
 {
 	ShowEndMatchScoreboard();
-	UE_LOG(LogTemp, Warning, TEXT("Game Over"))
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		if (PC)
+		{
+			TransitionToMapCamera(PC);
+		}
+	}
+}
+
+void ABattleTankGameModeBase::UpdateMatchEndDisplay()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		if (PC)
+		{
+			ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+			if (BHUD)
+			{
+				BHUD->UpdateMatchEndDisplay();
+			}
+		}
+	}
+}
+
+void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
+{
+	if (!PC) { return; }
+
+	TArray<AActor*> ReturnedCameras;
+	UGameplayStatics::GetAllActorsOfClass(this, MapCameraClass, ReturnedCameras);
+
+	if (ReturnedCameras.Num() > 0)
+	{
+		AActor * NewMapCamera = ReturnedCameras[0];
+		PC->SetViewTarget(NewMapCamera);
+	}
 }
 

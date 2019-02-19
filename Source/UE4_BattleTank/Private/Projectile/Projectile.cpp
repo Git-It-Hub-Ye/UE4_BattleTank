@@ -42,6 +42,9 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+
+	// Setup instigator controller, as instigator may be null if dead before projectile hits
+	EventInstigator = GetInstigatorController();
 }
 
 void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit)
@@ -66,7 +69,7 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 		ProjectileData.DamageType,
 		TArray<AActor*>(),
 		this,
-		Instigator->GetInstigatorController(),
+		EventInstigator,
 		false
 	);
 

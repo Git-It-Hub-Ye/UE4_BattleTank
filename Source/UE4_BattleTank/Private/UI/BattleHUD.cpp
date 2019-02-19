@@ -6,6 +6,7 @@
 #include "UI/PlayerWidget.h"
 #include "UI/InGameMenuWidget.h"
 #include "UI/ScoreboardWidget.h"
+#include "UI/MatchDisplayWidget.h"
 
 ABattleHUD::ABattleHUD()
 {
@@ -30,6 +31,12 @@ ABattleHUD::ABattleHUD()
 	{
 		ScoreboardUI = DefaultScoreboardWidget.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultMatchDisplayWidget(TEXT("/Game/Dynamic/UI/WBP_MatchDisplay"));
+	if (DefaultMatchDisplayWidget.Class)
+	{
+		MatchDisplayWidget = DefaultMatchDisplayWidget.Class;
+	}
 }
 
 
@@ -49,6 +56,11 @@ void ABattleHUD::ShowInGameMenu(bool bOnGameOver)
 void ABattleHUD::ShowScoreboard(bool bDisplayThisUI)
 {
 	DisplayScoreboard(bDisplayThisUI);
+}
+
+void ABattleHUD::ShowInMatchDisplay(bool bDisplayThisUI)
+{
+	DisplayInMatchWidget(bDisplayThisUI);
 }
 
 void ABattleHUD::RemoveWidgetsOnGameOver()
@@ -122,6 +134,25 @@ void ABattleHUD::DisplayScoreboard(bool bDisplayThisUI)
 	}
 }
 
+void ABattleHUD::DisplayInMatchWidget(bool bDisplayThisUI)
+{
+	if (bDisplayThisUI)
+	{
+		InMacthDisplay = CreateWidget<UMatchDisplayWidget>(PlayerOwner, MatchDisplayWidget);
+		if (InMacthDisplay && InMacthDisplay->IsValidLowLevel() && !InMacthDisplay->IsVisible())
+		{
+			InMacthDisplay->AddToViewport();
+		}
+	}
+	else
+	{
+		if (InMacthDisplay && InMacthDisplay->IsValidLowLevel() && InMacthDisplay->IsVisible())
+		{
+			InMacthDisplay->RemoveFromParent();
+		}
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Updating hud
@@ -172,6 +203,11 @@ void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
 	{
 		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
 	}
+}
+
+void ABattleHUD::UpdateMatchEndDisplay()
+{
+	UE_LOG(LogTemp, Warning, TEXT("End"))
 }
 
 bool ABattleHUD::IsGameMenuInViewport()

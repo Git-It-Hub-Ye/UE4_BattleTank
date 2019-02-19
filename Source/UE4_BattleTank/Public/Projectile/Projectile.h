@@ -87,6 +87,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	FProjectileData ProjectileData;
 
+	/** Controller that spawned projectile */
+	AController * EventInstigator;
+
 	/** Timer handle for destroy */
 	FTimerHandle Timer;
 

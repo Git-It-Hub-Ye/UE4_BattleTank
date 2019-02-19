@@ -49,7 +49,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 
 void ATank::Fire()
 {
-	if (AimingComp && CanRecieveInput())
+	if (AimingComp && !IsTankDestroyed() && CanRecieveInput())
 	{
 		AimingComp->FireProjectile();
 	}
@@ -90,30 +90,38 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 		if (CurrentHealth <= 0)
 		{
-			if (DestroyedFX)
-			{
-				ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, DestroyedFX, GetActorLocation());
-			}
-			TankBody->SetCollisionProfileName("DestroyedTank");
-			bHasBeenDestroyed = true;
-
-			ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
-			if (GM && Controller)
-			{
-				GM->HandleKill(Controller, EventInstigator);
-			}
-			if (PC && EventInstigator->GetPawn())
-			{
-				PC->EnemyThatKilledPlayer(EventInstigator->GetPawn()->GetActorLocation());
-			}
-
-			OnTankDestroyed(bHasBeenDestroyed);
-			OnDeath.Broadcast();
-			SetLifeSpan(DestroyTimer);
+			OnDeathBehaviour(EventInstigator);
 		}
 	}
 	return DamageToApply;
 }	
+
+void ATank::OnDeathBehaviour(AController * EventInstigator)
+{
+	if (DestroyedFX)
+	{
+		ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, DestroyedFX, GetActorLocation());
+	}
+
+	TankBody->SetCollisionProfileName("DestroyedTank");
+	bHasBeenDestroyed = true;
+
+	ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
+	if (GM && Controller)
+	{
+		GM->HandleKill(Controller, EventInstigator);
+	}
+
+	ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
+	if (PC && EventInstigator && EventInstigator->GetPawn())
+	{
+		PC->EnemyThatKilledPlayer(EventInstigator->GetPawn()->GetActorLocation());
+	}
+
+	OnTankDestroyed(bHasBeenDestroyed);
+	OnDeath.Broadcast();
+	SetLifeSpan(DestroyTimer);
+}
 
 void ATank::UpdatePlayerHud()
 {

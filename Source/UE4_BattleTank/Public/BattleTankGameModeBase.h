@@ -19,19 +19,31 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Classes")
 	TSubclassOf<APawn> DefaultPawnAIClass;
 
+	/** The class for cameras on maps */
+	UPROPERTY(EditDefaultsOnly, Category = "Classes")
+	TSubclassOf<AActor> MapCameraClass;
+
+	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 20))
+	int32 NumOfBotsToSpawn;
+
+	/** Max AI bots alive in world at same time */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 20))
+	int32 MaxBotsAtOnce;
+
+	/** Time till NextWave */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 60))
+	int32 TimeBetweenWaves;
+
+	/** Points for a kill */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 100))
+	int32 KillPoints;
+
 	/** Array of spawn boxes to spawn ai within */
 	TArray<ASpawnBox_Pawn*> BotSpawnBoxArray;
 
 	/** Array of spawn boxes to spawn actors within */
 	TArray<ASpawnBox_Actor*> ActorSpawnBoxArray;
-
-	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 20.f))
-	int32 NumOfBotsToSpawn;
-
-	/** Max AI bots alive in world at same time */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 20.f))
-	int32 MaxBotsAtOnce;
 
 	/** Max number of bots this wave */
 	int32 MaxBotsThisRound;
@@ -44,16 +56,12 @@ private:
 
 	/** Current wave in progress */
 	int32 CurrentWave;
-
-	/** Time till StartWave */
-	float TimeBetweenWaves;
 	
 	/** Timer handle for start of new wave */
 	FTimerHandle NextWaveHandle;
 
-	/** Points for a kill */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
-	int32 KillPoints;
+	/** Timer handle for game over */
+	FTimerHandle GameOverHandle;
 
 public:
 	ABattleTankGameModeBase();
@@ -66,13 +74,15 @@ public:
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
-	void AIBotDestroyed(APawn * AIPawn);
+	void AIBotDestroyed(AController * AICon);
 
 	void PlayerDestroyed();
 
 	void TriggerDestroyed();
 
 	void HandleKill(AController* KilledPawn, AController* KillerPawn);
+
+	void TransitionToMapCamera(APlayerController * PC);
 	
 protected:
 	/** Sets timer for new wave to start spawning ai  */
@@ -103,5 +113,7 @@ private:
 	void ShowEndMatchScoreboard();
 
 	void GameOver();
+
+	void UpdateMatchEndDisplay();
 
 };

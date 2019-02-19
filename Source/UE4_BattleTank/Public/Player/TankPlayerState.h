@@ -24,6 +24,8 @@ private:
 	/** Number of deaths */
 	int32 DeathCount;
 
+	bool bIsDead;
+
 public:
 	ATankPlayerState();
 
@@ -40,6 +42,8 @@ public:
 	int32 GetDeathCount() const { return DeathCount; }
 
 	float GetScore() const { return Score; }
+
+	bool GetIsPlayerDead() const { return bIsDead; }
 
 private:
 	void AddToScore(int32 ScoreDelta);

@@ -104,13 +104,11 @@ void ATankAIController::FireWeapon()
 void ATankAIController::OnPossessedTankDeath()
 {
 	if (!GetPawn()) { return; }
-
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
 
 	if (BTGM)
 	{
-		BTGM->AIBotDestroyed(GetPawn());
-		BTGM->PlayerDestroyed();
+		BTGM->AIBotDestroyed(this);
 	}
 	GetPawn()->DetachFromControllerPendingDestroy();
 }
