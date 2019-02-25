@@ -103,12 +103,12 @@ private:
 	void ToggleInGameMenu();
 
 	/** Show scoreboard */
-	void ShowScoreboard();
+	void ShowLeaderboard();
 
 	/** Hide scoreboard */
-	void HideScoreboard();
+	void HideLeaderboard();
 
 	/** Show match hud */
-	void ShowMatchHud();
+	void ShowMatchScoreboard();
 
 };

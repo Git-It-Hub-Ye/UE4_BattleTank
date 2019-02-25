@@ -9,7 +9,6 @@
 class UPlayerWidget;
 class UInGameMenuWidget;
 class UScoreboardWidget;
-class UMatchDisplayWidget;
 class ATank;
 class UAimingComponent;
 
@@ -34,10 +33,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	TSubclassOf<class UUserWidget> ScoreboardUI;
 
-	/** BP widget for game end ui */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> MatchDisplayWidget;
-
 	/** Player ui */
 	UPlayerWidget * PlayerWidget;
 
@@ -46,9 +41,6 @@ private:
 
 	/** Scoreboard */
 	UScoreboardWidget * ScoreboardWidget;
-
-	/** Match display */
-	UMatchDisplayWidget * InMacthDisplay;
 
 public:
 	ABattleHUD();
@@ -59,17 +51,24 @@ public:
 	/** Calls DisplayInGameMenu */
 	void ShowInGameMenu(bool bOnGameOver);
 
-	/** Calls DisplayScoreboard */
+	/** Calls DisplayInMatchWidget */
 	void ShowScoreboard(bool bDisplayThisUI);
 
 	/** Calls DisplayInMatchWidget */
-	void ShowInMatchDisplay(bool bDisplayThisUI);
+	void ShowLeaderboard(bool bDisplayThisUI);
 
 	/** Remove all widget from viewport. Request from Game mode when game over */
 	void RemoveWidgetsOnGameOver();
 
-	/** Updates scoreboard data when currently being viewed and player data has changed */
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Updating to hud
+
+	/** Updates scoreboard data when score data has changed */
 	void UpdateScoreboard();
+
+	/** Updates leaderboard data when currently being viewed and player data has changed */
+	void UpdateLeaderboard();
 
 	/** Update player ui of current health. Request from player pawn */
 	void UpdateHealthDisplay();
@@ -99,10 +98,10 @@ private:
 	/** Show or hide menu */
 	void DisplayInGameMenu(bool bOnGameOver);
 
-	/** Show or hide scoreboard */
+	/** Show or hide match display */
 	void DisplayScoreboard(bool bDisplayThisUI);
 
 	/** Show or hide match display */
-	void DisplayInMatchWidget(bool bDisplayThisUI);
+	void DisplayLeaderboard(bool bDisplayThisUI);
 	
 };

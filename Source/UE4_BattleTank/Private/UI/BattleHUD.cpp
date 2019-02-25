@@ -6,7 +6,7 @@
 #include "UI/PlayerWidget.h"
 #include "UI/InGameMenuWidget.h"
 #include "UI/ScoreboardWidget.h"
-#include "UI/MatchDisplayWidget.h"
+
 
 ABattleHUD::ABattleHUD()
 {
@@ -26,16 +26,10 @@ ABattleHUD::ABattleHUD()
 		InGameMenu = DefaultInGameMenuWidget.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultScoreboardWidget(TEXT("/Game/Dynamic/UI/WBP_Scoreboard"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultScoreboardWidget(TEXT("/Game/Dynamic/UI/WBP_MatchScoreboard"));
 	if (DefaultScoreboardWidget.Class)
 	{
 		ScoreboardUI = DefaultScoreboardWidget.Class;
-	}
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultMatchDisplayWidget(TEXT("/Game/Dynamic/UI/WBP_MatchDisplay"));
-	if (DefaultMatchDisplayWidget.Class)
-	{
-		MatchDisplayWidget = DefaultMatchDisplayWidget.Class;
 	}
 }
 
@@ -58,16 +52,16 @@ void ABattleHUD::ShowScoreboard(bool bDisplayThisUI)
 	DisplayScoreboard(bDisplayThisUI);
 }
 
-void ABattleHUD::ShowInMatchDisplay(bool bDisplayThisUI)
+void ABattleHUD::ShowLeaderboard(bool bDisplayThisUI)
 {
-	DisplayInMatchWidget(bDisplayThisUI);
+	DisplayLeaderboard(bDisplayThisUI);
 }
 
 void ABattleHUD::RemoveWidgetsOnGameOver()
 {
 	DisplayInGameMenu(true);
-	DisplayScoreboard(false);
 	DisplayPlayerHud(false);
+	DisplayLeaderboard(false);
 }
 
 void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
@@ -115,8 +109,6 @@ void ABattleHUD::DisplayInGameMenu(bool bOnGameOver)
 
 void ABattleHUD::DisplayScoreboard(bool bDisplayThisUI)
 {
-	if (!PlayerOwner) { return; }
-
 	if (bDisplayThisUI)
 	{
 		ScoreboardWidget = CreateWidget<UScoreboardWidget>(PlayerOwner, ScoreboardUI);
@@ -134,21 +126,30 @@ void ABattleHUD::DisplayScoreboard(bool bDisplayThisUI)
 	}
 }
 
-void ABattleHUD::DisplayInMatchWidget(bool bDisplayThisUI)
+void ABattleHUD::DisplayLeaderboard(bool bDisplayThisUI)
 {
+	if (!PlayerOwner) { return; }
+
 	if (bDisplayThisUI)
 	{
-		InMacthDisplay = CreateWidget<UMatchDisplayWidget>(PlayerOwner, MatchDisplayWidget);
-		if (InMacthDisplay && InMacthDisplay->IsValidLowLevel() && !InMacthDisplay->IsVisible())
+		if (!ScoreboardWidget || !ScoreboardWidget->IsValidLowLevel())
 		{
-			InMacthDisplay->AddToViewport();
+			DisplayScoreboard(true);
+		}
+		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && !ScoreboardWidget->IsLeaderboardVisible())
+		{
+			ScoreboardWidget->ShowLeaderboard();
 		}
 	}
 	else
 	{
-		if (InMacthDisplay && InMacthDisplay->IsValidLowLevel() && InMacthDisplay->IsVisible())
+		if (!ScoreboardWidget || !ScoreboardWidget->IsValidLowLevel())
 		{
-			InMacthDisplay->RemoveFromParent();
+			DisplayScoreboard(true);
+		}
+		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsLeaderboardVisible())
+		{
+			ScoreboardWidget->HideLeaderboard();
 		}
 	}
 }
@@ -181,6 +182,14 @@ void ABattleHUD::UpdateScoreboard()
 	}
 }
 
+void ABattleHUD::UpdateLeaderboard()
+{
+	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsLeaderboardVisible())
+	{
+		ScoreboardWidget->UpdateLeaderboardData();
+	}
+}
+
 void ABattleHUD::WarnOfLowAmmo(bool bLowAmmo)
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
@@ -207,7 +216,7 @@ void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
 
 void ABattleHUD::UpdateMatchEndDisplay()
 {
-	UE_LOG(LogTemp, Warning, TEXT("End"))
+	DisplayLeaderboard(true);
 }
 
 bool ABattleHUD::IsGameMenuInViewport()

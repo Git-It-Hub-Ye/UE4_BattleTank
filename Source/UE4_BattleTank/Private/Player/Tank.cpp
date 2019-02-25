@@ -2,7 +2,7 @@
 
 #include "Tank.h"
 #include "TankPlayerController.h"
-#include "BattleTankGameModeBase.h"
+#include "Online/BattleTankGameModeBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "AimingComponent.h"
 #include "UI/BattleHUD.h"

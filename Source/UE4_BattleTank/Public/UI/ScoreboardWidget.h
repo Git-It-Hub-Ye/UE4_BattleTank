@@ -55,10 +55,26 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	TArray<ATankPlayerState*> SortedPlayers;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Scoreboard")
+	bool bIsLeaderboardVisible;
+
 public:
-	/** Update data */
+	/** Update leaderboard */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void UpdateData();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
+	void UpdateLeaderboardData();
+
+	/** Show leaderboard */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
+	void ShowLeaderboard();
+
+	/** Hide leaderboard */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
+	void HideLeaderboard();
+
+	bool IsLeaderboardVisible() const { return bIsLeaderboardVisible; }
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Scoreboard")

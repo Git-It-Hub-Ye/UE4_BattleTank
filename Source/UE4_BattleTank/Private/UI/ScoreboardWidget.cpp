@@ -2,8 +2,10 @@
 
 #include "ScoreboardWidget.h"
 #include "Player/TankPlayerController.h"
-#include "Player/TankPlayerState.h"
+#include "Online/TankPlayerState.h"
+#include "Online/BattleTankGameState.h"
 #include "Kismet/KismetMathLibrary.h"
+
 
 void UScoreboardWidget::UpdateScoreboard(int32 Index)
 {
@@ -17,31 +19,11 @@ void UScoreboardWidget::UpdateScoreboard(int32 Index)
 
 void UScoreboardWidget::SortPlayerByScores()
 {
-	TArray<ATankPlayerState*> AllPlayers;
-	TArray<int32> AllPlayersScores;
 	SortedPlayers.Empty();
-
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	ABattleTankGameState * GS = GetOwningPlayer() ? GetOwningPlayer()->GetWorld()->GetGameState<ABattleTankGameState>() : nullptr;
+	if (GS)
 	{
-		APlayerController * PC = Cast<APlayerController>(*It);
-		ATankPlayerState * PlayerState = PC ? Cast<ATankPlayerState>(PC->PlayerState) : nullptr;
-		if (!PlayerState) { continue; }
-
-		AllPlayers.Add(PlayerState);
-		AllPlayersScores.Add(PlayerState->GetScore());
+		GS->GetRankedPlayers(SortedPlayers);
 	}
-
-	do
-	{
-		if (AllPlayersScores.Num() <= 0) { return; }
-		int32 Item;
-		int32 Score;
-		UKismetMathLibrary::MaxOfIntArray(AllPlayersScores, Item, Score);
-
-		AllPlayersScores.RemoveAt(Item);
-		SortedPlayers.Add(AllPlayers[Item]);
-		AllPlayers.RemoveAt(Item);
-	}
-	while (AllPlayers.Num() > 0);
 }
 

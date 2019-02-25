@@ -4,7 +4,7 @@
 #include "Tank.h"
 #include "AimingComponent.h"
 #include "Engine/World.h"
-#include "BattleTankGameModeBase.h"
+#include "Online/BattleTankGameModeBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UI/BattleHUD.h"
 
@@ -16,7 +16,7 @@ void ATankPlayerController::BeginPlay()
 	if (!PlayerPawn) return;
 	
 	TogglePlayerHud(true);
-	ShowMatchHud();
+	ShowMatchScoreboard();
 }
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
@@ -79,8 +79,8 @@ void ATankPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	InputComponent->BindAction("InGameMenu", IE_Released, this, &ATankPlayerController::ToggleInGameMenu);
-	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &ATankPlayerController::ShowScoreboard);
-	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::HideScoreboard);
+	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &ATankPlayerController::ShowLeaderboard);
+	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::HideLeaderboard);
 }
 
 void ATankPlayerController::TogglePlayerHud(bool bShowHud)
@@ -101,30 +101,30 @@ void ATankPlayerController::ToggleInGameMenu()
 	}
 }
 
-void ATankPlayerController::ShowScoreboard()
+void ATankPlayerController::ShowLeaderboard()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowLeaderboard(true);
+	}
+}
+
+void ATankPlayerController::HideLeaderboard()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowLeaderboard(false);
+	}
+}
+
+void ATankPlayerController::ShowMatchScoreboard()
 {
 	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
 	if (BHUD)
 	{
 		BHUD->ShowScoreboard(true);
-	}
-}
-
-void ATankPlayerController::HideScoreboard()
-{
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
-	{
-		BHUD->ShowScoreboard(false);
-	}
-}
-
-void ATankPlayerController::ShowMatchHud()
-{
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
-	{
-		BHUD->ShowInMatchDisplay(true);
 	}
 }
 

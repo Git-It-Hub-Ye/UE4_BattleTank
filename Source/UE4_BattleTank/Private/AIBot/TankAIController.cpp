@@ -5,7 +5,7 @@
 #include "Player/AimingComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "BattleTankGameModeBase.h"
+#include "Online/BattleTankGameModeBase.h"
 
 ATankAIController::ATankAIController()
 {
