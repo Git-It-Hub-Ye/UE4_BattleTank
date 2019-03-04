@@ -44,7 +44,7 @@ void ATankPlayerController::OnPossessedTankDeath()
 
 	if (BTGM)
 	{
-		BTGM->PlayerDestroyed();
+		BTGM->OnPlayerDeath(this);
 	}
 
 	if (GetPawn())

@@ -93,6 +93,7 @@ void ABattleHUD::DisplayInGameMenu(bool bOnGameOver)
 	if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && InGameMenuWidget->IsVisible())
 	{
 		PlayerOwner->SetInputMode(FInputModeGameOnly());
+		PlayerOwner->bShowMouseCursor = false;
 		InGameMenuWidget->RemoveFromParent();
 	}
 	else if (!bOnGameOver)
@@ -103,6 +104,7 @@ void ABattleHUD::DisplayInGameMenu(bool bOnGameOver)
 		{
 			InGameMenuWidget->InitialisePlayerController(PlayerOwner);
 			InGameMenuWidget->AddToViewport();
+			PlayerOwner->bShowMouseCursor = true;
 		}
 	}
 }

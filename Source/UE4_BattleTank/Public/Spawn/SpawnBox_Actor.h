@@ -15,26 +15,8 @@ class UE4_BATTLETANK_API ASpawnBox_Actor : public ASpawnBox
 {
 	GENERATED_BODY()
 
-private:
-	/** Actors to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TArray<TSubclassOf<AActor>> SpawnActorArray;
-
-	/** Initial amount of each actor in array to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 5.f))
-	float InitialSpawnCount;
-	
 public:
-	ASpawnBox_Actor();
-
 	/** Try place actor */
-	bool PlaceActors();
+	bool PlaceActors(TSubclassOf<AActor> ToSpawn, float SearchRadius);
 
-protected:
-	virtual void BeginPlay() override;
-
-private:
-	/** Place initial amount of each actor */
-	void PlaceInitialActors();
-	
 };

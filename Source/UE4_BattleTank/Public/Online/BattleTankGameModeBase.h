@@ -6,8 +6,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "BattleTankGameModeBase.generated.h"
 
-class ASpawnBox_Pawn;
+class AAIController;
 class ASpawnBox_Actor;
+class ASpawnBox_Pawn;
 enum class EMatchState : uint8;
 
 UCLASS()
@@ -15,54 +16,82 @@ class UE4_BATTLETANK_API ABattleTankGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-private:
-	/** The ai pawn class */
-	UPROPERTY(EditDefaultsOnly, Category = "Classes")
-	TSubclassOf<APawn> DefaultPawnAIClass;
+protected:
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Default classes
 
 	/** The class for cameras on maps */
 	UPROPERTY(EditDefaultsOnly, Category = "Classes")
 	TSubclassOf<AActor> MapCameraClass;
 
-	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 20))
-	int32 NumOfBotsToSpawn;
+	/** Triggers to spawn in world */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TArray<TSubclassOf<AActor>> TriggerArray;
 
-	/** Max AI bots alive in world at same time */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 20))
-	int32 MaxBotsAtOnce;
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Gamemode data
 
 	/** Time till NextWave */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 60))
-	int32 TimeBetweenWaves;
+	int32 TimeRemaining;
 
 	/** Points for a kill */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 100))
 	int32 KillPoints;
 
+	/** Points for a kill */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 100))
+	int32 AssistPoints;
+
+	/** Min number of players required to play game */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 4))
+	int32 MinPlayersRequired;
+
+	/** Number of players in game */
+	int32 NumOfPlayers;
+
+	/** Max number of triggers in world */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0, ClampMax = 10))
+	int32 MaxTriggerNum;
+
+	/** Current number of triggers in world */
+	int32 CurrentTriggerNum;
+
+	/** Does this game mode spawn bots */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	bool bAllowBots;
+
+	/** Does this game mode spawn bots */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	bool bInfiniteBots;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Spawn boxes
+
 	/** Array of spawn boxes to spawn ai within */
 	TArray<ASpawnBox_Pawn*> BotSpawnBoxArray;
 
-	/** Array of spawn boxes to spawn actors within */
-	TArray<ASpawnBox_Actor*> ActorSpawnBoxArray;
+	/** Array of spawn boxes to spawn triggers within */
+	TArray<ASpawnBox_Actor*> TriggerSpawnBoxArray;
 
-	/** Max number of bots this wave */
-	int32 MaxBotsThisRound;
 
-	/** Keeps track of current amount of AI bots spawned */
-	int32 TotalBotsSpawned;
-	
-	/** Number of bots currently active */
-	int32 CurrentNumOfBotsAlive;
+	////////////////////////////////////////////////////////////////////////////////
+	// Timer management
 
-	/** Current wave in progress */
-	int32 CurrentWave;
-	
-	/** Timer handle for start of new wave */
-	FTimerHandle NextWaveHandle;
+	/** Timer handle for game start */
+	FTimerHandle StartMatchHandle;
 
 	/** Timer handle for game over */
 	FTimerHandle GameOverHandle;
+
+	/** Timer handle for retrying spawn after failed attempts */
+	FTimerHandle SpawnPawnFailHandle;
+
+	/** Timer handle for retrying spawn after failed attempts */
+	FTimerHandle SpawnTriggerFailHandle;
 
 public:
 	ABattleTankGameModeBase();
@@ -73,51 +102,57 @@ public:
 
 	virtual void Logout(AController * Exiting) override;
 
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
-	void AIBotDestroyed(AController * AICon);
+	////////////////////////////////////////////////////////////////////////////////
+	// Game behaviour
 
-	void PlayerDestroyed();
+	/** Chooses player start location form player start actors in world */
+	virtual AActor* ChoosePlayerStart_Implementation(AController * Player) override;
 
+	/** Call game behaviour and Change player state data */
+	void HandleKill(AController * KilledPawn, AController * KillerPawn);
+
+	/** Default behaviour when bot is killed */
+	virtual void OnAIBotDeath(AAIController * AICon);
+
+	/** Default behaviour when player is killed */
+	virtual void OnPlayerDeath(APlayerController * PC);
+
+	/** Default behaviour when bot is destroyed */
 	void TriggerDestroyed();
 
-	void HandleKill(AController* KilledPawn, AController* KillerPawn);
-
+	/** Changes players camera target to world camera */
 	void TransitionToMapCamera(APlayerController * PC);
 	
 protected:
-	/** Sets timer for new wave to start spawning ai  */
-	void PrepareNewWave();
 
-	/** Start spawning ai */
-	void StartWave();
+	////////////////////////////////////////////////////////////////////////////////
+	// Handle Game changes
 
-	void ContinueMatch();
-
-	/** Stop spawning ai */
-	void EndWave();
-
-	/** Spawns ai at empty location */
-	void SpawnNewAIPawn();
-
-	void SpawnNewTrigger();
-
-private:
-	/** Gets all spawn boxes in world */
-	void GetSpawnLocations();
-
+	/** Set current state of game */
 	void SetGameState(EMatchState NewState);
-
-	/** Updates player data on scoreboard */
-	void UpdatePlayerScoreboard();
-
-	/** Updates scoreboard of current match state */
-	void UpdateMatchStateScoreboard();
-
-	/** Update scoreboard of players current data */
-	void ShowEndMatchScoreboard();
 
 	/** Ends game */
 	void GameOver();
+
+	/** Spawns ne trigger in world */
+	void SpawnNewTrigger();
+
+	////////////////////////////////////////////////////////////////////////////////
+	// World data
+
+	/** Gets all spawn boxes in world */
+	void GetSpawnLocations();
+
+private:
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Handle Game changes
+
+	/** Updates player scoreboard */
+	void UpdatePlayerScoreboard();
+
+	/** Updates player scoreboard */
+	void EndMatchScoreboard();
 
 };

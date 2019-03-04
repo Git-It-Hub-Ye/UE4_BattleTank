@@ -11,9 +11,9 @@ UENUM()
 enum class EMatchState : uint8 {
 
 	WaitingToStart,
-	WaveInProgress,
+	InProgress,
 	WaitingToComplete,
-	WaveCompleted,
+	Completed,
 	GameOver
 };
 
@@ -27,6 +27,19 @@ protected:
 	/** Current state of game */
 	UPROPERTY(BlueprintReadOnly, Category = "GameState")
 	EMatchState CurrentState;
+
+private:
+	/** number of teams in current game (doesn't deprecate when no players are left in a team) */
+	int32 NumTeams;
+
+	/** accumulated score per team */
+	TArray<int32> TeamScores;
+
+	/** time left for warmup / match */
+	int32 RemainingTime;
+
+	/** is timer paused? */
+	bool bTimerPaused;
 
 public:
 	/** Sets the current state */

@@ -12,8 +12,8 @@ void ABattleTankGameState::SetMatchState(EMatchState NewState)
 
 void ABattleTankGameState::GetRankedPlayers(TArray<ATankPlayerState*>& OutRankedPlayerState)
 {
-	TMap<int32, ATankPlayerState*> SortedMap;
-
+	//TMap<int32, ATankPlayerState*> SortedMap;
+	TMultiMap<int32, ATankPlayerState*> SortedMap;
 	// Get all player states and scores and add to tmap
 	for (int32 i = 0; i < PlayerArray.Num(); i++)
 	{
@@ -29,7 +29,7 @@ void ABattleTankGameState::GetRankedPlayers(TArray<ATankPlayerState*>& OutRanked
 	OutRankedPlayerState.Empty();
 
 	// Add player states back to OutRankedPlayerState
-	for (TMap<int32, ATankPlayerState*>::TIterator It(SortedMap); It; ++It)
+	for (TMultiMap<int32, ATankPlayerState*>::TIterator It(SortedMap); It; ++It)
 	{
 		OutRankedPlayerState.Add(It.Value());
 	}
