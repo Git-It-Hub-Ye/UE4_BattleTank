@@ -32,21 +32,47 @@ private:
 	/** number of teams in current game (doesn't deprecate when no players are left in a team) */
 	int32 NumTeams;
 
-	/** accumulated score per team */
+	/** Accumulated score per team */
 	TArray<int32> TeamScores;
 
 	/** time left for warmup / match */
 	int32 RemainingTime;
 
+	/** Current round of match */
+	int32 CurrentRound;
+
 	/** is timer paused? */
 	bool bTimerPaused;
+
+	/** Game has timer */
+	bool bUsingTimer;
+
+	/** Game has rounds */
+	bool bHasRounds;
 
 public:
 	/** Sets the current state */
 	void SetMatchState(EMatchState NewState);
 
+	/** Sets data used by this game (eg, is there rounds or a timer etc) */
+	void SetGameDataUsed(bool bTimer, bool bRounds);
+
+	/** Updates current round */
+	void UpdateCurrentRound();
+
+	/** Return current round */
+	int32 GetCurrentRound() const { return CurrentRound; }
+
+	/** Is game using a timer */
+	bool GetIsUsingTimer() const { return bUsingTimer; }
+
+	/** Is game using rounds */
+	bool GetIsUsingRounds() const { return bHasRounds; }
+
 	/** Sorts player states by score for this match */
 	void GetRankedPlayers(TArray<class ATankPlayerState*> & OutRankedPlayerState);
+
+	EMatchState GetCurrentStateOfGame() const { return CurrentState; }
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameState")

@@ -10,32 +10,58 @@ class ATankPlayerState;
 
 /** Struct for scoreboard data */
 USTRUCT(BlueprintType)
-struct FScoreboardData {
+struct FMatchData {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	FString PlayerName;
+	TArray<int32> Scores;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 Score;
+	int32 MatchTime;
 
+	/** Message about current match */
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 Kills;
+	int32 CurrentRound;
 
+	/** Displays current match state info */
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 Assists;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 Deaths;
+	int32 MatchStateMessage;
 
 	/** Defaults */
-	FScoreboardData()
+	FMatchData()
 	{
-		PlayerName = "PlayerName";
-		Score = 0;
-		Kills = 0;
-		Assists = 0;
-		Deaths = 0;
+		CurrentRound = 0;
+	}
+};
+
+/** Struct for scoreboard data */
+USTRUCT(BlueprintType)
+struct FLeaderboardData {
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
+	FText PlayerName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
+	int32 PlayerScore;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
+	int32 PlayerKills;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
+	int32 PlayerAssists;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
+	int32 PlayerDeaths;
+
+	/** Defaults */
+	FLeaderboardData()
+	{
+		PlayerName = FText::FromString("PlayerName");
+		PlayerScore = 0;
+		PlayerKills = 0;
+		PlayerAssists = 0;
+		PlayerDeaths = 0;
 	}
 };
 
@@ -48,8 +74,12 @@ class UE4_BATTLETANK_API UScoreboardWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	FScoreboardData ScoreboardData;
+	FMatchData MatchData;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
+	FLeaderboardData LeaderboardData;
 
 	/** Player controllers sorted by score in descending */
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
@@ -59,9 +89,20 @@ protected:
 	bool bIsLeaderboardVisible;
 
 public:
-	/** Update leaderboard */
+	/** Shows match timer */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
-	void UpdateData();
+	void ShowTimer();
+
+	/** Shows match round */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
+	void ShowRounds();
+
+	/** Update Scoreboard */
+	void UpdateScoreboardData();
+
+	/** Show new Scoreboard data */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
+	void NewScoreboardData();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void UpdateLeaderboardData();
@@ -77,10 +118,18 @@ public:
 	bool IsLeaderboardVisible() const { return bIsLeaderboardVisible; }
 
 protected:
+	/** Finds what match data should be visible */
 	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
-	void UpdateScoreboard(int32 Index);
+	void WhatDataToDisplay();
+
+	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
+	void UpdateLeaderboard(int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
 	void SortPlayerByScores();
+
+private:
+	/** Set values of match data */
+	void SetMatchData();
 	
 };

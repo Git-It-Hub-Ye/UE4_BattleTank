@@ -16,7 +16,6 @@ void ATankPlayerController::BeginPlay()
 	if (!PlayerPawn) return;
 	
 	TogglePlayerHud(true);
-	ShowMatchScoreboard();
 }
 
 void ATankPlayerController::SetPawn(APawn * InPawn)
@@ -31,6 +30,20 @@ void ATankPlayerController::SetPawn(APawn * InPawn)
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Setup
+
+void ATankPlayerController::ClientInGame()
+{
+	ShowMatchScoreboard();
+}
+
+void ATankPlayerController::ClientGameStarted()
+{
+	UpdateMatchScoreboard();
+}
+
 void ATankPlayerController::EnemyThatKilledPlayer(FVector EnemyLocation)
 {
 	LocationOfEnemy = EnemyLocation;
@@ -41,7 +54,6 @@ void ATankPlayerController::OnPossessedTankDeath()
 	TogglePlayerHud(false);
 
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
-
 	if (BTGM)
 	{
 		BTGM->OnPlayerDeath(this);
@@ -125,6 +137,15 @@ void ATankPlayerController::ShowMatchScoreboard()
 	if (BHUD)
 	{
 		BHUD->ShowScoreboard(true);
+	}
+}
+
+void ATankPlayerController::UpdateMatchScoreboard()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->UpdateScoreboard();
 	}
 }
 

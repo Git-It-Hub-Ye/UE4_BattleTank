@@ -64,17 +64,17 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 	// Updating to hud
 
-	/** Updates scoreboard data when score data has changed */
-	void UpdateScoreboard();
-
-	/** Updates leaderboard data when currently being viewed and player data has changed */
-	void UpdateLeaderboard();
-
 	/** Update player ui of current health. Request from player pawn */
 	void UpdateHealthDisplay();
 
 	/** Update player ui of current firing state. Request from Aiming Component */
 	void UpdateFiringStateDisplay();
+
+	/** Updates scoreboard data when score data has changed */
+	void UpdateScoreboard();
+
+	/** Updates leaderboard data when currently being viewed and player data has changed */
+	void UpdateLeaderboard();
 
 	/** Update player ui when low on ammo. Request from Aiming Component */
 	void WarnOfLowAmmo(bool bLowAmmo);
@@ -84,9 +84,6 @@ public:
 
 	/** Update player ui when out of match area. Request from Match area trigger */
 	void WarnOutOfMatchArea(bool bOutOfArea);
-
-	/** Show final result of match */
-	void UpdateMatchEndDisplay();
 
 	/** Is menu currently in player viewport */
 	bool IsGameMenuInViewport();

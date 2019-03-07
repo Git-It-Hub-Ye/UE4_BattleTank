@@ -9,6 +9,7 @@
 #include "Spawn/SpawnBox_Actor.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
+#include "Player/TankPlayerController.h"
 #include "TankPlayerState.h"
 #include "UI/BattleHUD.h"
 #include "Player/Tank.h"
@@ -23,11 +24,18 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	HUDClass = ABattleHUD::StaticClass();
 	PlayerStateClass = ATankPlayerState::StaticClass();
 	DefaultPawnClass = ATank::StaticClass();
+	DefaultPawnAIClass = ATank::StaticClass();
 
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_Player"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AI"));
+	if (AIBotPawnBPClass.Class != NULL)
+	{
+		DefaultPawnAIClass = AIBotPawnBPClass.Class;
 	}
 
 	TimeRemaining = 10;
@@ -37,9 +45,32 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	MinPlayersRequired = 1;
 	MaxTriggerNum = 4;
 	CurrentTriggerNum = 0;
+	CurrentRound = 0;
+
+	bMultipleRounds = false;
+	bHasTimer = true;
+
+	NumOfBotsToSpawn = 0;
+	MaxBotAmountAtOnce = 0;
+	MaxBotSpawnAmount = 0;
+	TotalBotsSpawned = 0;
+	CurrentNumOfBotsAlive = 0;
 
 	bAllowBots = false;
 	bInfiniteBots = false;
+}
+
+void ABattleTankGameModeBase::InitGame(const FString & MapName, const FString & Options, FString & ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+	GetSpawnLocations();
+	SpawnNewTrigger();
+}
+
+void ABattleTankGameModeBase::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+	SetGameStateData();
 }
 
 void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
@@ -48,41 +79,17 @@ void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
 	if (NewPlayer)
 	{
 		NumOfPlayers++;
+		NotifyClientGameCreated(NewPlayer);
+
+		if (NumOfPlayers >= MinPlayersRequired)
+		{
+			StartGame();
+		}
 	}
 }
 
 void ABattleTankGameModeBase::Logout(AController * Exiting)
 {
-}
-
-void ABattleTankGameModeBase::StartPlay()
-{
-	Super::StartPlay();
-	GetSpawnLocations();
-	SpawnNewTrigger();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// World data
-
-void ABattleTankGameModeBase::GetSpawnLocations()
-{
-	for (TActorIterator<ASpawnBox> i(GetWorld()); i; ++i)
-	{	
-		ASpawnBox_Actor * ActorSpawnBox = Cast<ASpawnBox_Actor>(*i);
-		if (ActorSpawnBox)
-		{
-			TriggerSpawnBoxArray.Add(ActorSpawnBox);
-		}
-
-		if (!bAllowBots) { continue; }
-		ASpawnBox_Pawn * BotSpawnBox = Cast<ASpawnBox_Pawn>(*i);
-		if (BotSpawnBox)
-		{
-			BotSpawnBoxArray.Add(BotSpawnBox);
-		}
-	}
 }
 
 
@@ -92,6 +99,53 @@ void ABattleTankGameModeBase::GetSpawnLocations()
 AActor * ABattleTankGameModeBase::ChoosePlayerStart_Implementation(AController * Player)
 {
 	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
+void ABattleTankGameModeBase::StartGame()
+{
+	// Empty on default
+}
+
+void ABattleTankGameModeBase::FinishMatch()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		if (PC)
+		{
+			TransitionToMapCamera(PC);
+		}
+	}
+	GetWorldTimerManager().SetTimer(GameOverHandle, this, &ABattleTankGameModeBase::EndMatchScoreboard, TimeRemaining, false);
+}
+
+void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
+{
+	if (!PC) { return; }
+
+	TArray<AActor*> ReturnedCameras;
+	UGameplayStatics::GetAllActorsOfClass(this, MapCameraClass, ReturnedCameras);
+
+	if (ReturnedCameras.Num() > 0)
+	{
+		AActor * NewMapCamera = ReturnedCameras[0];
+		PC->SetViewTarget(NewMapCamera);
+	}
+}
+
+void ABattleTankGameModeBase::EndMatchScoreboard()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+		if (BHUD)
+		{
+			PC->DisableInput(PC);
+			BHUD->RemoveWidgetsOnGameOver();
+			BHUD->ShowLeaderboard(true);
+		}
+	}
 }
 
 void ABattleTankGameModeBase::HandleKill(AController * KilledPawn, AController * KillerPawn)
@@ -109,7 +163,7 @@ void ABattleTankGameModeBase::HandleKill(AController * KilledPawn, AController *
 		VictimPlayerState->ScoreDeath();
 	}
 
-	if (KillerPlayerState || VictimPlayerState) { UpdatePlayerScoreboard(); }
+	if (KillerPlayerState || VictimPlayerState) { UpdateScoreboard(); }
 }
 
 void ABattleTankGameModeBase::OnAIBotDeath(AAIController * AICon)
@@ -132,7 +186,7 @@ void ABattleTankGameModeBase::SpawnNewTrigger()
 {
 	GetWorldTimerManager().ClearTimer(SpawnTriggerFailHandle);
 
-	if (TriggerSpawnBoxArray.Num() > 0)
+	if (TriggerArray.Num() > 0 && TriggerSpawnBoxArray.Num() > 0)
 	{
 		for (CurrentTriggerNum; CurrentTriggerNum < MaxTriggerNum; CurrentTriggerNum)
 		{
@@ -153,73 +207,122 @@ void ABattleTankGameModeBase::SpawnNewTrigger()
 	}
 }
 
+void ABattleTankGameModeBase::SpawnNewAIPawn()
+{
+	GetWorldTimerManager().ClearTimer(SpawnPawnFailHandle);
+	if (BotSpawnBoxArray.Num() > 0)
+	{
+		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < MaxBotAmountAtOnce; CurrentNumOfBotsAlive)
+		{
+			int32 RandNum = FMath::RandRange(0, BotSpawnBoxArray.Num() - 1);
+			ASpawnBox_Pawn * SpawnBox = BotSpawnBoxArray[RandNum];
+			if (SpawnBox && SpawnBox->PlacePawns(DefaultPawnAIClass, 500.f))
+			{
+				CurrentNumOfBotsAlive++;
+				TotalBotsSpawned++;
+				if (TotalBotsSpawned >= MaxBotSpawnAmount) { SetGameState(EMatchState::WaitingToComplete);  break; }
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(SpawnPawnFailHandle, this, &ABattleTankGameModeBase::SpawnNewAIPawn, 5.f, false);
+				break;
+			}
+		}
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handle Game changes
+// Game data
+
+void ABattleTankGameModeBase::SetGameStateData()
+{
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
+	if (GS)
+	{
+		GS->SetGameDataUsed(bHasTimer, bMultipleRounds);
+	}
+}
+
+void ABattleTankGameModeBase::NewRound()
+{
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
+	if (GS)
+	{
+		GS->UpdateCurrentRound();
+		NotifyClientMatchStart();
+	}
+}
+
+void ABattleTankGameModeBase::GetSpawnLocations()
+{
+	for (TActorIterator<ASpawnBox> i(GetWorld()); i; ++i)
+	{
+		ASpawnBox_Actor * ActorSpawnBox = Cast<ASpawnBox_Actor>(*i);
+		if (ActorSpawnBox)
+		{
+			TriggerSpawnBoxArray.Add(ActorSpawnBox);
+		}
+
+		if (!bAllowBots) { continue; }
+		ASpawnBox_Pawn * BotSpawnBox = Cast<ASpawnBox_Pawn>(*i);
+		if (BotSpawnBox)
+		{
+			BotSpawnBoxArray.Add(BotSpawnBox);
+		}
+	}
+}
+
+ABattleTankGameState * ABattleTankGameModeBase::GetState() const
+{
+	return GetWorld()->GetGameState<ABattleTankGameState>();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Notify about Game changes
 
 void ABattleTankGameModeBase::SetGameState(EMatchState NewState)
 {
 	ABattleTankGameState * GS = GetGameState<ABattleTankGameState>();
-
 	if (GS)
 	{
 		GS->SetMatchState(NewState);
 	}
 }
 
-void ABattleTankGameModeBase::UpdatePlayerScoreboard()
+void ABattleTankGameModeBase::NotifyClientGameCreated(APlayerController * NewPlayer)
 {
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	ATankPlayerController * PC = Cast<ATankPlayerController>(NewPlayer);
+	if (PC)
 	{
-		APlayerController * PC = Cast<APlayerController>(*It);
-		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
-		if (BHUD)
-		{
-			BHUD->UpdateLeaderboard();
-		}
+		PC->ClientInGame();
 	}
 }
 
-void ABattleTankGameModeBase::EndMatchScoreboard()
+void ABattleTankGameModeBase::NotifyClientMatchStart()
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		APlayerController * PC = Cast<APlayerController>(*It);
-		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
-		if (BHUD)
-		{
-			PC->DisableInput(PC);
-			BHUD->RemoveWidgetsOnGameOver();
-			BHUD->UpdateMatchEndDisplay();
-		}
-	}
-}
-
-void ABattleTankGameModeBase::GameOver()
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APlayerController * PC = Cast<APlayerController>(*It);
+		ATankPlayerController * PC = Cast<ATankPlayerController>(*It);
 		if (PC)
 		{
-			TransitionToMapCamera(PC);
+			PC->ClientGameStarted();
 		}
 	}
-	
-	GetWorldTimerManager().SetTimer(GameOverHandle, this, &ABattleTankGameModeBase::EndMatchScoreboard, TimeRemaining, false);
 }
 
-void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
+void ABattleTankGameModeBase::UpdateScoreboard()
 {
-	if (!PC) { return; }
-
-	TArray<AActor*> ReturnedCameras;
-	UGameplayStatics::GetAllActorsOfClass(this, MapCameraClass, ReturnedCameras);
-
-	if (ReturnedCameras.Num() > 0)
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		AActor * NewMapCamera = ReturnedCameras[0];
-		PC->SetViewTarget(NewMapCamera);
+		APlayerController * PC = Cast<APlayerController>(*It);
+		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+		if (BHUD)
+		{
+			BHUD->UpdateScoreboard();
+			BHUD->UpdateLeaderboard();
+		}
 	}
 }
 

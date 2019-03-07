@@ -5,36 +5,16 @@
 #include "BattleTankGameState.h"
 #include "TankPlayerState.h"
 #include "TimerManager.h"
-#include "Player/Tank.h"
 #include "SpawnBox_Pawn.h"
 
 ABattleTank_HordeMode::ABattleTank_HordeMode()
 {
-	DefaultPawnAIClass = ATank::StaticClass();
-
-	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AI"));
-	if (AIBotPawnBPClass.Class != NULL)
-	{
-		DefaultPawnAIClass = AIBotPawnBPClass.Class;
-	}
-
-	CurrentWave = 0;
-
+	bHasTimer = false;
+	bMultipleRounds = true;
 	bAllowBots = true;
+
 	NumOfBotsToSpawn = 10;
 	MaxBotAmountAtOnce = 10;
-	MaxBotSpawnAmount = 0;
-	TotalBotsSpawned = 0;
-	CurrentNumOfBotsAlive = 0;
-}
-
-void ABattleTank_HordeMode::PostLogin(APlayerController * NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	if (NumOfPlayers >= MinPlayersRequired)
-	{
-		PrepareNewWave();
-	}
 }
 
 
@@ -43,10 +23,14 @@ void ABattleTank_HordeMode::PostLogin(APlayerController * NewPlayer)
 
 void ABattleTank_HordeMode::PrepareNewWave()
 {
-	CurrentWave++;
+	GetWorldTimerManager().ClearTimer(StartMatchHandle);
+
+	CurrentRound++;
 	TotalBotsSpawned = 0;
 	CurrentNumOfBotsAlive = 0;
-	MaxBotSpawnAmount = NumOfBotsToSpawn * CurrentWave;
+	MaxBotSpawnAmount = NumOfBotsToSpawn * CurrentRound;
+
+	NewRound();
 
 	SetGameState(EMatchState::WaitingToStart);
 	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::StartWave, TimeRemaining, false);
@@ -74,12 +58,18 @@ void ABattleTank_HordeMode::CheckWaveProgress()
 
 void ABattleTank_HordeMode::EndWave()
 {
-	PrepareNewWave();
+	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::PrepareNewWave, 3.f, false);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Game behaviour
+
+void ABattleTank_HordeMode::StartGame()
+{
+	Super::StartGame();
+	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::PrepareNewWave, 5.f, false);
+}
 
 void ABattleTank_HordeMode::OnAIBotDeath(AAIController * AICon)
 {
@@ -104,30 +94,6 @@ void ABattleTank_HordeMode::OnPlayerDeath(APlayerController * PC)
 
 	// Only runs if all players are destroyed
 	SetGameState(EMatchState::GameOver);
-	GetWorldTimerManager().SetTimer(GameOverHandle, this, &ABattleTank_HordeMode::GameOver, 5, false);
-}
-
-void ABattleTank_HordeMode::SpawnNewAIPawn()
-{
-	GetWorldTimerManager().ClearTimer(SpawnPawnFailHandle);
-	if (BotSpawnBoxArray.Num() > 0)
-	{
-		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < MaxBotAmountAtOnce; CurrentNumOfBotsAlive)
-		{
-			int32 RandNum = FMath::RandRange(0, BotSpawnBoxArray.Num() - 1);
-			ASpawnBox_Pawn * SpawnBox = BotSpawnBoxArray[RandNum];
-			if (SpawnBox && SpawnBox->PlacePawns(DefaultPawnAIClass, 500.f))
-			{
-				CurrentNumOfBotsAlive++;
-				TotalBotsSpawned++;
-				if (TotalBotsSpawned >= MaxBotSpawnAmount) { SetGameState(EMatchState::WaitingToComplete);  break; }
-			}
-			else
-			{
-				GetWorldTimerManager().SetTimer(SpawnPawnFailHandle, this, &ABattleTank_HordeMode::SpawnNewAIPawn, 5.f, false);
-				break;
-			}
-		}
-	}
+	GetWorldTimerManager().SetTimer(GameOverHandle, this, &ABattleTank_HordeMode::FinishMatch, 5, false);
 }
 

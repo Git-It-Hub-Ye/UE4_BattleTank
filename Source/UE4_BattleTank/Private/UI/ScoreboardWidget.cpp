@@ -7,20 +7,51 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
-void UScoreboardWidget::UpdateScoreboard(int32 Index)
+void UScoreboardWidget::WhatDataToDisplay()
+{
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
+	if (GS)
+	{
+		if (GS->GetIsUsingTimer())
+		{
+			ShowTimer();
+		}
+		if (GS->GetIsUsingRounds())
+		{
+			ShowRounds();
+		}
+	}
+}
+
+void UScoreboardWidget::UpdateScoreboardData()
+{
+	SetMatchData();
+	NewScoreboardData();
+}
+
+void UScoreboardWidget::SetMatchData()
+{
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
+	if (GS)
+	{
+		MatchData.CurrentRound = GS->GetCurrentRound();
+	}
+}
+
+void UScoreboardWidget::UpdateLeaderboard(int32 Index)
 {
 	if (!SortedPlayers[Index]) { return; }
-	ScoreboardData.PlayerName = SortedPlayers[Index]->GetPlayerName();
-	ScoreboardData.Score = SortedPlayers[Index]->GetScore();
-	ScoreboardData.Kills = SortedPlayers[Index]->GetKillCount();
-	ScoreboardData.Assists = SortedPlayers[Index]->GetKillAssistCount();
-	ScoreboardData.Deaths = SortedPlayers[Index]->GetDeathCount();
+	LeaderboardData.PlayerName = FText::FromString(SortedPlayers[Index]->GetPlayerName());
+	LeaderboardData.PlayerScore = SortedPlayers[Index]->GetScore();
+	LeaderboardData.PlayerKills = SortedPlayers[Index]->GetKillCount();
+	LeaderboardData.PlayerAssists = SortedPlayers[Index]->GetKillAssistCount();
+	LeaderboardData.PlayerDeaths = SortedPlayers[Index]->GetDeathCount();
 }
 
 void UScoreboardWidget::SortPlayerByScores()
 {
 	SortedPlayers.Empty();
-	ABattleTankGameState * GS = GetOwningPlayer() ? GetOwningPlayer()->GetWorld()->GetGameState<ABattleTankGameState>() : nullptr;
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
 	if (GS)
 	{
 		GS->GetRankedPlayers(SortedPlayers);

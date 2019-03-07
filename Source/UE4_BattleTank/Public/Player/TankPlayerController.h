@@ -37,6 +37,13 @@ private:
 
 public:
 
+	////////////////////////////////////////////////////////////////////////////////
+	// Setup
+
+	void ClientInGame();
+
+	void ClientGameStarted();
+
 	void EnemyThatKilledPlayer(FVector  EnemyLocation);
 
 
@@ -110,5 +117,8 @@ private:
 
 	/** Show match hud */
 	void ShowMatchScoreboard();
+
+	/** Updates match hud display */
+	void UpdateMatchScoreboard();
 
 };

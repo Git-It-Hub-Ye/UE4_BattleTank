@@ -180,7 +180,7 @@ void ABattleHUD::UpdateScoreboard()
 {
 	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
 	{
-		ScoreboardWidget->UpdateData();
+		ScoreboardWidget->UpdateScoreboardData();
 	}
 }
 
@@ -214,11 +214,6 @@ void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
 	{
 		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
 	}
-}
-
-void ABattleHUD::UpdateMatchEndDisplay()
-{
-	DisplayLeaderboard(true);
 }
 
 bool ABattleHUD::IsGameMenuInViewport()
