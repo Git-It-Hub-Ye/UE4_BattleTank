@@ -12,6 +12,9 @@
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetInputMode(FInputModeGameOnly());
+
 	ATank * PlayerPawn = Cast<ATank>(GetPawn());
 	if (!PlayerPawn) return;
 	

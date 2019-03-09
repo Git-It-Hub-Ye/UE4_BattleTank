@@ -73,7 +73,7 @@ void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
 		PlayerWidget = CreateWidget<UPlayerWidget>(PlayerOwner, PlayerUI);
 		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && !PlayerWidget->IsVisible())
 		{
-			PlayerWidget->InitialiseRefs(PlayerOwner);
+			PlayerWidget->InitialiseRefs();
 			PlayerWidget->AddToViewport();
 		}
 	}

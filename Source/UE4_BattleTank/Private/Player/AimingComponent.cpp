@@ -28,10 +28,6 @@ void UAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentRoundsRemaining = WeaponData.MaxRounds;
-	if (!bIsLoaded)
-	{
-		ReloadProjectile();
-	}
 }
 
 void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, ATank * NewOwner)
@@ -39,6 +35,11 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
 	CompOwner = NewOwner;
+
+	if (!bIsLoaded)
+	{
+		ReloadProjectile();
+	}
 }
 
 void UAimingComponent::StopActions()
@@ -215,10 +216,10 @@ void UAimingComponent::ReloadProjectile()
 	bIsLoaded = false;
 	DetermineWeaponState();
 	UpdatePlayerHud();
-	AimCompAudio = PlaySoundFX(LoadSound);
 
 	if (CurrentFiringState == EFiringState::Reloading)
 	{
+		AimCompAudio = PlaySoundFX(LoadSound);
 		GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &UAimingComponent::OnReloadFinished, WeaponData.ReloadTimeInSeconds, false);
 	}
 }

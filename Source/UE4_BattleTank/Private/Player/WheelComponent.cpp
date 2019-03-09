@@ -24,7 +24,7 @@ void UWheelComponent::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActo
 
 void UWheelComponent::OnEndOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor == GetOwner()) { return; }
+	if (OtherActor == GetOwner() || OverlappedSurfaces <= 0) { return; }
 	OverlappedSurfaces--;
 }
 

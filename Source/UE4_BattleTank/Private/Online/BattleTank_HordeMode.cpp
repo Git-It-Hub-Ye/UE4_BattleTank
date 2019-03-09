@@ -58,7 +58,7 @@ void ABattleTank_HordeMode::CheckWaveProgress()
 
 void ABattleTank_HordeMode::EndWave()
 {
-	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::PrepareNewWave, 3.f, false);
+	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::PrepareNewWave, 2.f, false);
 }
 
 

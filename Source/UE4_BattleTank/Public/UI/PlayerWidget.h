@@ -30,7 +30,7 @@ protected:
 
 public:
 	/** Initialise references */
-	void InitialiseRefs(APlayerController * PlayerController);
+	void InitialiseRefs();
 
 	/** Update weapon ui */
 	void AdjustFiringDisplay();

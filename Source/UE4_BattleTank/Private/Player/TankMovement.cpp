@@ -38,7 +38,7 @@ void UTankMovement::IntendMoveForward(float Throw)
 
 	if (!ensure(LeftTrack && RightTrack)) { return; }
 	if (Throw == 0.f && bTurningRight) { return; }
-	
+
 	LeftTrack->SetThrottle(Throw, bTurningRight);
 	RightTrack->SetThrottle(Throw, bTurningRight);
 }
@@ -47,7 +47,7 @@ void UTankMovement::IntendTurnRight(float Throw)
 {
 	if (!ensure(LeftTrack && RightTrack)) { return; }
 	if (Throw == 0.f) { bTurningRight = false; return; }
-
+	
 	bTurningRight = true;
 	LeftTrack->SetThrottle(Throw, bTurningRight);
 	RightTrack->SetThrottle(-Throw, bTurningRight);
@@ -74,7 +74,6 @@ float UTankMovement::GetMovementSpeed(float Throw)
 
 	float TurningPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 100.f), FVector2D(MinSoundPitch, MaxTurnSoundPitch), FGenericPlatformMath::Abs<float>(TurningSpeed));
 	float TotalPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(ForwardSpeed));
-
 	return TotalPitchRange < TurningPitchRange ? TurningPitchRange : TotalPitchRange;
 }
 

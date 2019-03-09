@@ -6,9 +6,10 @@
 #include "Player/TankPlayerController.h"
 
 
-void UPlayerWidget::InitialiseRefs(APlayerController * PlayerController)
+void UPlayerWidget::InitialiseRefs()
 {
-	ATankPlayerController * PC = PlayerController ? Cast<ATankPlayerController>(PlayerController) : nullptr;
+	ATankPlayerController * PC = GetOwningPlayer() ? Cast<ATankPlayerController>(GetOwningPlayer()) : nullptr;
+	
 	if (PC && PC->GetPawn())
 	{
 		PlayerPawn = Cast<ATank>(PC->GetPawn());
