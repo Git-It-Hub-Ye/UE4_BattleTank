@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "MenuInterface.h"
 #include "BattleInstance.generated.h"
 
 
 UCLASS()
-class UE4_BATTLETANK_API UBattleInstance : public UGameInstance
+class UE4_BATTLETANK_API UBattleInstance : public UGameInstance, public IMenuInterface
 {
 	GENERATED_BODY()
 
@@ -23,7 +24,13 @@ public:
 	virtual void init();
 
 	UFUNCTION(BlueprintCallable)
-	void LoadMainMenu();
+	void LoadMenu();
 	
+protected:
+	virtual void Host() override;
+
+	virtual void Join() override;
+
+	virtual void LoadMainMenu() override;
 	
 };

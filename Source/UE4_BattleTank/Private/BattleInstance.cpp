@@ -4,6 +4,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
+#include "MainMenuSystem/MainMenuWidget.h"
 
 
 UBattleInstance::UBattleInstance(const FObjectInitializer & ObjectInitializer)
@@ -20,12 +21,14 @@ void UBattleInstance::init()
 
 }
 
-void UBattleInstance::LoadMainMenu()
+void UBattleInstance::LoadMenu()
 {
 	if (!MenuWidget) { return; }
-	UUserWidget * MainMenu = CreateWidget<UUserWidget>(this, MenuWidget);
+	UMainMenuWidget * MainMenu = CreateWidget<UMainMenuWidget>(this, MenuWidget);
 
 	if (!MainMenu) { return; }
+	// Instance implements menu interface
+	MainMenu->SetMenuInterface(this);
 	MainMenu->AddToViewport();
 
 	APlayerController * PC = GetFirstLocalPlayerController();
@@ -37,5 +40,19 @@ void UBattleInstance::LoadMainMenu()
 
 	PC->SetInputMode(InputMode);
 	PC->bShowMouseCursor = true;
+}
+
+void UBattleInstance::Host()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Host"))
+}
+
+void UBattleInstance::Join()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Join"))
+}
+
+void UBattleInstance::LoadMainMenu()
+{
 }
 
