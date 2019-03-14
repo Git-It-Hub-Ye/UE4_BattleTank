@@ -49,7 +49,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 
 void ATank::Fire()
 {
-	if (AimingComp && !IsTankDestroyed() && CanRecieveInput())
+	if (AimingComp && !IsTankDestroyed())
 	{
 		AimingComp->FireProjectile();
 	}
@@ -90,6 +90,7 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 		if (CurrentHealth <= 0)
 		{
+			bHasBeenDestroyed = true;
 			OnDeathBehaviour(EventInstigator);
 		}
 	}
@@ -104,7 +105,6 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 	}
 
 	TankBody->SetCollisionProfileName("DestroyedTank");
-	bHasBeenDestroyed = true;
 
 	ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
 	if (GM && Controller)
@@ -131,17 +131,6 @@ void ATank::UpdatePlayerHud()
 	{
 		BHUD->UpdateHealthDisplay();
 	}
-}
-
-bool ATank::CanRecieveInput() const
-{
-	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
-	if (PC)
-	{
-		return PC->CanRecieveInput();
-	}
-
-	return true;
 }
 
 void ATank::ReplenishHealth(float HealthToAdd)

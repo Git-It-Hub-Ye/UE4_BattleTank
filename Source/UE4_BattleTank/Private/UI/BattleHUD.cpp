@@ -4,7 +4,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/PlayerWidget.h"
-#include "UI/InGameMenuWidget.h"
+#include "MainMenuSystem/InGameMenuWidget.h"
 #include "UI/ScoreboardWidget.h"
 
 
@@ -42,11 +42,6 @@ void ABattleHUD::ShowPlayerHud(bool bDisplayThisUI)
 	DisplayPlayerHud(bDisplayThisUI);
 }
 
-void ABattleHUD::ShowInGameMenu(bool bOnGameOver)
-{
-	DisplayInGameMenu(bOnGameOver);
-}
-
 void ABattleHUD::ShowScoreboard(bool bDisplayThisUI)
 {
 	DisplayScoreboard(bDisplayThisUI);
@@ -59,7 +54,6 @@ void ABattleHUD::ShowLeaderboard(bool bDisplayThisUI)
 
 void ABattleHUD::RemoveWidgetsOnGameOver()
 {
-	DisplayInGameMenu(true);
 	DisplayPlayerHud(false);
 	DisplayLeaderboard(false);
 }
@@ -82,29 +76,6 @@ void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
 		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 		{
 			PlayerWidget->RemoveFromParent();
-		}
-	}
-}
-
-void ABattleHUD::DisplayInGameMenu(bool bOnGameOver)
-{
-	if (!PlayerOwner) { return; }
-
-	if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && InGameMenuWidget->IsVisible())
-	{
-		PlayerOwner->SetInputMode(FInputModeGameOnly());
-		PlayerOwner->bShowMouseCursor = false;
-		InGameMenuWidget->RemoveFromParent();
-	}
-	else if (!bOnGameOver)
-	{
-		InGameMenuWidget = CreateWidget<UInGameMenuWidget>(PlayerOwner, InGameMenu);
-
-		if (InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() && !InGameMenuWidget->IsVisible())
-		{
-			InGameMenuWidget->InitialisePlayerController(PlayerOwner);
-			InGameMenuWidget->AddToViewport();
-			PlayerOwner->bShowMouseCursor = true;
 		}
 	}
 }
@@ -214,10 +185,5 @@ void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
 	{
 		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
 	}
-}
-
-bool ABattleHUD::IsGameMenuInViewport()
-{
-	return InGameMenuWidget && InGameMenuWidget->IsValidLowLevel() ? InGameMenuWidget->IsVisible() : false;
 }
 

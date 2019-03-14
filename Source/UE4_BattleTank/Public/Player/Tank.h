@@ -116,7 +116,4 @@ private:
 	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
 
-	/** If false, restricts some input */
-	bool CanRecieveInput() const;
-
 };

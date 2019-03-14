@@ -22,11 +22,14 @@ class UE4_BATTLETANK_API IMenuInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	
-	virtual void Host() = 0;
+	virtual void HostOffline() = 0;
 
-	virtual void Join() = 0;
+	virtual void HostOnline() = 0;
 
-	virtual void LoadMainMenu() = 0;
+	virtual void JoinOnline() = 0;
+
+	virtual void ReturnToMainMenu() = 0;
+
+	virtual void OuitGame() = 0;
 	
 };

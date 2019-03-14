@@ -11,6 +11,7 @@ class UInGameMenuWidget;
 class UScoreboardWidget;
 class ATank;
 class UAimingComponent;
+class UUserWidget;
 
 /**
  * Hud for game mode
@@ -23,15 +24,15 @@ class UE4_BATTLETANK_API ABattleHUD : public AHUD
 private:
 	/** BP widget for player ui */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> PlayerUI;
+	TSubclassOf<UUserWidget> PlayerUI;
 
 	/** BP widget for in game menu */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> InGameMenu;
+	TSubclassOf<UUserWidget> InGameMenu;
 
 	/** BP widget for scoreboard */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TSubclassOf<class UUserWidget> ScoreboardUI;
+	TSubclassOf<UUserWidget> ScoreboardUI;
 
 	/** Player ui */
 	UPlayerWidget * PlayerWidget;
@@ -47,9 +48,6 @@ public:
 
 	/** Calls DisplayPlayerHud */
 	void ShowPlayerHud(bool bDisplayThisUI);
-
-	/** Calls DisplayInGameMenu */
-	void ShowInGameMenu(bool bOnGameOver);
 
 	/** Calls DisplayInMatchWidget */
 	void ShowScoreboard(bool bDisplayThisUI);
@@ -85,15 +83,9 @@ public:
 	/** Update player ui when out of match area. Request from Match area trigger */
 	void WarnOutOfMatchArea(bool bOutOfArea);
 
-	/** Is menu currently in player viewport */
-	bool IsGameMenuInViewport();
-
 private:
 	/** Show or hide hud */
 	void DisplayPlayerHud(bool bDisplayThisUI);
-
-	/** Show or hide menu */
-	void DisplayInGameMenu(bool bOnGameOver);
 
 	/** Show or hide match display */
 	void DisplayScoreboard(bool bDisplayThisUI);

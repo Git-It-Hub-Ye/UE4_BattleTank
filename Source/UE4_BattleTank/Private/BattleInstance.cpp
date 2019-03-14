@@ -3,56 +3,86 @@
 #include "BattleInstance.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
-#include "GameFramework/PlayerController.h"
-#include "MainMenuSystem/MainMenuWidget.h"
+#include "MainMenuSystem/MenuWidget.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 
 UBattleInstance::UBattleInstance(const FObjectInitializer & ObjectInitializer)
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultMenuWidget(TEXT("/Game/Dynamic/UI/WBP_MainMenu"));
-	if (DefaultMenuWidget.Class)
+	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultMainMenuWidget(TEXT("/Game/Dynamic/UI/WBP_MainMenu"));
+	if (DefaultMainMenuWidget.Class)
 	{
-		MenuWidget = DefaultMenuWidget.Class;
+		MainMenuWidget = DefaultMainMenuWidget.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultInGameMenuWidget(TEXT("/Game/Dynamic/UI/WBP_InGameMenu"));
+	if (DefaultInGameMenuWidget.Class)
+	{
+		InGameMenuWidget = DefaultInGameMenuWidget.Class;
 	}
 }
 
 void UBattleInstance::init()
 {
-
 }
 
 void UBattleInstance::LoadMenu()
 {
-	if (!MenuWidget) { return; }
-	UMainMenuWidget * MainMenu = CreateWidget<UMainMenuWidget>(this, MenuWidget);
+	if (!MainMenuWidget) { return; }
+	UMenuWidget * Menu = CreateWidget<UMenuWidget>(this, MainMenuWidget);
 
-	if (!MainMenu) { return; }
+	if (!Menu) { return; }
 	// Instance implements menu interface
-	MainMenu->SetMenuInterface(this);
-	MainMenu->AddToViewport();
-
-	APlayerController * PC = GetFirstLocalPlayerController();
-	if (!PC) { return; }
-
-	FInputModeUIOnly InputMode;
-	InputMode.SetWidgetToFocus(MainMenu->TakeWidget());
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-	PC->SetInputMode(InputMode);
-	PC->bShowMouseCursor = true;
+	Menu->SetMenuInterface(this);
+	Menu->Setup();
 }
 
-void UBattleInstance::Host()
+void UBattleInstance::LoadInGameMenu()
+{
+	if (!InGameMenuWidget) { return; }
+	InGameMenu = CreateWidget<UMenuWidget>(this, InGameMenuWidget);
+
+	if (!InGameMenu) { return; }
+	// Instance implements menu interface
+	InGameMenu->SetMenuInterface(this);
+	InGameMenu->Setup();
+}
+
+void UBattleInstance::RemoveInGameMenu()
+{
+	if (!InGameMenu) { return; }
+	InGameMenu->TearDown();
+}
+
+bool UBattleInstance::GetIsGameMenuVisible() const
+{
+	return InGameMenu && InGameMenu->IsValidLowLevel() && InGameMenu->IsVisible();
+}
+
+void UBattleInstance::HostOffline()
+{
+	if (!GetWorld()) { return; }
+	GetWorld()->ServerTravel("/Game/Dynamic/Levels/BattleGround");
+}
+
+void UBattleInstance::HostOnline()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Host"))
 }
 
-void UBattleInstance::Join()
+void UBattleInstance::JoinOnline()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Join"))
 }
 
-void UBattleInstance::LoadMainMenu()
+void UBattleInstance::ReturnToMainMenu()
 {
+	if (!GetWorld()) { return; }
+	GetWorld()->ServerTravel("/Game/Dynamic/Levels/MainMenu");
+}
+
+void UBattleInstance::OuitGame()
+{
+	FGenericPlatformMisc::RequestExit(false);
 }
 

@@ -7,13 +7,20 @@
 #include "Online/BattleTankGameModeBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UI/BattleHUD.h"
+#include "BattleInstance.h"
 
+
+ATankPlayerController::ATankPlayerController()
+{
+	CrosshairXLocation = 0.5;
+	CrosshairYLocation = 0.33333;
+	LineTraceRange = 100000;
+	bIsMenuInViewport = false;
+}
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetInputMode(FInputModeGameOnly());
 
 	ATank * PlayerPawn = Cast<ATank>(GetPawn());
 	if (!PlayerPawn) return;
@@ -109,10 +116,17 @@ void ATankPlayerController::TogglePlayerHud(bool bShowHud)
 
 void ATankPlayerController::ToggleInGameMenu()
 {
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
+	UBattleInstance * BGI = GetWorld() ? Cast<UBattleInstance>(GetWorld()->GetGameInstance()) : nullptr;
+	if (BGI)
 	{
-		BHUD->ShowInGameMenu(false);
+		if (BGI->GetIsGameMenuVisible())
+		{
+			BGI->RemoveInGameMenu();
+		}
+		else
+		{
+			BGI->LoadInGameMenu();
+		}
 	}
 }
 
@@ -150,13 +164,6 @@ void ATankPlayerController::UpdateMatchScoreboard()
 	{
 		BHUD->UpdateScoreboard();
 	}
-}
-
-bool ATankPlayerController::CanRecieveInput() const
-{
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	
-	return BHUD ? !BHUD->IsGameMenuInViewport() : true;
 }
 
 UAimingComponent * ATankPlayerController::GetAimCompRef() const

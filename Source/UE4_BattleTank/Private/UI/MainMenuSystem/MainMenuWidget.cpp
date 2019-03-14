@@ -13,7 +13,7 @@ bool UMainMenuWidget::Initialize()
 		
 	if (Button_Offline)
 	{
-			Button_Offline->OnClicked.AddDynamic(this, &UMainMenuWidget::OfflinePlay);
+		Button_Offline->OnClicked.AddDynamic(this, &UMainMenuWidget::OfflinePlay);
 
 		if (Button_PlayOffline)
 		{
@@ -28,11 +28,11 @@ bool UMainMenuWidget::Initialize()
 
 		if (Button_Host)
 		{
-			Button_Host->OnClicked.AddDynamic(this, &UMainMenuWidget::HostGame);
+			Button_Host->OnClicked.AddDynamic(this, &UMainMenuWidget::HostGameMenu);
 		}
 		if (Button_Join)
 		{
-			Button_Join->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinGame);
+			Button_Join->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinGameMenu);
 		}
 	}
 
@@ -45,72 +45,6 @@ bool UMainMenuWidget::Initialize()
 		Button_Quit->OnClicked.AddDynamic(this, &UMainMenuWidget::QuitGame);
 	}
 	return true;
-}
-
-void UMainMenuWidget::SetMenuInterface(IMenuInterface * MenuInt)
-{
-	MenuInterface = MenuInt;
-}
-
-void UMainMenuWidget::OfflinePlay()
-{
-	if (!WidgetSwitcher) { return; }
-	if (!OfflineMenu) { return; }
-
-	bPlayOnlineMode = false;
-	WidgetSwitcher->SetActiveWidget(OfflineMenu);
-
-	if (WidgetSwitcher_Button && Button_Return)
-	{
-		WidgetSwitcher_Button->SetActiveWidget(Button_Return);
-	}
-}
-
-void UMainMenuWidget::OnlinePlay()
-{
-	if (!WidgetSwitcher) { return; }
-	if (!OnlineMenu) { return; }
-
-	bPlayOnlineMode = true;
-	WidgetSwitcher->SetActiveWidget(OnlineMenu);
-
-	if (WidgetSwitcher_Button && Button_Return)
-	{
-		WidgetSwitcher_Button->SetActiveWidget(Button_Return);
-	}
-}
-
-void UMainMenuWidget::HostGame()
-{
-	if(!WidgetSwitcher) { return; }
-	if (!HostMenu) { return; }
-
-	WidgetSwitcher->SetActiveWidget(HostMenu);
-}
-
-void UMainMenuWidget::JoinGame()
-{
-	if(!WidgetSwitcher) { return; }
-	if (!JoinMenu) { return; }
-
-	WidgetSwitcher->SetActiveWidget(JoinMenu);
-}
-
-void UMainMenuWidget::StartOfflineGame()
-{
-
-}
-
-void UMainMenuWidget::Host()
-{
-	if (MenuInterface)
-	{
-		MenuInterface->Host();
-	}
-}
-
-void UMainMenuWidget::Join()
-{
 }
 
 void UMainMenuWidget::ReturnToPreviousWidget()
@@ -145,6 +79,79 @@ void UMainMenuWidget::ReturnToPreviousWidget()
 	}
 }
 
+void UMainMenuWidget::OfflinePlay()
+{
+	if (!WidgetSwitcher) { return; }
+	if (!OfflineMenu) { return; }
+
+	bPlayOnlineMode = false;
+	WidgetSwitcher->SetActiveWidget(OfflineMenu);
+
+	if (WidgetSwitcher_Button && Button_Return)
+	{
+		WidgetSwitcher_Button->SetActiveWidget(Button_Return);
+	}
+}
+
+void UMainMenuWidget::OnlinePlay()
+{
+	if (!WidgetSwitcher) { return; }
+	if (!OnlineMenu) { return; }
+
+	bPlayOnlineMode = true;
+	WidgetSwitcher->SetActiveWidget(OnlineMenu);
+
+	if (WidgetSwitcher_Button && Button_Return)
+	{
+		WidgetSwitcher_Button->SetActiveWidget(Button_Return);
+	}
+}
+
+void UMainMenuWidget::HostGameMenu()
+{
+	if(!WidgetSwitcher) { return; }
+	if (!HostMenu) { return; }
+
+	WidgetSwitcher->SetActiveWidget(HostMenu);
+}
+
+void UMainMenuWidget::JoinGameMenu()
+{
+	if(!WidgetSwitcher) { return; }
+	if (!JoinMenu) { return; }
+
+	WidgetSwitcher->SetActiveWidget(JoinMenu);
+}
+
+void UMainMenuWidget::StartOfflineGame()
+{
+	if (MenuInterface)
+	{
+		MenuInterface->HostOffline();
+	}
+}
+
+void UMainMenuWidget::HostGame()
+{
+	if (MenuInterface)
+	{
+		MenuInterface->HostOnline();
+	}
+}
+
+void UMainMenuWidget::JoinGame()
+{
+	if (MenuInterface)
+	{
+		MenuInterface->JoinOnline();
+	}
+}
+
 void UMainMenuWidget::QuitGame()
 {
+	if (MenuInterface)
+	{
+		MenuInterface->OuitGame();
+	}
 }
+

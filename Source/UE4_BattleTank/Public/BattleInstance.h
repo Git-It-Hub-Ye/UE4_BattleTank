@@ -7,7 +7,6 @@
 #include "MenuInterface.h"
 #include "BattleInstance.generated.h"
 
-
 UCLASS()
 class UE4_BATTLETANK_API UBattleInstance : public UGameInstance, public IMenuInterface
 {
@@ -15,8 +14,12 @@ class UE4_BATTLETANK_API UBattleInstance : public UGameInstance, public IMenuInt
 
 private:
 	/** BP widget for main menu */
-	TSubclassOf<class UUserWidget> MenuWidget;
-	
+	TSubclassOf<class UUserWidget> MainMenuWidget;
+
+	/** BP widget for in game menu */
+	TSubclassOf<class UUserWidget> InGameMenuWidget;
+
+	class UMenuWidget * InGameMenu;
 	
 public:
 	UBattleInstance(const FObjectInitializer & ObjectInitializer);
@@ -25,12 +28,22 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadMenu();
+
+	void LoadInGameMenu();
+
+	void RemoveInGameMenu();
+
+	bool GetIsGameMenuVisible() const;
 	
 protected:
-	virtual void Host() override;
+	virtual void HostOffline() override;
 
-	virtual void Join() override;
+	virtual void HostOnline() override;
 
-	virtual void LoadMainMenu() override;
+	virtual void JoinOnline() override;
+
+	virtual void ReturnToMainMenu() override;
+
+	virtual void OuitGame() override;
 	
 };

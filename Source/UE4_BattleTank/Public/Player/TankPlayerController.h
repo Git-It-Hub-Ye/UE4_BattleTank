@@ -15,6 +15,8 @@ class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
+	/** Is in game menu toggled on or off */
+	bool bIsMenuInViewport;
 	
 	/** Location for camera to aim on death */
 	FVector LocationOfEnemy;
@@ -25,17 +27,19 @@ private:
 
 	/** Location along width of viewport */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 1.f))
-	float CrosshairXLocation = 0.5;
+	float CrosshairXLocation;
 
 	/** Location along height of viewport */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 1.f))
-	float CrosshairYLocation = 0.33333;
+	float CrosshairYLocation;
 
 	/** Distance to perform line trace */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 100000.f))
-	float LineTraceRange = 100000;
+	float LineTraceRange;
 
 public:
+	ATankPlayerController();
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Setup
@@ -63,9 +67,6 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// UI
-
-	/** Return false if currently looking at menu to prevent some inputs */
-	bool CanRecieveInput() const;
 
 	UAimingComponent * GetAimCompRef() const;
 

@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "MenuInterface.h"
+#include "MenuWidget.h"
 #include "MainMenuWidget.generated.h"
 
 
@@ -13,7 +12,7 @@ class UPanelWidget;
 class UWidgetSwitcher;
 
 UCLASS()
-class UE4_BATTLETANK_API UMainMenuWidget : public UUserWidget
+class UE4_BATTLETANK_API UMainMenuWidget : public UMenuWidget
 {
 	GENERATED_BODY()
 	
@@ -86,25 +85,17 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UButton * Button_Join;
 
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Data
-
-	/** Calls interface functions (These functions should be overriden by game instance) */
-	IMenuInterface * MenuInterface;
-
-
 private:
 	bool bPlayOnlineMode;
-
-public:
-	/** Sets menu interface variable */
-	void SetMenuInterface(IMenuInterface * MenuInt);
 
 protected:
 	virtual bool Initialize() override;
 
 private:
+	/** Returns to previous widget panel */
+	UFUNCTION()
+	void ReturnToPreviousWidget();
+
 	/** Allows user to view off line games */
 	UFUNCTION()
 	void OfflinePlay();
@@ -115,11 +106,11 @@ private:
 
 	/** Allows user to host a game */
 	UFUNCTION()
-	void HostGame();
+	void HostGameMenu();
 
 	/** Allows user to join a game */
 	UFUNCTION()
-	void JoinGame();
+	void JoinGameMenu();
 
 	/** Creates offline game */
 	UFUNCTION()
@@ -127,15 +118,11 @@ private:
 
 	/** Creates a lobby for online game */
 	UFUNCTION()
-	void Host();
+	void HostGame();
 
 	/** Joins a game */
 	UFUNCTION()
-	void Join();
-
-	/** Returns to previous widget panel */
-	UFUNCTION()
-	void ReturnToPreviousWidget();
+	void JoinGame();
 
 	/** Returns to previous widget panel */
 	UFUNCTION()
