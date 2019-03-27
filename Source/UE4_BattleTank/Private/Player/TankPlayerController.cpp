@@ -1,30 +1,31 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "TankPlayerController.h"
+#include "Engine/World.h"
+#include "Kismet/KismetMathLibrary.h"
+
+#include "BattleInstance.h"
+#include "Online/BattleTankGameModeBase.h"
+#include "UI/BattleHUD.h"
 #include "Tank.h"
 #include "AimingComponent.h"
-#include "Engine/World.h"
-#include "Online/BattleTankGameModeBase.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "UI/BattleHUD.h"
-#include "BattleInstance.h"
 
 
 ATankPlayerController::ATankPlayerController()
 {
-	CrosshairXLocation = 0.5;
-	CrosshairYLocation = 0.33333;
-	LineTraceRange = 100000;
-	bIsMenuInViewport = false;
+	CrosshairXLocation = 0.5f;
+	CrosshairYLocation = 0.33333f;
+	LineTraceRange = 100000.f;
+	bInMatch = false;
+	bInGameMenuInViewport = false;
 }
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ATank * PlayerPawn = Cast<ATank>(GetPawn());
-	if (!PlayerPawn) return;
 	
+	if (!GetPawn()) { return; }
+	if (!bInMatch) { GetPawn()->DisableInput(this); }
 	TogglePlayerHud(true);
 }
 
@@ -49,9 +50,42 @@ void ATankPlayerController::ClientInGame()
 	ShowMatchScoreboard();
 }
 
-void ATankPlayerController::ClientGameStarted()
+void ATankPlayerController::ClientMatchStarted()
 {
+	bInMatch = true;
 	UpdateMatchScoreboard();
+
+	if (!GetPawn() || bInGameMenuInViewport) { return; }
+	GetPawn()->EnableInput(this);
+}
+
+void ATankPlayerController::ClientGameEnded()
+{
+	bInMatch = false;
+	TogglePlayerHud(false);
+	ClientRemoveWidgets();
+
+	StartSpectatingOnly();
+	DisableInput(this);
+}
+
+void ATankPlayerController::ClientNotifyOfMatchState()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->DisplayMatchMessage();
+	}
+}
+
+void ATankPlayerController::ClientRemoveWidgets()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->RemoveWidgetsOnClient();
+	}
+	RemoveInGameMenu();
 }
 
 void ATankPlayerController::EnemyThatKilledPlayer(FVector EnemyLocation)
@@ -99,7 +133,6 @@ void ATankPlayerController::AimCameraAfterDeath(FVector LookAtLocation)
 void ATankPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
 	InputComponent->BindAction("InGameMenu", IE_Released, this, &ATankPlayerController::ToggleInGameMenu);
 	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &ATankPlayerController::ShowLeaderboard);
 	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::HideLeaderboard);
@@ -119,14 +152,31 @@ void ATankPlayerController::ToggleInGameMenu()
 	UBattleInstance * BGI = GetWorld() ? Cast<UBattleInstance>(GetWorld()->GetGameInstance()) : nullptr;
 	if (BGI)
 	{
+		BGI->ToggleInGameMenu();
+
 		if (BGI->GetIsGameMenuVisible())
 		{
-			BGI->RemoveInGameMenu();
+			bInGameMenuInViewport = true;
+
+			if (!GetPawn()) { return; }
+			GetPawn()->DisableInput(this);
 		}
 		else
 		{
-			BGI->LoadInGameMenu();
+			bInGameMenuInViewport = false;
+
+			if (!GetPawn() || !bInMatch) { return; }
+			GetPawn()->EnableInput(this);
 		}
+	}
+}
+
+void ATankPlayerController::RemoveInGameMenu()
+{
+	UBattleInstance * BGI = GetWorld() ? Cast<UBattleInstance>(GetWorld()->GetGameInstance()) : nullptr;
+	if (BGI && BGI->GetIsGameMenuVisible())
+	{
+		BGI->ToggleInGameMenu();
 	}
 }
 
@@ -163,6 +213,15 @@ void ATankPlayerController::UpdateMatchScoreboard()
 	if (BHUD)
 	{
 		BHUD->UpdateScoreboard();
+	}
+}
+
+void ATankPlayerController::ShowMatchResult()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowMatchResult();
 	}
 }
 

@@ -55,8 +55,11 @@ public:
 	/** Calls DisplayInMatchWidget */
 	void ShowLeaderboard(bool bDisplayThisUI);
 
+	/** Show final match result */
+	void ShowMatchResult();
+
 	/** Remove all widget from viewport. Request from Game mode when game over */
-	void RemoveWidgetsOnGameOver();
+	void RemoveWidgetsOnClient();
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +70,12 @@ public:
 
 	/** Update player ui of current firing state. Request from Aiming Component */
 	void UpdateFiringStateDisplay();
+
+	/** Display message about current match state */
+	void DisplayMatchMessage();
+
+	/** Display match result */
+	void UpdateMatchResult();
 
 	/** Updates scoreboard data when score data has changed */
 	void UpdateScoreboard();

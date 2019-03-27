@@ -10,11 +10,12 @@
 UENUM()
 enum class EMatchState : uint8 {
 
+	WaitingForPlayers,
 	WaitingToStart,
 	InProgress,
 	WaitingToComplete,
 	Completed,
-	GameOver
+	Finished
 };
 
 
@@ -28,7 +29,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GameState")
 	EMatchState CurrentState;
 
-private:
+public:
 	/** number of teams in current game (doesn't deprecate when no players are left in a team) */
 	int32 NumTeams;
 
@@ -57,12 +58,6 @@ public:
 	/** Sets data used by this game (eg, is there rounds or a timer etc) */
 	void SetGameDataUsed(bool bTimer, bool bRounds);
 
-	/** Updates current round */
-	void UpdateCurrentRound();
-
-	/** Return current round */
-	int32 GetCurrentRound() const { return CurrentRound; }
-
 	/** Is game using a timer */
 	bool GetIsUsingTimer() const { return bUsingTimer; }
 
@@ -72,7 +67,7 @@ public:
 	/** Sorts player states by score for this match */
 	void GetRankedPlayers(TArray<class ATankPlayerState*> & OutRankedPlayerState);
 
-	EMatchState GetCurrentStateOfGame() const { return CurrentState; }
+	EMatchState GetMatchState() const { return CurrentState; }
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameState")

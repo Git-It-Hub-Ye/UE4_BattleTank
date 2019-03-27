@@ -80,7 +80,7 @@ UAudioComponent * UBarrel::SFXPlay(USoundBase * SoundFX)
 
 void UBarrel::StopBarrelAudio()
 {
-	if (BarrelAudio)
+	if (BarrelAudio && BarrelAudio->IsPlaying())
 	{
 		BarrelAudio->Stop();
 	}

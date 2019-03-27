@@ -88,6 +88,7 @@ private:
 	FProjectileData ProjectileData;
 
 	/** Controller that spawned projectile */
+	UPROPERTY()
 	AController * EventInstigator;
 
 	/** Timer handle for destroy */

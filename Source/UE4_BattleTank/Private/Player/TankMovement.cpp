@@ -98,7 +98,7 @@ UAudioComponent * UTankMovement::SFXPlay(USoundBase * SoundFX)
 
 void UTankMovement::StopEngineSound()
 {
-	if (EngineAudio)
+	if (EngineAudio && EngineAudio->IsPlaying())
 	{
 		EngineAudio->Stop();
 	}

@@ -1,74 +1,50 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "BattleTank_HordeMode.h"
+#include "Engine/World.h"
 #include "UObject/ConstructorHelpers.h"
-#include "BattleTankGameState.h"
-#include "TankPlayerState.h"
 #include "TimerManager.h"
+
+#include "BattleTankGameState.h"
+#include "GameFramework/PlayerController.h"
+#include "Player/Tank.h"
 #include "SpawnBox_Pawn.h"
+
 
 ABattleTank_HordeMode::ABattleTank_HordeMode()
 {
+	DefaultPawnAIClass = ATank::StaticClass();
+
+	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AI"));
+	if (AIBotPawnBPClass.Class != NULL)
+	{
+		DefaultPawnAIClass = AIBotPawnBPClass.Class;
+	}
+
+	bGameOver = false;
+
 	bHasTimer = false;
-	bMultipleRounds = true;
-	bAllowBots = true;
+	bHasRounds = true;
+
+	Time_DelayBotSpawn = 5;
+	Time_WaitToStart = 10;
+	Time_BetweenRounds = 3;
 
 	NumOfBotsToSpawn = 10;
 	MaxBotAmountAtOnce = 10;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Handle Waves
-
-void ABattleTank_HordeMode::PrepareNewWave()
-{
-	GetWorldTimerManager().ClearTimer(StartMatchHandle);
-
-	CurrentRound++;
+	MaxBotNumThisWave = 0;
 	TotalBotsSpawned = 0;
 	CurrentNumOfBotsAlive = 0;
-	MaxBotSpawnAmount = NumOfBotsToSpawn * CurrentRound;
-
-	NewRound();
-
-	SetGameState(EMatchState::WaitingToStart);
-	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::StartWave, TimeRemaining, false);
-}
-
-void ABattleTank_HordeMode::StartWave()
-{
-	GetWorldTimerManager().ClearTimer(StartMatchHandle);
-	SetGameState(EMatchState::InProgress);
-	CheckWaveProgress();
-}
-
-void ABattleTank_HordeMode::CheckWaveProgress()
-{
-	if (MaxBotSpawnAmount > 0 && TotalBotsSpawned < MaxBotSpawnAmount)
-	{
-		SpawnNewAIPawn();
-	}
-	else if (CurrentNumOfBotsAlive <= 0)
-	{
-		SetGameState(EMatchState::Completed);
-		EndWave();
-	}
-}
-
-void ABattleTank_HordeMode::EndWave()
-{
-	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::PrepareNewWave, 2.f, false);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Game behaviour
 
-void ABattleTank_HordeMode::StartGame()
+void ABattleTank_HordeMode::StartMatch()
 {
-	Super::StartGame();
-	GetWorldTimerManager().SetTimer(StartMatchHandle, this, &ABattleTank_HordeMode::PrepareNewWave, 5.f, false);
+	Super::StartMatch();
+	PrepareForNextWave();
 }
 
 void ABattleTank_HordeMode::OnAIBotDeath(AAIController * AICon)
@@ -83,17 +59,76 @@ void ABattleTank_HordeMode::OnAIBotDeath(AAIController * AICon)
 void ABattleTank_HordeMode::OnPlayerDeath(APlayerController * PC)
 {
 	if (!PC) { return; }
-	if (GameState && GameState->PlayerArray.Num() > 0)
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
-		{
-			ATankPlayerState * PState = Cast<ATankPlayerState>(GameState->PlayerArray[i]);
-			if (PState && !PState->GetIsPlayerDead()) { return; }
-		}
+		APlayerController * PCon = Cast<APlayerController>(*It);
+		if (!PCon || !PCon->GetPawn()) { return; }
+
+		ATank * PCTank = Cast<ATank>(PCon->GetPawn());
+		if (PCTank && !PCTank->IsTankDestroyed()) { return; }
 	}
 
 	// Only runs if all players are destroyed
-	SetGameState(EMatchState::GameOver);
-	GetWorldTimerManager().SetTimer(GameOverHandle, this, &ABattleTank_HordeMode::FinishMatch, 5, false);
+	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnPawnFail);
+	bGameOver = true;
+	FinishMatch();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Handle Waves
+
+void ABattleTank_HordeMode::PrepareForNextWave()
+{
+	TotalBotsSpawned = 0;
+	CurrentNumOfBotsAlive = 0;
+	GetWorldTimerManager().SetTimer(TimerHandle_StartWave, this, &ABattleTank_HordeMode::StartWave, Time_BetweenRounds, false);
+}
+
+void ABattleTank_HordeMode::StartWave()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_StartWave);
+	StartNewRound();
+	MaxBotNumThisWave = NumOfBotsToSpawn * CurrentRound;
+
+	GetWorldTimerManager().SetTimer(TimerHandle_StartWave, this, &ABattleTank_HordeMode::CheckWaveProgress, Time_DelayBotSpawn, false);
+}
+
+void ABattleTank_HordeMode::CheckWaveProgress()
+{
+	if (MaxBotNumThisWave > 0 && TotalBotsSpawned < MaxBotNumThisWave)
+	{
+		SpawnNewAIPawn();
+	}
+	else if (CurrentNumOfBotsAlive <= 0)
+	{
+		PrepareForNextWave();
+	}
+}
+
+void ABattleTank_HordeMode::SpawnNewAIPawn()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnPawnFail);
+	if (BotSpawnBoxArray.Num() > 0)
+	{
+		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < MaxBotAmountAtOnce; CurrentNumOfBotsAlive)
+		{
+			if (bGameOver) { return; }
+
+			int32 RandNum = FMath::RandRange(0, BotSpawnBoxArray.Num() - 1);
+			ASpawnBox_Pawn * SpawnBox = BotSpawnBoxArray[RandNum];
+			if (SpawnBox && SpawnBox->PlacePawns(DefaultPawnAIClass, 500.f))
+			{
+				CurrentNumOfBotsAlive++;
+				TotalBotsSpawned++;
+				if (TotalBotsSpawned >= MaxBotNumThisWave) { break; }
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(TimerHandle_SpawnPawnFail, this, &ABattleTank_HordeMode::SpawnNewAIPawn, 5.f, false);
+				break;
+			}
+		}
+	}
 }
 

@@ -10,6 +10,7 @@
 UTrack::UTrack()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bBrake = true;
 }
 
 void UTrack::BeginPlay()
@@ -37,6 +38,7 @@ void UTrack::GetWheels()
 			if (!WheelCon) { continue; }
 
 			WheelConstraints.Add(WheelCon);
+			WheelCon->SetAngularSwing2Motion(EAngularConstraintMotion::ACM_Locked);
 		}
 	}
 
@@ -61,6 +63,7 @@ void UTrack::GetWheels()
 void UTrack::SetThrottle(float Throttle, bool bIsTurning)
 {
 	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	
 	bTurningHalfSpeed = bIsTurning;
 	SetFrontAndRearWheelSpeed(CurrentThrottle);
 

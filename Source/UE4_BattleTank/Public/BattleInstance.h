@@ -33,6 +33,8 @@ public:
 
 	void RemoveInGameMenu();
 
+	void ToggleInGameMenu();
+
 	bool GetIsGameMenuVisible() const;
 	
 protected:

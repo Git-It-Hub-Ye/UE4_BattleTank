@@ -12,10 +12,16 @@ class ASpawnBox_Actor;
 class ASpawnBox_Pawn;
 enum class EMatchState : uint8;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameTimeChanged);
+
 UCLASS()
 class UE4_BATTLETANK_API ABattleTankGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	/** Delegate called to update time on player hud */
+	FOnGameTimeChanged OnTimeChanged;
 
 protected:
 
@@ -26,83 +32,82 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Classes")
 	TSubclassOf<AActor> MapCameraClass;
 
-	/** The ai pawn class */
-	UPROPERTY(EditDefaultsOnly, Category = "Classes")
-	TSubclassOf<APawn> DefaultPawnAIClass;
 
-	/** Triggers to spawn in world */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	TArray<TSubclassOf<AActor>> TriggerArray;
+	////////////////////////////////////////////////////////////////////////////////
+	// Time
+
+	/** Is game timed */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Time")
+	bool bHasTimer;
+
+	/** Length of wait till match begins */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Time", meta = (ClampMin = 0, ClampMax = 60))
+	int32 Time_WaitToStart;
+
+	/** Length of match */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Time", meta = (ClampMin = 1, ClampMax = 1200))
+	int32 Time_MatchLength;
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Game mode data
+	// Rounds
 
-	/** Time till NextWave */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 60))
-	int32 TimeRemaining;
+	/** Is game played over multiple rounds */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds")
+	bool bHasRounds;
+
+	/** length of wait between rounds */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds", meta = (ClampMin = 1, ClampMax = 60))
+	int32 Time_BetweenRounds;
+
+	/** Max rounds that can be played */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds", meta = (ClampMin = 0, ClampMax = 5))
+	int32 MaxRounds;
+
+	/** How many rounds must be won, for player to win the game */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds", meta = (ClampMin = 0, ClampMax = 3))
+	int32 RoundsToWin;
+
+	/** Current round */
+	int32 CurrentRound;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Score data
 
 	/** Points for a kill */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 100))
+	UPROPERTY(EditDefaultsOnly, Category = "Config Game", meta = (ClampMin = 1, ClampMax = 100))
 	int32 KillPoints;
 
 	/** Points for a kill */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 100))
+	UPROPERTY(EditDefaultsOnly, Category = "Config Game", meta = (ClampMin = 1, ClampMax = 100))
 	int32 AssistPoints;
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Player data
+
 	/** Min number of players required to play game */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 4))
+	UPROPERTY(EditDefaultsOnly, Category = "Config Game", meta = (ClampMin = 1, ClampMax = 4))
 	int32 MinPlayersRequired;
 
 	/** Number of players in game */
 	int32 NumOfPlayers;
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Trigger data
+
+	/** Triggers to spawn in world */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Trigger")
+	TArray<TSubclassOf<AActor>> TriggerArray;
+
 	/** Max number of triggers in world */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0, ClampMax = 10))
+	UPROPERTY(EditDefaultsOnly, Category = "Config Trigger", meta = (ClampMin = 0, ClampMax = 10))
 	int32 MaxTriggerNum;
 
 	/** Current number of triggers in world */
 	int32 CurrentTriggerNum;
-
-	/** Current match round */
-	int32 CurrentRound;
-
-	/** Does this game mode have a timer */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	bool bHasTimer;
-
-	/** Does this game mode have rounds */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	bool bMultipleRounds;
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Game mode bot data
-
-	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 20))
-	int32 NumOfBotsToSpawn;
-
-	/** Max AI bots alive in world at same time */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1, ClampMax = 20))
-	int32 MaxBotAmountAtOnce;
-
-	/** Keeps track of total AI bots spawned */
-	int32 TotalBotsSpawned;
-
-	/** Number of bots currently active */
-	int32 CurrentNumOfBotsAlive;
-
-	/** Max number of bots this wave */
-	int32 MaxBotSpawnAmount;
-
-	/** Does this game mode spawn bots */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	bool bAllowBots;
-
-	/** Does this game mode spawn an unlimited number of bots */
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	bool bInfiniteBots;
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -118,17 +123,14 @@ protected:
 	////////////////////////////////////////////////////////////////////////////////
 	// Timer management
 
-	/** Timer handle for game start */
-	FTimerHandle StartMatchHandle;
+	/** Timer handle for match length */
+	FTimerHandle TimerHandle_DefaultTimer;
 
 	/** Timer handle for game over */
-	FTimerHandle GameOverHandle;
+	FTimerHandle TimerHandle_GameOver;
 
 	/** Timer handle for retrying spawn after failed attempts */
-	FTimerHandle SpawnPawnFailHandle;
-
-	/** Timer handle for retrying spawn after failed attempts */
-	FTimerHandle SpawnTriggerFailHandle;
+	FTimerHandle TimerHandle_SpawnTriggerFail;
 
 public:
 	ABattleTankGameModeBase();
@@ -148,68 +150,98 @@ public:
 	/** Chooses player start location form player start actors in world */
 	virtual AActor* ChoosePlayerStart_Implementation(AController * Player) override;
 
+	/** Changes players camera target to world camera */
+	void TransitionToMapCamera(APlayerController * PC);
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Events
+
 	/** Call game behaviour and Change player state data */
 	void HandleKill(AController * KilledPawn, AController * KillerPawn);
 
 	/** Default behaviour when bot is killed */
-	virtual void OnAIBotDeath(AAIController * AICon);
+	virtual void OnAIBotDeath(AAIController * AICon) PURE_VIRTUAL(ABattleTankGameModeBase::OnAIBotDeath,)
 
 	/** Default behaviour when player is killed */
-	virtual void OnPlayerDeath(APlayerController * PC);
+	virtual void OnPlayerDeath(APlayerController * PC) PURE_VIRTUAL(ABattleTankGameModeBase::OnPlayerDeath,)
 
 	/** Default behaviour when bot is destroyed */
 	void TriggerDestroyed();
-
-	/** Changes players camera target to world camera */
-	void TransitionToMapCamera(APlayerController * PC);
 	
 protected:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Game behaviour
 
+	/** Set game timer */
+	void SetDefaultTimer(int32 NewTime);
+
+	void RestartDfaultTimer();
+
+	void PrepareToStartMatch();
+
 	/** Starts game mode */
-	virtual void StartGame();
+	virtual void StartMatch();
+
+	/** Set Current game data */
+	virtual void StartNewRound();
+
+	/** Stops match and checks whether to end or continue match */
+	void FinishMatch();
+
+	/** Stop match behaviour */
+	void StopMatch();
 
 	/** Ends match */
-	void FinishMatch();
+	void EndGame();
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Events
 
 	/** Spawns ne trigger in world */
 	void SpawnNewTrigger();
 
-	/** Spawns ai at empty location */
-	void SpawnNewAIPawn();
-
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Notify about Game changes
-
-	/** Set current state of game */
-	void SetGameState(EMatchState NewState);
+	// Notify game changes
 
 	/** Notifies client that a game has been created */
 	void NotifyClientGameCreated(APlayerController * NewPlayer);
 
 	/** Notifies client that match has started */
-	void NotifyClientMatchStart();
+	void NotifyClientMatchStarted();
+
+	/** Notifies client that match has finished */
+	void NotifyClientGameEnded();
+
+	/** Display match state message to player */
+	void NotifyClientOfMatchState();
 
 	/** Updates player leaderboard */
-	void UpdateScoreboard();
+	void UpdateMatchScoreboard();
 
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Game data
 
-	/** Set Current game data */
-	void NewRound();
+	/** Set current state of game */
+	void SetMatchState(EMatchState NewState);
 
 	/** Gets all spawn boxes in world */
 	void GetSpawnLocations();
+
+	/** Find match winner */
+	virtual void DetermineMatchWinner() PURE_VIRTUAL(ABattleTankGameModeBase::DetermineMatchWinner,)
 
 private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Game behaviour
+
+	/** Handle game countdown timer */
+	void DefaultTimer();
 
 	/** Updates player scoreboard */
 	void EndMatchScoreboard();

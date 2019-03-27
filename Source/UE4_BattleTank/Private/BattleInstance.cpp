@@ -54,6 +54,18 @@ void UBattleInstance::RemoveInGameMenu()
 	InGameMenu->TearDown();
 }
 
+void UBattleInstance::ToggleInGameMenu()
+{
+	if (InGameMenu && InGameMenu->IsValidLowLevel() && InGameMenu->IsVisible())
+	{
+		InGameMenu->TearDown();
+	}
+	else
+	{
+		LoadInGameMenu();
+	}
+}
+
 bool UBattleInstance::GetIsGameMenuVisible() const
 {
 	return InGameMenu && InGameMenu->IsValidLowLevel() && InGameMenu->IsVisible();

@@ -16,11 +16,6 @@ void ABattleTankGameState::SetGameDataUsed(bool bTimer, bool bRounds)
 	bHasRounds = bRounds;
 }
 
-void ABattleTankGameState::UpdateCurrentRound()
-{
-	CurrentRound++;
-}
-
 void ABattleTankGameState::GetRankedPlayers(TArray<ATankPlayerState*>& OutRankedPlayerState)
 {
 	//TMap<int32, ATankPlayerState*> SortedMap;

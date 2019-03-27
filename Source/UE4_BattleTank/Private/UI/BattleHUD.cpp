@@ -52,7 +52,12 @@ void ABattleHUD::ShowLeaderboard(bool bDisplayThisUI)
 	DisplayLeaderboard(bDisplayThisUI);
 }
 
-void ABattleHUD::RemoveWidgetsOnGameOver()
+void ABattleHUD::ShowMatchResult()
+{
+	UpdateMatchResult();
+}
+
+void ABattleHUD::RemoveWidgetsOnClient()
 {
 	DisplayPlayerHud(false);
 	DisplayLeaderboard(false);
@@ -147,11 +152,28 @@ void ABattleHUD::UpdateFiringStateDisplay()
 	}
 }
 
+void ABattleHUD::DisplayMatchMessage()
+{
+	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
+	{
+		ScoreboardWidget->UpdateMessageToUser();
+	}
+}
+
+void ABattleHUD::UpdateMatchResult()
+{
+	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
+	{
+		ScoreboardWidget->UpdateMatchScoreboard();
+		ScoreboardWidget->DisplayMatchResult();
+	}
+}
+
 void ABattleHUD::UpdateScoreboard()
 {
 	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
 	{
-		ScoreboardWidget->UpdateScoreboardData();
+		ScoreboardWidget->UpdateMatchScoreboard();
 	}
 }
 

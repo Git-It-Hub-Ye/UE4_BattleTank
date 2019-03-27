@@ -104,13 +104,8 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 		ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, DestroyedFX, GetActorLocation());
 	}
 
+	OnTankDestroyed(bHasBeenDestroyed);
 	TankBody->SetCollisionProfileName("DestroyedTank");
-
-	ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
-	if (GM && Controller)
-	{
-		GM->HandleKill(Controller, EventInstigator);
-	}
 
 	ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
 	if (PC && EventInstigator && EventInstigator->GetPawn())
@@ -118,7 +113,12 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 		PC->EnemyThatKilledPlayer(EventInstigator->GetPawn()->GetActorLocation());
 	}
 
-	OnTankDestroyed(bHasBeenDestroyed);
+	ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
+	if (GM && Controller)
+	{
+		GM->HandleKill(Controller, EventInstigator);
+	}
+
 	OnDeath.Broadcast();
 	SetLifeSpan(DestroyTimer);
 }

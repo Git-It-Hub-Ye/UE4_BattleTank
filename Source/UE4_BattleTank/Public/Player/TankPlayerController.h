@@ -15,8 +15,11 @@ class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
-	/** Is in game menu toggled on or off */
-	bool bIsMenuInViewport;
+	/** Is player in a match */
+	bool bInMatch;
+
+	/** Is in game menu in player viewport */
+	bool bInGameMenuInViewport;
 	
 	/** Location for camera to aim on death */
 	FVector LocationOfEnemy;
@@ -46,7 +49,13 @@ public:
 
 	void ClientInGame();
 
-	void ClientGameStarted();
+	void ClientMatchStarted();
+
+	void ClientGameEnded();
+
+	void ClientNotifyOfMatchState();
+
+	void ClientRemoveWidgets();
 
 	void EnemyThatKilledPlayer(FVector  EnemyLocation);
 
@@ -110,6 +119,9 @@ private:
 	/** Toggle menu on or off */
 	void ToggleInGameMenu();
 
+	/** Removes in game menu from player viewport (Called when game ends) */
+	void RemoveInGameMenu();
+
 	/** Show scoreboard */
 	void ShowLeaderboard();
 
@@ -121,5 +133,8 @@ private:
 
 	/** Updates match hud display */
 	void UpdateMatchScoreboard();
+
+	/** Updates and displays end result of match */
+	void ShowMatchResult();
 
 };

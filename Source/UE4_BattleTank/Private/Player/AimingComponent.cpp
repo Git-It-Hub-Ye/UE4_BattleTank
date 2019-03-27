@@ -45,7 +45,7 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 void UAimingComponent::StopActions()
 {
 	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
-	if (AimCompAudio)
+	if (AimCompAudio && AimCompAudio->IsPlaying())
 	{
 		AimCompAudio->Stop();
 	}

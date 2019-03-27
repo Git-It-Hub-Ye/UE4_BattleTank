@@ -7,6 +7,9 @@
 #include "ScoreboardWidget.generated.h"
 
 class ATankPlayerState;
+class UPanelWidget;
+class UTextBlock;
+enum class EMatchState : uint8;
 
 /** Struct for scoreboard data */
 USTRUCT(BlueprintType)
@@ -16,8 +19,10 @@ struct FMatchData {
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	TArray<int32> Scores;
 
+	FText MatchMins;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 MatchTime;
+	int32 MatchSecs;
 
 	/** Message about current match */
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
@@ -74,6 +79,29 @@ class UE4_BATTLETANK_API UScoreboardWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_Leaderboard;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * TimerBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_MinsRemaining;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_SecsRemaining;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * RoundsBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_CurrentRound;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * MessageBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_MessageToUser;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	FMatchData MatchData;
@@ -89,17 +117,6 @@ protected:
 	bool bIsLeaderboardVisible;
 
 public:
-	/** Shows match timer */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
-	void ShowTimer();
-
-	/** Shows match round */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
-	void ShowRounds();
-
-	/** Update Scoreboard */
-	void UpdateScoreboardData();
-
 	/** Show new Scoreboard data */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void NewScoreboardData();
@@ -107,17 +124,26 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void UpdateLeaderboardData();
 
+	/** Set values of match data */
+	void UpdateMatchScoreboard();
+
+	/** Displays mesage to user about match state */
+	void UpdateMessageToUser();
+
+	/** Show user result of match */
+	void DisplayMatchResult();
+
 	/** Show leaderboard */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void ShowLeaderboard();
 
 	/** Hide leaderboard */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void HideLeaderboard();
 
-	bool IsLeaderboardVisible() const { return bIsLeaderboardVisible; }
+	bool IsLeaderboardVisible() const;
 
 protected:
+	virtual bool Initialize() override;
+
 	/** Finds what match data should be visible */
 	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
 	void WhatDataToDisplay();
@@ -129,7 +155,12 @@ protected:
 	void SortPlayerByScores();
 
 private:
-	/** Set values of match data */
-	void SetMatchData();
+
+	UFUNCTION()
+	void TimerDisplay();
+
+	FText GetStartingMatchText();
+
+	FText GetMatchResultText() const;
 	
 };
