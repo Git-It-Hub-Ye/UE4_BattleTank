@@ -38,7 +38,7 @@ protected:
 
 	/** Is game timed */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Time")
-	bool bHasTimer;
+	bool bTimedMatch;
 
 	/** Length of wait till match begins */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Time", meta = (ClampMin = 0, ClampMax = 60))
@@ -54,7 +54,7 @@ protected:
 
 	/** Is game played over multiple rounds */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds")
-	bool bHasRounds;
+	bool bRoundBasedGame;
 
 	/** length of wait between rounds */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds", meta = (ClampMin = 1, ClampMax = 60))
@@ -244,7 +244,7 @@ private:
 	void DefaultTimer();
 
 	/** Updates player scoreboard */
-	void EndMatchScoreboard();
+	void MovePlayerViewTarget();
 
 
 	////////////////////////////////////////////////////////////////////////////////

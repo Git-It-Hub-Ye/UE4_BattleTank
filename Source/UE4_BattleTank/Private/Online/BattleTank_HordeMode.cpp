@@ -23,8 +23,8 @@ ABattleTank_HordeMode::ABattleTank_HordeMode()
 
 	bGameOver = false;
 
-	bHasTimer = false;
-	bHasRounds = true;
+	bTimedMatch = false;
+	bRoundBasedGame = true;
 
 	Time_DelayBotSpawn = 5;
 	Time_WaitToStart = 10;

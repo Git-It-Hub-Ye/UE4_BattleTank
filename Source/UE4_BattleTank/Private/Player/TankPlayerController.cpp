@@ -63,10 +63,14 @@ void ATankPlayerController::ClientGameEnded()
 {
 	bInMatch = false;
 	TogglePlayerHud(false);
-	ClientRemoveWidgets();
-
-	StartSpectatingOnly();
 	DisableInput(this);
+
+	if (GetPawn())
+	{
+		GetPawn()->DisableInput(this);
+	}
+
+	ClientRemoveWidgets();
 }
 
 void ATankPlayerController::ClientNotifyOfMatchState()

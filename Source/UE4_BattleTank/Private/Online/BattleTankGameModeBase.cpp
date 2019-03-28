@@ -31,8 +31,8 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	bHasTimer = true;
-	bHasRounds = false;
+	bTimedMatch = true;
+	bRoundBasedGame = false;
 
 	Time_WaitToStart = 10;
 	Time_MatchLength = 600;
@@ -159,6 +159,12 @@ void ABattleTankGameModeBase::StartMatch()
 			PC->ClientMatchStarted();
 		}
 	}
+
+	if (bTimedMatch)
+	{
+		SetDefaultTimer(Time_MatchLength);
+		RestartDfaultTimer();
+	}
 }
 
 void ABattleTankGameModeBase::StartNewRound()
@@ -178,8 +184,7 @@ void ABattleTankGameModeBase::FinishMatch()
 	SetMatchState(EMatchState::Finished);
 	StopMatch();
 	NotifyClientOfMatchState();
-
-	GetWorldTimerManager().SetTimer(TimerHandle_GameOver, this, &ABattleTankGameModeBase::EndGame, 5, false);
+	EndGame();
 }
 
 void ABattleTankGameModeBase::StopMatch()
@@ -201,15 +206,35 @@ void ABattleTankGameModeBase::EndGame()
 		if (PC)
 		{
 			PC->ClientGameEnded();
+			ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+			if (BHUD)
+			{
+				BHUD->ShowLeaderboard(true);
+			}
+		}
+	}
+	GetWorldTimerManager().SetTimer(TimerHandle_GameOver, this, &ABattleTankGameModeBase::MovePlayerViewTarget, 5, false);
+}
+
+void ABattleTankGameModeBase::MovePlayerViewTarget()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController * PC = Cast<APlayerController>(*It);
+		if (PC)
+		{
 			TransitionToMapCamera(PC);
 		}
 	}
-	GetWorldTimerManager().SetTimer(TimerHandle_GameOver, this, &ABattleTankGameModeBase::EndMatchScoreboard, 5, false);
 }
 
 void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
 {
 	if (!PC) { return; }
+	if (PC->GetPawn())
+	{
+		PC->GetPawn()->DetachFromControllerPendingDestroy();
+	}
 
 	TArray<AActor*> ReturnedCameras;
 	UGameplayStatics::GetAllActorsOfClass(this, MapCameraClass, ReturnedCameras);
@@ -218,19 +243,6 @@ void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
 	{
 		AActor * NewMapCamera = ReturnedCameras[0];
 		PC->SetViewTarget(NewMapCamera);
-	}
-}
-
-void ABattleTankGameModeBase::EndMatchScoreboard()
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APlayerController * PC = Cast<APlayerController>(*It);
-		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
-		if (BHUD)
-		{
-			BHUD->ShowLeaderboard(true);
-		}
 	}
 }
 
@@ -338,7 +350,7 @@ void ABattleTankGameModeBase::SetGameStateData()
 	ABattleTankGameState * GS = Cast<ABattleTankGameState>(GameState);
 	if (GS)
 	{
-		GS->SetGameDataUsed(bHasTimer, bHasRounds);
+		GS->SetGameDataUsed(bTimedMatch, bRoundBasedGame);
 	}
 }
 

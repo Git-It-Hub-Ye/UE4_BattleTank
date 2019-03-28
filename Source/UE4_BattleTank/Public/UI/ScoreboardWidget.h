@@ -8,7 +8,9 @@
 
 class ATankPlayerState;
 class UPanelWidget;
+class UWidgetSwitcher;
 class UTextBlock;
+class UWidgetAnimation;
 enum class EMatchState : uint8;
 
 /** Struct for scoreboard data */
@@ -79,29 +81,62 @@ class UE4_BATTLETANK_API UScoreboardWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-	UPanelWidget * Panel_Leaderboard;
 
+	/** Switches between different scoreboard layouts */
+	UPROPERTY(meta = (BindWidget))
+	UWidgetSwitcher * WidgetSwitcher;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Match display
+
+	/** Displays match time data */
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget * TimerBox;
 
+	/** Minutes remaining in match */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_MinsRemaining;
 
+	/** Seconds remaining in match */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_SecsRemaining;
 
+	/** Displays match round data */
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget * RoundsBox;
 
+	/** Current round */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_CurrentRound;
 
+	/** Holds messgae about to player */
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget * MessageBox;
 
+	/** Message to player about match state */
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock * Text_MessageToUser;
+	UTextBlock * Text_MatchStateMessage;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Match results display
+
+	/** Holds messgae about to player */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_Results;
+
+	/** Result of match */
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_Result;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Leaderboard display
+
+	/** Displays players ranked by score */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_Leaderboard;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	FMatchData MatchData;
@@ -116,11 +151,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Scoreboard")
 	bool bIsLeaderboardVisible;
 
-public:
-	/** Show new Scoreboard data */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
-	void NewScoreboardData();
 
+	////////////////////////////////////////////////////////////////////////////////
+	// Animations
+
+	TMap<FName, UWidgetAnimation*> AnimationsMap;
+
+public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
 	void UpdateLeaderboardData();
 
@@ -145,8 +182,9 @@ protected:
 	virtual bool Initialize() override;
 
 	/** Finds what match data should be visible */
-	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
-	void WhatDataToDisplay();
+	virtual void WhatDataToDisplay();
+
+	void PlayAnimationByName(FName AnimName);
 
 	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
 	void UpdateLeaderboard(int32 Index);
@@ -159,8 +197,14 @@ private:
 	UFUNCTION()
 	void TimerDisplay();
 
+	void GameOverDisplay();
+
 	FText GetStartingMatchText();
 
 	FText GetMatchResultText() const;
+
+	void FillAnimationsMap();
+
+	UWidgetAnimation * GetAnimationByName(FName AnimName) const;
 	
 };

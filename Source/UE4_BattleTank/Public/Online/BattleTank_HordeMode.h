@@ -51,7 +51,7 @@ private:
 	// Timers
 
 	/** Delay between round start and first bot spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds", meta = (ClampMin = 0, ClampMax = 30))
+	UPROPERTY(EditDefaultsOnly, Category = "Config Rounds", meta = (ClampMin = 1, ClampMax = 30))
 	int32 Time_DelayBotSpawn;
 
 	/** Timer handle for starting next wave */

@@ -1,14 +1,16 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "ScoreboardWidget.h"
-#include "Player/TankPlayerController.h"
-#include "Online/TankPlayerState.h"
 #include "Online/BattleTankGameModeBase.h"
 #include "Online/BattleTankGameState.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Online/TankPlayerState.h"
+#include "Player/TankPlayerController.h"
+
+#include "Animation/WidgetAnimation.h"
+#include "MovieScene.h"
+#include "Components/WidgetSwitcher.h"
 #include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
-#include "Internationalization/Text.h"
 
 #define LOCTEXT_NAMESPACE "Scoreboard"
 
@@ -16,9 +18,6 @@
 bool UScoreboardWidget::Initialize()
 {
 	if (!Super::Initialize()) { return false; }
-
-	if (!ensure(Panel_Leaderboard)) { return false; }
-	Panel_Leaderboard->SetVisibility(ESlateVisibility::Hidden);
 
 	if (RoundsBox)
 	{
@@ -40,8 +39,14 @@ bool UScoreboardWidget::Initialize()
 	}
 
 	WhatDataToDisplay();
+	FillAnimationsMap();
+
+	if (!ensure(Panel_Leaderboard)) { return false; }
+	Panel_Leaderboard->SetVisibility(ESlateVisibility::Hidden);
+
 	return true;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Leaderboard display
@@ -127,15 +132,30 @@ void UScoreboardWidget::DisplayMatchResult()
 	UpdateMessageToUser();
 }
 
-FText UScoreboardWidget::GetMatchResultText() const
+void UScoreboardWidget::UpdateMessageToUser()
 {
-	FText OutComeText = FText::GetEmpty();
+	if (!MessageBox || !Text_MatchStateMessage) { return; }
+
 	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
 	if (GS)
 	{
-		OutComeText = FText::Format(LOCTEXT("Message", "Game Over" LINE_TERMINATOR "Rounds Survived {0}"), FText::AsNumber(GS->CurrentRound - 1));
+		if (GS->GetMatchState() == EMatchState::InProgress)
+		{
+			MessageBox->SetVisibility(ESlateVisibility::Hidden);
+		}
+		else
+		{
+			MessageBox->SetVisibility(ESlateVisibility::Visible);
+			if (GS->GetMatchState() == EMatchState::Finished)
+			{
+				GameOverDisplay();
+			}
+			else if (GS->GetMatchState() == EMatchState::WaitingForPlayers)
+			{
+				Text_MatchStateMessage->SetText(LOCTEXT("Message", "Waiting For More Players..."));
+			}
+		}
 	}
-	return OutComeText;
 }
 
 void UScoreboardWidget::TimerDisplay()
@@ -145,7 +165,7 @@ void UScoreboardWidget::TimerDisplay()
 	{
 		if (GS->GetMatchState() == EMatchState::WaitingToStart)
 		{
-			Text_MessageToUser->SetText(GetStartingMatchText());
+			Text_MatchStateMessage->SetText(GetStartingMatchText());
 		}
 		else if (GS->GetMatchState() == EMatchState::InProgress)
 		{
@@ -174,29 +194,80 @@ FText UScoreboardWidget::GetStartingMatchText()
 	return FText::GetEmpty();
 }
 
-void UScoreboardWidget::UpdateMessageToUser()
+FText UScoreboardWidget::GetMatchResultText() const
 {
-	if (!MessageBox || !Text_MessageToUser) { return; }
-
+	FText OutComeText = FText::GetEmpty();
 	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
 	if (GS)
 	{
-		if (GS->GetMatchState() == EMatchState::InProgress)
+		int32 Round = GS->CurrentRound - 1;
+		FMath::Clamp(Round, 0, GS->CurrentRound);
+		OutComeText = FText::Format(LOCTEXT("Message", "Rounds Survived: {0}"), FText::AsNumber(Round));
+	}
+	return OutComeText;
+}
+
+void UScoreboardWidget::GameOverDisplay()
+{
+	if (!ensure(WidgetSwitcher) || !ensure(Panel_Results)) { return; }
+	WidgetSwitcher->SetActiveWidget(Panel_Results);
+	Text_Result->SetText(GetMatchResultText());
+	PlayAnimationByName("Anim_GameOver");
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Animations
+
+void UScoreboardWidget::FillAnimationsMap()
+{
+	AnimationsMap.Empty();
+
+	UProperty* Prop = GetClass()->PropertyLink;
+
+	// Run through all properties of this class to find any widget animations
+	while (Prop)
+	{
+		// Only interested in object properties
+		if (Prop->GetClass() == UObjectProperty::StaticClass())
 		{
-			MessageBox->SetVisibility(ESlateVisibility::Hidden);
-		}
-		else
-		{
-			MessageBox->SetVisibility(ESlateVisibility::Visible);
-			if (GS->GetMatchState() == EMatchState::Finished)
+			UObjectProperty* ObjProp = Cast<UObjectProperty>(Prop);
+
+			// Only want the properties that are widget animations
+			if (ObjProp->PropertyClass == UWidgetAnimation::StaticClass())
 			{
-				Text_MessageToUser->SetText(GetMatchResultText());
-			}
-			else if (GS->GetMatchState() == EMatchState::WaitingForPlayers)
-			{
-				Text_MessageToUser->SetText(LOCTEXT("Message", "Waiting For More Players..."));
+				UObject* Obj = ObjProp->GetObjectPropertyValue_InContainer(this);
+
+				UWidgetAnimation* WidgetAnim = Cast<UWidgetAnimation>(Obj);
+
+				if (WidgetAnim && WidgetAnim->MovieScene)
+				{
+					FName AnimName = WidgetAnim->MovieScene->GetFName();
+					AnimationsMap.Add(AnimName, WidgetAnim);
+				}
 			}
 		}
+
+		Prop = Prop->PropertyLinkNext;
+	}
+}
+
+UWidgetAnimation * UScoreboardWidget::GetAnimationByName(FName AnimName) const
+{
+	UWidgetAnimation * const * WidgetAnim = AnimationsMap.Find(AnimName);
+	if (WidgetAnim)
+	{
+		return *WidgetAnim;
+	}
+	return nullptr;
+}
+
+void UScoreboardWidget::PlayAnimationByName(FName AnimName)
+{
+	UWidgetAnimation * WidgetAnim = GetAnimationByName(AnimName);
+	if (WidgetAnim)
+	{
+		PlayAnimation(WidgetAnim);
 	}
 }
 
