@@ -14,85 +14,6 @@ class UWidgetAnimation;
 class ULayoutWidget;
 enum class EMatchState : uint8;
 
-/** Struct for scoreboard data */
-USTRUCT(BlueprintType)
-struct FMatchData {
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	TArray<int32> Scores;
-
-	FText MatchMins;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 MatchSecs;
-
-	/** Message about current match */
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 CurrentRound;
-
-	/** Displays current match state info */
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 MatchStateMessage;
-
-	/** Defaults */
-	FMatchData()
-	{
-		CurrentRound = 0;
-	}
-};
-
-/** Struct for scoreboard data */
-USTRUCT(BlueprintType)
-struct FLeaderboardData {
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	FText PlayerName;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 PlayerScore;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 PlayerKills;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 PlayerAssists;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	int32 PlayerDeaths;
-
-	/** Defaults */
-	FLeaderboardData()
-	{
-		PlayerName = FText::FromString("PlayerName");
-		PlayerScore = 0;
-		PlayerKills = 0;
-		PlayerAssists = 0;
-		PlayerDeaths = 0;
-	}
-};
-
-struct FColumnData {
-	/** Column name */
-	FText Name;
-
-	/** Column color */
-	FColor Color;
-
-	/** defaults */
-	FColumnData()
-	{
-		Color = FColor(0.f, 0.44f, 1.f, 0.3f);
-	}
-
-	FColumnData(FText InName, FColor InColor)
-		: Name(InName)
-		, Color(InColor)
-	{
-	}
-};
-
 /**
  * Displays player data on Scoreboard during game
  */
@@ -163,17 +84,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget * Panel_LayoutSlots;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	FMatchData MatchData;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
-	FLeaderboardData LeaderboardData;
-
 	/** Player controllers sorted by score in descending */
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	TArray<ATankPlayerState*> SortedPlayers;
-
-	TArray<FColumnData> Columns;
 
 	bool bShowMatchResults;
 
@@ -234,7 +147,7 @@ protected:
 	// Animations
 
 	/** Plays animations */
-	void PlayAnimationByName(FName AnimName);
+	void PlayAnimationByName(FName AnimName, float StartAtTime, int32 NumLoopsToPlay, EUMGSequencePlayMode::Type PlayMode, float PlaybackSpeed);
 
 private:
 	////////////////////////////////////////////////////////////////////////////////
@@ -245,7 +158,7 @@ private:
 	void TimerDisplay();
 
 	/** Displays time till match starts */
-	FText GetStartingMatchText();
+	FText GetStartingMatchText() const;
 
 	/** Displays match end panel */
 	void GameOverDisplay();

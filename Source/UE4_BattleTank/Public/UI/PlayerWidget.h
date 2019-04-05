@@ -9,6 +9,11 @@
 class APlayerController;
 class ATank;
 class UAimingComponent;
+class UTextBlock;
+class UProgressBar;
+class UImage;
+class UWidgetAnimation;
+enum class EFiringState : uint8;
 
 /**
  * Display on player screen
@@ -18,8 +23,42 @@ class UE4_BATTLETANK_API UPlayerWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-
 protected:
+	////////////////////////////////////////////////////////////////////////////////
+	// Player data display
+
+	/** How much ammo player has left */
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_AmmoRemaining;
+
+	/** How much health player has left */
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar * Bar_HealthRemaining;
+
+	/** How much armour player has left */
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar * Bar_ArmourRemaining;
+
+	/** For aiming */
+	UPROPERTY(meta = (BindWidget))
+	UImage * Image_Crosshair;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Warning display
+
+	/** Ammo warning */
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_WarningMessage;
+
+	/** Play area warning */
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_WarningOutOfBounds;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Widget data
+
 	/** Reference to player */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
 	ATank * PlayerPawn;
@@ -28,52 +67,85 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
 	UAimingComponent * AimCompRef;
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Animations
+
+	TMap<FName, UWidgetAnimation*> AnimationsMap;
+
 public:
+	virtual bool Initialize() override;
+
+	/** Setsup display data and animations when constructed */
+	virtual void NativeConstruct() override;
+
 	/** Initialise references */
 	void InitialiseRefs();
 
-	/** Update weapon ui */
-	void AdjustFiringDisplay();
 
-	/** Update health ui */
-	void AdjustHealthDisplay();
+	////////////////////////////////////////////////////////////////////////////////
+	// Player data display
 
-	/** Update when low ammo */
-	void NotifyLowAmmo(bool bShowLowAmmo);
+	/** Update ammo count and crosshair colour display */
+	void UpdateWeaponDisplay();
 
-	/** Update when no ammo */
-	void NotifyOutOfAmmo(bool bShowOutOfAmmo);
+	/** Update armour and health display */
+	void UpdateHealthDisplay();
 
-	/** Update when out of bounds */
-	void NotifyOutOfMatchArea(bool bOutMatchArea);
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Warning display
+
+	/** Warn when low ammo */
+	void NotifyLowAmmo();
+
+	/** Warn when no ammo */
+	void NotifyOutOfAmmo();
+
+	/** Remove warnings and stop animations */
+	void RemoveAmmoWarnings();
+
+	/** Warn when out of bounds */
+	void NotifyOutOfMatchArea();
+	
 
 protected:
-	/** Shows new player ammo and crosshair colour in BP */
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateAmmoAndCrosshair();
+	////////////////////////////////////////////////////////////////////////////////
+	// Animations
 
-	/** Shows new player health and armour in BP */
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateHealthAndArmour();
+	/** Plays animations */
+	void PlayAnimationByName(FName AnimName, float StartAtTime, int32 NumLoopsToPlay, EUMGSequencePlayMode::Type PlayMode, float PlaybackSpeed);
 
-	/** Warns player they are low on health in BP */
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateHealthWarning(bool bShowWarning);
+private:
+	////////////////////////////////////////////////////////////////////////////////
+	// Player data display
 
-	/** Shows player time till death if outside match area in BP*/
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateDeathTimer(int32 RemainingTime);
+	/** Return ammo remaining */
+	FText GetAmmoText() const;
 
-	/** Warns player they are outside match area in BP*/
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateMatchAreaWarning(bool bShowWarning);
+	/** Return new crosshair color */
+	FColor GetCrosshairColor() const;
 
-	/** Warns player they are low on ammo in BP*/
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateAmmoWarning(bool bShowWarning);
+	/** Return armour remaining */
+	float GetArmourPercent() const;
 
-	/** Warns player they are out of ammo in BP*/
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-	void UpdateOutOfAmmo(bool bShowOutOfAmmo);
+	/** Return health remaining */
+	float GetHealthPercent() const;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Warning display
+
+	FText GetOutOfBoundsWarning() const;
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Animations
+
+	/** Fills a map with animations */
+	void FillAnimationsMap();
+
+	/** Returns the animation from its name */
+	UWidgetAnimation * GetAnimationByName(FName AnimName) const;
 	
 };

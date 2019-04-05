@@ -1,7 +1,6 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "AimingComponent.h"
-#include "Tank.h"
 #include "TankPlayerController.h"
 #include "AIBot/TankAIController.h"
 #include "UI/BattleHUD.h"
@@ -22,6 +21,8 @@ UAimingComponent::UAimingComponent()
 	bWantsToFire = false;
 	bIsLoaded = false;
 	bPendingReload = false;
+	bLowAmmo = false;
+	bAmmoWarning = false;
 }
 
 void UAimingComponent::BeginPlay()
@@ -30,7 +31,7 @@ void UAimingComponent::BeginPlay()
 	CurrentRoundsRemaining = WeaponData.MaxRounds;
 }
 
-void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, ATank * NewOwner)
+void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, APawn * NewOwner)
 {
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
@@ -244,11 +245,14 @@ void UAimingComponent::CollectAmmo(int32 AmmoToAdd)
 	AmmoToAdd = FMath::Min(AmmoToAdd, AmmoUsed);
 
 	CurrentRoundsRemaining += AmmoToAdd;
-	UpdatePlayerHud();
 
-	if (!bIsLoaded)
+	if (CurrentFiringState == EFiringState::OutOfAmmo)
 	{
 		ReloadProjectile();
+	}
+	else
+	{
+		UpdatePlayerHud();
 	}
 }
 
@@ -294,14 +298,30 @@ bool UAimingComponent::CanFire() const
 
 void UAimingComponent::UpdatePlayerHud()
 {
-	APawn * Owner = CompOwner ? CompOwner : Cast<APawn>(GetOwner());
-	ATankPlayerController * PC = Cast<ATankPlayerController>(Owner->GetController());
+	ATankPlayerController * PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->GetController()) : nullptr;
 	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
 	if (BHUD)
 	{
-		BHUD->UpdateFiringStateDisplay();
-		CurrentFiringState == EFiringState::OutOfAmmo ? BHUD->WarnOutOfAmmo(true) : BHUD->WarnOutOfAmmo(false);
-		CurrentFiringState != EFiringState::OutOfAmmo && CurrentRoundsRemaining  <= 10 ? BHUD->WarnOfLowAmmo(true) : BHUD->WarnOfLowAmmo(false);
+		BHUD->UpdateWeaponStateDisplay();
+
+		if (CurrentRoundsRemaining >= 12 && bAmmoWarning)
+		{
+			bLowAmmo = false;
+			bAmmoWarning = false;
+			BHUD->RemoveAmmoWarnings();
+		}
+		else if (CurrentFiringState != EFiringState::OutOfAmmo && CurrentRoundsRemaining < 12 && !bLowAmmo)
+		{
+			bLowAmmo = true;
+			bAmmoWarning = true;
+			BHUD->WarnOfLowAmmo();
+		}
+		else if (CurrentFiringState == EFiringState::OutOfAmmo)
+		{
+			bLowAmmo = false;
+			bAmmoWarning = true;
+			BHUD->WarnOutOfAmmo();
+		}
 	}
 }
 

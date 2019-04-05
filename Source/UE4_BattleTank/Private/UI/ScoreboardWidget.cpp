@@ -138,7 +138,7 @@ void UScoreboardWidget::TimerDisplay()
 	}
 }
 
-FText UScoreboardWidget::GetStartingMatchText()
+FText UScoreboardWidget::GetStartingMatchText() const
 {
 	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
 	if (GS)
@@ -166,7 +166,7 @@ void UScoreboardWidget::GameOverDisplay()
 	bShowMatchResults = true;
 	WidgetSwitcher->SetActiveWidget(Panel_Results);
 	Text_Result->SetText(GetMatchResultText());
-	PlayAnimationByName("Anim_GameOver");
+	PlayAnimationByName("Anim_GameOver", 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
 }
 
 FText UScoreboardWidget::GetMatchResultText() const
@@ -295,12 +295,19 @@ UWidgetAnimation * UScoreboardWidget::GetAnimationByName(FName AnimName) const
 	return nullptr;
 }
 
-void UScoreboardWidget::PlayAnimationByName(FName AnimName)
+void UScoreboardWidget::PlayAnimationByName(FName AnimName, float StartAtTime, int32 NumLoopsToPlay, EUMGSequencePlayMode::Type PlayMode, float PlaybackSpeed)
 {
 	UWidgetAnimation * WidgetAnim = GetAnimationByName(AnimName);
 	if (WidgetAnim)
 	{
-		PlayAnimation(WidgetAnim);
+		PlayAnimation
+		(
+			WidgetAnim,
+			StartAtTime,
+			NumLoopsToPlay,
+			PlayMode,
+			PlaybackSpeed
+		);
 	}
 }
 

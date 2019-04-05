@@ -54,7 +54,6 @@ void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
 		PlayerWidget = CreateWidget<UPlayerWidget>(PlayerOwner, PlayerUI);
 		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && !PlayerWidget->IsVisible())
 		{
-			PlayerWidget->InitialiseRefs();
 			PlayerWidget->AddToViewport();
 		}
 	}
@@ -62,7 +61,7 @@ void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
 	{
 		if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 		{
-			PlayerWidget->RemoveFromParent();
+			PlayerWidget->RemoveFromViewport();
 		}
 	}
 }
@@ -81,7 +80,7 @@ void ABattleHUD::DisplayScoreboard(bool bDisplayThisUI)
 	{
 		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
 		{
-			ScoreboardWidget->RemoveFromParent();
+			ScoreboardWidget->RemoveFromViewport();
 		}
 	}
 }
@@ -114,39 +113,47 @@ void ABattleHUD::UpdateHealthDisplay()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
-		PlayerWidget->AdjustHealthDisplay();
+		PlayerWidget->UpdateHealthDisplay();
 	}
 }
 
-void ABattleHUD::UpdateFiringStateDisplay()
+void ABattleHUD::UpdateWeaponStateDisplay()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
-		PlayerWidget->AdjustFiringDisplay();
+		PlayerWidget->UpdateWeaponDisplay();
 	}
 }
 
-void ABattleHUD::WarnOfLowAmmo(bool bLowAmmo)
+void ABattleHUD::WarnOfLowAmmo()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
-		PlayerWidget->NotifyLowAmmo(bLowAmmo);
+		PlayerWidget->NotifyLowAmmo();
 	}
 }
 
-void ABattleHUD::WarnOutOfAmmo(bool bOutOfAmmo)
+void ABattleHUD::WarnOutOfAmmo()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
-		PlayerWidget->NotifyOutOfAmmo(bOutOfAmmo);
+		PlayerWidget->NotifyOutOfAmmo();
 	}
 }
 
-void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
+void ABattleHUD::WarnOutOfMatchArea()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
-		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
+		PlayerWidget->NotifyOutOfMatchArea();
+	}
+}
+
+void ABattleHUD::RemoveAmmoWarnings()
+{
+	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
+	{
+		PlayerWidget->RemoveAmmoWarnings();
 	}
 }
 

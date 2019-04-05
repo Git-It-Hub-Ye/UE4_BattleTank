@@ -11,7 +11,7 @@ void ULayoutWidget::SetPlayerName(FString PlayerName)
 
 void ULayoutWidget::SetPlayerScore(int32 Score)
 {
-	Text_Score->SetText(FText::AsNumber(Score));
+	Text_Score->SetText(FText::AsNumber(FMath::TruncToInt(Score)));
 }
 
 void ULayoutWidget::SetPlayerKills(int32 Kills)

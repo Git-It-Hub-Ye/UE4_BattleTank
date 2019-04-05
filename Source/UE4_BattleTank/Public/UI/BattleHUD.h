@@ -59,16 +59,19 @@ public:
 	void UpdateHealthDisplay();
 
 	/** Update player ui of current firing state. Request from Aiming Component */
-	void UpdateFiringStateDisplay();
+	void UpdateWeaponStateDisplay();
 
 	/** Update player ui when low on ammo. Request from Aiming Component */
-	void WarnOfLowAmmo(bool bLowAmmo);
+	void WarnOfLowAmmo();
 
 	/** Update player ui when out of ammo. Request from Aiming Component */
-	void WarnOutOfAmmo(bool bOutOfAmmo);
+	void WarnOutOfAmmo();
 
 	/** Update player ui when out of match area. Request from Match area trigger */
-	void WarnOutOfMatchArea(bool bOutOfArea);
+	void WarnOutOfMatchArea();
+
+	/** Remove player ui ammo warnings. Request from Aiming Component */
+	void RemoveAmmoWarnings();
 
 
 	////////////////////////////////////////////////////////////////////////////////

@@ -218,10 +218,10 @@ void ABattleTankGameModeBase::EndGame()
 			}
 		}
 	}
-	GetWorldTimerManager().SetTimer(TimerHandle_GameOver, this, &ABattleTankGameModeBase::MovePlayerViewTarget, 5, false);
+	GetWorldTimerManager().SetTimer(TimerHandle_GameOver, this, &ABattleTankGameModeBase::SwitchToMapCamera, 5, false);
 }
 
-void ABattleTankGameModeBase::MovePlayerViewTarget()
+void ABattleTankGameModeBase::SwitchToMapCamera()
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{

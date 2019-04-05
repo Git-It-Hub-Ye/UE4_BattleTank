@@ -238,7 +238,7 @@ private:
 	void DefaultTimer();
 
 	/** Updates player scoreboard */
-	void MovePlayerViewTarget();
+	void SwitchToMapCamera();
 
 
 	////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,6 @@
 // Forward Declerations.
 class UBarrel;
 class UTurret;
-class ATank;
 class AProjectile;
 class UAudioComponent;
 class UParticleSystemComponent;
@@ -85,7 +84,7 @@ private:
 	UTurret * Turret = nullptr;
 
 	/** Owner */
-	ATank * CompOwner;
+	APawn * CompOwner;
 
 	/** Current Rounds remaining */
 	int32 CurrentRoundsRemaining;
@@ -98,6 +97,10 @@ private:
 
 	/** Owner need to reload */
 	bool bPendingReload;
+
+	bool bLowAmmo;
+
+	bool bAmmoWarning;
 
 	/** Direction component is aiming */
 	FVector AimDirection;
@@ -136,7 +139,7 @@ public:
 
 	/** Initialise the barrel and turret from owner */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
-	void Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, ATank * NewOwner);
+	void Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, APawn * NewOwner);
 
 	/** Stop actions, (eg. on death) */
 	UFUNCTION(BlueprintCallable, Category = "Audio")
@@ -226,7 +229,7 @@ private:
 	/** Check if component is in correct state to fire */
 	bool CanFire() const;
 
-	/** Notify player controller to update player ui */
+	/** Notify player of weapon state */
 	void UpdatePlayerHud();
 	
 };
