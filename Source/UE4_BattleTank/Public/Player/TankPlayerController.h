@@ -15,10 +15,10 @@ class UE4_BATTLETANK_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
-	/** Is player in a match */
-	bool bInMatch;
+	/** Allowed to use input on controlled pawns */
+	bool bAllowPawnInput;
 
-	/** Is in game menu in player viewport */
+	/** Is game menu in player viewport */
 	bool bInGameMenuInViewport;
 	
 	/** Location for camera to aim on death */
@@ -47,17 +47,23 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 	// Setup
 
+	/** Setup any input or ui */
 	void ClientInGame();
 
+	/** Setup any input or ui */
 	void ClientMatchStarted();
 
+	/** Setup any input or ui */
+	void ClientMatchFinished();
+
+	/** Setup any input or ui */
 	void ClientGameEnded();
 
+	/** Updates client input or ui */
 	void ClientNotifyOfMatchState();
 
-	void ClientRemoveWidgets();
-
-	void EnemyThatKilledPlayer(FVector  EnemyLocation);
+	/** Sets a location for controller to look at */
+	void LookAtLocation(FVector  EnemyLocation);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +71,9 @@ public:
 
 	/** Setup player input */
 	virtual void SetupInputComponent() override;
+
+	/** Enables pawn input if allowed */
+	void DetermineInput();
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +84,9 @@ public:
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// UI
+	// Controller data
 
+	/** Returns an aiming component used by player pawn */
 	UAimingComponent * GetAimCompRef() const;
 
 	/** Get Hud for this player */
@@ -111,7 +121,7 @@ private:
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// UI
+	// Input
 
 	/** Show player hud */
 	void TogglePlayerHud(bool bShowHud);
@@ -130,11 +140,5 @@ private:
 
 	/** Show match hud */
 	void ShowMatchScoreboard();
-
-	/** Updates match hud display */
-	void UpdateMatchScoreboard();
-
-	/** Updates and displays end result of match */
-	void ShowMatchResult();
 
 };

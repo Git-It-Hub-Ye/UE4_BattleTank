@@ -110,7 +110,7 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 	ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
 	if (PC && EventInstigator && EventInstigator->GetPawn())
 	{
-		PC->EnemyThatKilledPlayer(EventInstigator->GetPawn()->GetActorLocation());
+		PC->LookAtLocation(EventInstigator->GetPawn()->GetActorLocation());
 	}
 
 	ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();

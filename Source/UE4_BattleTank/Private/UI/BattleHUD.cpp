@@ -2,28 +2,21 @@
 
 #include "BattleHUD.h"
 #include "UObject/ConstructorHelpers.h"
+
 #include "Blueprint/UserWidget.h"
 #include "UI/PlayerWidget.h"
-#include "MainMenuSystem/InGameMenuWidget.h"
 #include "UI/ScoreboardWidget.h"
 
 
 ABattleHUD::ABattleHUD()
 {
 	PlayerUI = UPlayerWidget::StaticClass();
-	InGameMenu = UInGameMenuWidget::StaticClass();
 	ScoreboardUI = UScoreboardWidget::StaticClass();
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultPlayerUIWidget(TEXT("/Game/Dynamic/UI/WBP_PlayerHud"));
 	if (DefaultPlayerUIWidget.Class)
 	{
 		PlayerUI = DefaultPlayerUIWidget.Class;
-	}
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultInGameMenuWidget(TEXT("/Game/Dynamic/UI/WBP_InGameMenu"));
-	if (DefaultInGameMenuWidget.Class)
-	{
-		InGameMenu = DefaultInGameMenuWidget.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> DefaultScoreboardWidget(TEXT("/Game/Dynamic/UI/WBP_MatchScoreboard"));
@@ -50,17 +43,6 @@ void ABattleHUD::ShowScoreboard(bool bDisplayThisUI)
 void ABattleHUD::ShowLeaderboard(bool bDisplayThisUI)
 {
 	DisplayLeaderboard(bDisplayThisUI);
-}
-
-void ABattleHUD::ShowMatchResult()
-{
-	UpdateMatchResult();
-}
-
-void ABattleHUD::RemoveWidgetsOnClient()
-{
-	DisplayPlayerHud(false);
-	DisplayLeaderboard(false);
 }
 
 void ABattleHUD::DisplayPlayerHud(bool bDisplayThisUI)
@@ -110,22 +92,14 @@ void ABattleHUD::DisplayLeaderboard(bool bDisplayThisUI)
 
 	if (bDisplayThisUI)
 	{
-		if (!ScoreboardWidget || !ScoreboardWidget->IsValidLowLevel())
-		{
-			DisplayScoreboard(true);
-		}
-		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && !ScoreboardWidget->IsLeaderboardVisible())
+		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
 		{
 			ScoreboardWidget->ShowLeaderboard();
 		}
 	}
 	else
 	{
-		if (!ScoreboardWidget || !ScoreboardWidget->IsValidLowLevel())
-		{
-			DisplayScoreboard(true);
-		}
-		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsLeaderboardVisible())
+		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
 		{
 			ScoreboardWidget->HideLeaderboard();
 		}
@@ -134,7 +108,7 @@ void ABattleHUD::DisplayLeaderboard(bool bDisplayThisUI)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Updating hud
+// Updating player hud
 
 void ABattleHUD::UpdateHealthDisplay()
 {
@@ -149,39 +123,6 @@ void ABattleHUD::UpdateFiringStateDisplay()
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
 		PlayerWidget->AdjustFiringDisplay();
-	}
-}
-
-void ABattleHUD::DisplayMatchMessage()
-{
-	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
-	{
-		ScoreboardWidget->UpdateMessageToUser();
-	}
-}
-
-void ABattleHUD::UpdateMatchResult()
-{
-	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
-	{
-		ScoreboardWidget->UpdateMatchScoreboard();
-		ScoreboardWidget->DisplayMatchResult();
-	}
-}
-
-void ABattleHUD::UpdateScoreboard()
-{
-	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
-	{
-		ScoreboardWidget->UpdateMatchScoreboard();
-	}
-}
-
-void ABattleHUD::UpdateLeaderboard()
-{
-	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsLeaderboardVisible())
-	{
-		ScoreboardWidget->UpdateLeaderboardData();
 	}
 }
 
@@ -206,6 +147,26 @@ void ABattleHUD::WarnOutOfMatchArea(bool bOutOfArea)
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
 		PlayerWidget->NotifyOutOfMatchArea(bOutOfArea);
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Updating match hud
+
+void ABattleHUD::UpdateMatchStateDisplay()
+{
+	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
+	{
+		ScoreboardWidget->UpdateMatchStateDisplay();
+	}
+}
+
+void ABattleHUD::UpdateMatchScores()
+{
+	if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
+	{
+		ScoreboardWidget->UpdateMatchScore();
 	}
 }
 

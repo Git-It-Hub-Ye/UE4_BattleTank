@@ -38,6 +38,8 @@ public:
 	bool GetIsGameMenuVisible() const;
 	
 protected:
+	virtual void DeterminePlayerInput() override;
+
 	virtual void HostOffline() override;
 
 	virtual void HostOnline() override;

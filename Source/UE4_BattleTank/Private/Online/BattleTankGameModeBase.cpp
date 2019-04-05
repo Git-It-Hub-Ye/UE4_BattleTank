@@ -33,6 +33,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 
 	bTimedMatch = true;
 	bRoundBasedGame = false;
+	bIsGameInProgress = false;
 
 	Time_WaitToStart = 10;
 	Time_MatchLength = 600;
@@ -65,23 +66,18 @@ void ABattleTankGameModeBase::PostLogin(APlayerController * NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	// TODO notify player when joined if match already in progress
-
-	ATankPlayerController * PC = Cast<ATankPlayerController>(NewPlayer);
-	if (PC)
-	{
-		PC->ClientInGame();
-	}
+	SetUpNewClient(NewPlayer);
 
 	NumOfPlayers++;
-	if (NumOfPlayers >= MinPlayersRequired)
+	if (!bIsGameInProgress && NumOfPlayers >= MinPlayersRequired)
 	{
+		bIsGameInProgress = true;
 		Time_WaitToStart > 0 ? PrepareToStartMatch() : StartMatch();
 	}
-	else
+	else if (NumOfPlayers < MinPlayersRequired)
 	{
 		SetMatchState(EMatchState::WaitingForPlayers);
-		NotifyClientOfMatchState();
+		NotifyClientOfMatchUpdates();
 	}
 }
 
@@ -142,7 +138,7 @@ void ABattleTankGameModeBase::RestartDfaultTimer()
 void ABattleTankGameModeBase::PrepareToStartMatch()
 {
 	SetMatchState(EMatchState::WaitingToStart);
-	NotifyClientOfMatchState();
+	NotifyClientOfMatchUpdates();
 	SetDefaultTimer(Time_WaitToStart);
 	RestartDfaultTimer();
 }
@@ -150,7 +146,7 @@ void ABattleTankGameModeBase::PrepareToStartMatch()
 void ABattleTankGameModeBase::StartMatch()
 {
 	SetMatchState(EMatchState::InProgress);
-	NotifyClientOfMatchState();
+	NotifyClientOfMatchUpdates();
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		ATankPlayerController * PC = Cast<ATankPlayerController>(*It);
@@ -160,7 +156,7 @@ void ABattleTankGameModeBase::StartMatch()
 		}
 	}
 
-	if (bTimedMatch)
+	if (!bRoundBasedGame && bTimedMatch)
 	{
 		SetDefaultTimer(Time_MatchLength);
 		RestartDfaultTimer();
@@ -176,14 +172,21 @@ void ABattleTankGameModeBase::StartNewRound()
 	{
 		GS->CurrentRound = CurrentRound;
 	}
-	UpdateMatchScoreboard();
+
+	NotifyClientOfMatchUpdates();
+
+	if (bTimedMatch)
+	{
+		SetDefaultTimer(Time_MatchLength);
+		RestartDfaultTimer();
+	}
 }
 
 void ABattleTankGameModeBase::FinishMatch()
 {
 	SetMatchState(EMatchState::Finished);
 	StopMatch();
-	NotifyClientOfMatchState();
+	NotifyClientOfMatchUpdates();
 	EndGame();
 }
 
@@ -195,8 +198,10 @@ void ABattleTankGameModeBase::StopMatch()
 
 void ABattleTankGameModeBase::EndGame()
 {
+	// Stop all pawn movement and disable input for whatever controller was assigned to it
 	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
 	{
+		(*It)->DisableInput(nullptr);
 		(*It)->TurnOff();
 	}
 
@@ -205,10 +210,10 @@ void ABattleTankGameModeBase::EndGame()
 		ATankPlayerController * PC = Cast<ATankPlayerController>(*It);
 		if (PC)
 		{
-			PC->ClientGameEnded();
 			ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
 			if (BHUD)
 			{
+				PC->ClientMatchFinished();
 				BHUD->ShowLeaderboard(true);
 			}
 		}
@@ -220,9 +225,10 @@ void ABattleTankGameModeBase::MovePlayerViewTarget()
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		APlayerController * PC = Cast<APlayerController>(*It);
+		ATankPlayerController * PC = Cast<ATankPlayerController>(*It);
 		if (PC)
 		{
+			PC->ClientGameEnded();
 			TransitionToMapCamera(PC);
 		}
 	}
@@ -231,10 +237,6 @@ void ABattleTankGameModeBase::MovePlayerViewTarget()
 void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
 {
 	if (!PC) { return; }
-	if (PC->GetPawn())
-	{
-		PC->GetPawn()->DetachFromControllerPendingDestroy();
-	}
 
 	TArray<AActor*> ReturnedCameras;
 	UGameplayStatics::GetAllActorsOfClass(this, MapCameraClass, ReturnedCameras);
@@ -265,7 +267,7 @@ void ABattleTankGameModeBase::HandleKill(AController * KilledPawn, AController *
 		VictimPlayerState->ScoreDeath();
 	}
 
-	if (KillerPlayerState || VictimPlayerState) { UpdateMatchScoreboard(); }
+	if (KillerPlayerState || VictimPlayerState) { UpdateMatchScoreDispaly(); }
 }
 
 void ABattleTankGameModeBase::TriggerDestroyed()
@@ -301,7 +303,20 @@ void ABattleTankGameModeBase::SpawnNewTrigger()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Notify about Game changes
+// Notify client
+
+void ABattleTankGameModeBase::SetUpNewClient(APlayerController * NewPlayer)
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(NewPlayer);
+	if (PC)
+	{
+		PC->ClientInGame();
+		if (bIsGameInProgress)
+		{
+			PC->ClientMatchStarted();
+		}
+	}
+}
 
 void ABattleTankGameModeBase::NotifyClientGameEnded()
 {
@@ -315,19 +330,20 @@ void ABattleTankGameModeBase::NotifyClientGameEnded()
 	}
 }
 
-void ABattleTankGameModeBase::NotifyClientOfMatchState()
+void ABattleTankGameModeBase::NotifyClientOfMatchUpdates()
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		ATankPlayerController * PC = Cast<ATankPlayerController>(*It);
-		if (PC)
+		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
+		if (BHUD)
 		{
-			PC->ClientNotifyOfMatchState();
+			BHUD->UpdateMatchStateDisplay();
 		}
 	}
 }
 
-void ABattleTankGameModeBase::UpdateMatchScoreboard()
+void ABattleTankGameModeBase::UpdateMatchScoreDispaly()
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
@@ -335,8 +351,7 @@ void ABattleTankGameModeBase::UpdateMatchScoreboard()
 		ABattleHUD * BHUD = PC ? Cast<ABattleHUD>(PC->GetHUD()) : nullptr;
 		if (BHUD)
 		{
-			BHUD->UpdateScoreboard();
-			BHUD->UpdateLeaderboard();
+			BHUD->UpdateMatchScores();
 		}
 	}
 }

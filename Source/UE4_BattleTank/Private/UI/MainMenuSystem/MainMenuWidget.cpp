@@ -8,7 +8,6 @@
 bool UMainMenuWidget::Initialize()
 {
 	if (!Super::Initialize()) { return false; }
-
 	bPlayOnlineMode = false;
 		
 	if (Button_Offline)
@@ -90,6 +89,7 @@ void UMainMenuWidget::OfflinePlay()
 	if (WidgetSwitcher_Button && Button_Return)
 	{
 		WidgetSwitcher_Button->SetActiveWidget(Button_Return);
+		Button_Return->SetKeyboardFocus();
 	}
 }
 
@@ -104,6 +104,7 @@ void UMainMenuWidget::OnlinePlay()
 	if (WidgetSwitcher_Button && Button_Return)
 	{
 		WidgetSwitcher_Button->SetActiveWidget(Button_Return);
+		Button_Return->SetKeyboardFocus();
 	}
 }
 
@@ -113,6 +114,11 @@ void UMainMenuWidget::HostGameMenu()
 	if (!HostMenu) { return; }
 
 	WidgetSwitcher->SetActiveWidget(HostMenu);
+
+	if (Button_Return)
+	{
+		Button_Return->SetKeyboardFocus();
+	}
 }
 
 void UMainMenuWidget::JoinGameMenu()
@@ -121,6 +127,11 @@ void UMainMenuWidget::JoinGameMenu()
 	if (!JoinMenu) { return; }
 
 	WidgetSwitcher->SetActiveWidget(JoinMenu);
+
+	if (Button_Return)
+	{
+		Button_Return->SetKeyboardFocus();
+	}
 }
 
 void UMainMenuWidget::StartOfflineGame()

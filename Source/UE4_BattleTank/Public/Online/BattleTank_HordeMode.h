@@ -71,7 +71,7 @@ protected:
 	/** Start match */
 	virtual void StartMatch() override;
 
-	/** Decrease num of active bots and check how this effects wave state */
+	/** Decrease number of active bots and check how this effects wave state */
 	virtual void OnAIBotDeath(AAIController * AICon) override;
 
 	/** Call game over if all players are dead */

@@ -5,6 +5,7 @@
 #include "Online/BattleTankGameState.h"
 #include "Online/TankPlayerState.h"
 #include "Player/TankPlayerController.h"
+#include "LayoutWidget.h"
 
 #include "Animation/WidgetAnimation.h"
 #include "MovieScene.h"
@@ -32,6 +33,14 @@ bool UScoreboardWidget::Initialize()
 		MessageBox->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	if (!ensure(Panel_LeaderboardGrid)) { return false; }
+	Panel_LeaderboardGrid->SetVisibility(ESlateVisibility::Hidden);
+
+	return true;
+}
+
+void UScoreboardWidget::NativeConstruct()
+{
 	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (BTGM)
 	{
@@ -40,65 +49,9 @@ bool UScoreboardWidget::Initialize()
 
 	WhatDataToDisplay();
 	FillAnimationsMap();
+	bShowMatchResults = false;
 
-	if (!ensure(Panel_Leaderboard)) { return false; }
-	Panel_Leaderboard->SetVisibility(ESlateVisibility::Hidden);
-
-	return true;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Leaderboard display
-
-void UScoreboardWidget::UpdateLeaderboard(int32 Index)
-{
-	if (!SortedPlayers[Index]) { return; }
-	LeaderboardData.PlayerName = FText::FromString(SortedPlayers[Index]->GetPlayerName());
-	LeaderboardData.PlayerScore = SortedPlayers[Index]->GetScore();
-	LeaderboardData.PlayerKills = SortedPlayers[Index]->GetKillCount();
-	LeaderboardData.PlayerAssists = SortedPlayers[Index]->GetKillAssistCount();
-	LeaderboardData.PlayerDeaths = SortedPlayers[Index]->GetDeathCount();
-}
-
-void UScoreboardWidget::SortPlayerByScores()
-{
-	SortedPlayers.Empty();
-	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
-	if (GS)
-	{
-		GS->GetRankedPlayers(SortedPlayers);
-	}
-}
-
-void UScoreboardWidget::ShowLeaderboard()
-{
-	if (!Panel_Leaderboard) { return; }
-	Panel_Leaderboard->SetVisibility(ESlateVisibility::Visible);
-	UpdateLeaderboardData();
-}
-
-void UScoreboardWidget::HideLeaderboard()
-{
-	if (!Panel_Leaderboard) { return; }
-	Panel_Leaderboard->SetVisibility(ESlateVisibility::Hidden);
-}
-
-bool UScoreboardWidget::IsLeaderboardVisible() const
-{
-	return Panel_Leaderboard && Panel_Leaderboard->IsVisible();
-}
-
-void UScoreboardWidget::UpdateMatchScoreboard()
-{
-	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
-	if (GS)
-	{
-		if (RoundsBox && Text_CurrentRound)
-		{
-			Text_CurrentRound->SetText(FText::AsNumber(GS->CurrentRound));
-		}
-	}
+	Super::NativeConstruct();
 }
 
 
@@ -127,12 +80,7 @@ void UScoreboardWidget::WhatDataToDisplay()
 	}
 }
 
-void UScoreboardWidget::DisplayMatchResult()
-{
-	UpdateMessageToUser();
-}
-
-void UScoreboardWidget::UpdateMessageToUser()
+void UScoreboardWidget::UpdateMatchStateDisplay()
 {
 	if (!MessageBox || !Text_MatchStateMessage) { return; }
 
@@ -141,6 +89,7 @@ void UScoreboardWidget::UpdateMessageToUser()
 	{
 		if (GS->GetMatchState() == EMatchState::InProgress)
 		{
+			UpdateCurrentRound();
 			MessageBox->SetVisibility(ESlateVisibility::Hidden);
 		}
 		else
@@ -154,6 +103,18 @@ void UScoreboardWidget::UpdateMessageToUser()
 			{
 				Text_MatchStateMessage->SetText(LOCTEXT("Message", "Waiting For More Players..."));
 			}
+		}
+	}
+}
+
+void UScoreboardWidget::UpdateCurrentRound()
+{
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
+	if (GS)
+	{
+		if (RoundsBox && Text_CurrentRound)
+		{
+			Text_CurrentRound->SetText(FText::AsNumber(GS->CurrentRound));
 		}
 	}
 }
@@ -194,6 +155,20 @@ FText UScoreboardWidget::GetStartingMatchText()
 	return FText::GetEmpty();
 }
 
+void UScoreboardWidget::UpdateMatchScore()
+{
+	UpdateLeaderboard();
+}
+
+void UScoreboardWidget::GameOverDisplay()
+{
+	if (!ensure(WidgetSwitcher) || !ensure(Panel_Results)) { return; }
+	bShowMatchResults = true;
+	WidgetSwitcher->SetActiveWidget(Panel_Results);
+	Text_Result->SetText(GetMatchResultText());
+	PlayAnimationByName("Anim_GameOver");
+}
+
 FText UScoreboardWidget::GetMatchResultText() const
 {
 	FText OutComeText = FText::GetEmpty();
@@ -207,12 +182,70 @@ FText UScoreboardWidget::GetMatchResultText() const
 	return OutComeText;
 }
 
-void UScoreboardWidget::GameOverDisplay()
+
+////////////////////////////////////////////////////////////////////////////////
+// Leaderboard display
+
+void UScoreboardWidget::ShowLeaderboard()
 {
-	if (!ensure(WidgetSwitcher) || !ensure(Panel_Results)) { return; }
-	WidgetSwitcher->SetActiveWidget(Panel_Results);
-	Text_Result->SetText(GetMatchResultText());
-	PlayAnimationByName("Anim_GameOver");
+	if (!Panel_LeaderboardGrid || !Panel_LayoutSlots) { return; }
+	if (Panel_LeaderboardGrid->IsVisible()) { return; }
+
+	Panel_LeaderboardGrid->SetVisibility(ESlateVisibility::Visible);
+	FillMatchLeaderboard();
+}
+
+void UScoreboardWidget::HideLeaderboard()
+{
+	if (!Panel_LeaderboardGrid || !Panel_LayoutSlots) { return; }
+	if (!Panel_LeaderboardGrid->IsVisible() || bShowMatchResults) { return; }
+
+	Panel_LeaderboardGrid->SetVisibility(ESlateVisibility::Hidden);
+	Panel_LayoutSlots->ClearChildren();
+	Slots.Empty();
+}
+
+void UScoreboardWidget::UpdateLeaderboard()
+{
+	if (!Panel_LeaderboardGrid && Panel_LayoutSlots) { return; }
+	if (!Panel_LeaderboardGrid->IsVisible()) { return; }
+
+	Panel_LayoutSlots->ClearChildren();
+	Slots.Empty();
+	FillMatchLeaderboard();
+}
+
+void UScoreboardWidget::FillMatchLeaderboard()
+{
+	SortPlayerByScores();
+
+	if (SortedPlayers.Num() <= 0 || !LeaderboadSlot) { return; }
+
+	for (int32 i = 0; i < SortedPlayers.Num(); i++)
+	{
+		SlotLayoutWidget = CreateWidget<ULayoutWidget>(GetOwningPlayer(), LeaderboadSlot);
+
+		if (!SlotLayoutWidget) { continue; }
+		Panel_LayoutSlots->AddChild(SlotLayoutWidget);
+
+		SlotLayoutWidget->SetPlayerName(SortedPlayers[i]->GetPlayerName());
+		SlotLayoutWidget->SetPlayerScore(SortedPlayers[i]->GetScore());
+		SlotLayoutWidget->SetPlayerKills(SortedPlayers[i]->GetKillCount());
+		SlotLayoutWidget->SetPlayerAssists(SortedPlayers[i]->GetKillAssistCount());
+		SlotLayoutWidget->SetPlayerDeaths(SortedPlayers[i]->GetDeathCount());
+
+		Slots.Add(SlotLayoutWidget);
+	}
+}
+
+void UScoreboardWidget::SortPlayerByScores()
+{
+	SortedPlayers.Empty();
+	ABattleTankGameState * GS = GetWorld()->GetGameState<ABattleTankGameState>();
+	if (GS)
+	{
+		GS->GetRankedPlayers(SortedPlayers);
+	}
 }
 
 

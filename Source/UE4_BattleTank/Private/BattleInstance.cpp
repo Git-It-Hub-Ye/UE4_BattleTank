@@ -2,9 +2,11 @@
 
 #include "BattleInstance.h"
 #include "UObject/ConstructorHelpers.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
+
 #include "Blueprint/UserWidget.h"
 #include "MainMenuSystem/MenuWidget.h"
-#include "GenericPlatform/GenericPlatformMisc.h"
+#include "Player/TankPlayerController.h"
 
 
 UBattleInstance::UBattleInstance(const FObjectInitializer & ObjectInitializer)
@@ -69,6 +71,14 @@ void UBattleInstance::ToggleInGameMenu()
 bool UBattleInstance::GetIsGameMenuVisible() const
 {
 	return InGameMenu && InGameMenu->IsValidLowLevel() && InGameMenu->IsVisible();
+}
+
+void UBattleInstance::DeterminePlayerInput()
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetFirstLocalPlayerController());
+	if (!PC) { return; }
+
+	PC->DetermineInput();
 }
 
 void UBattleInstance::HostOffline()

@@ -16,16 +16,16 @@ ATankPlayerController::ATankPlayerController()
 	CrosshairXLocation = 0.5f;
 	CrosshairYLocation = 0.33333f;
 	LineTraceRange = 100000.f;
-	bInMatch = false;
+	bAllowPawnInput = false;
 	bInGameMenuInViewport = false;
 }
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (!GetPawn()) { return; }
-	if (!bInMatch) { GetPawn()->DisableInput(this); }
+	if (!bAllowPawnInput) { GetPawn()->DisableInput(this); }
 	TogglePlayerHud(true);
 }
 
@@ -52,25 +52,26 @@ void ATankPlayerController::ClientInGame()
 
 void ATankPlayerController::ClientMatchStarted()
 {
-	bInMatch = true;
-	UpdateMatchScoreboard();
+	bAllowPawnInput = true;
 
 	if (!GetPawn() || bInGameMenuInViewport) { return; }
 	GetPawn()->EnableInput(this);
 }
 
+void ATankPlayerController::ClientMatchFinished()
+{
+	bAllowPawnInput = false;
+	TogglePlayerHud(false);
+}
+
 void ATankPlayerController::ClientGameEnded()
 {
-	bInMatch = false;
-	TogglePlayerHud(false);
 	DisableInput(this);
-
+	RemoveInGameMenu();
 	if (GetPawn())
 	{
-		GetPawn()->DisableInput(this);
+		GetPawn()->DetachFromControllerPendingDestroy();
 	}
-
-	ClientRemoveWidgets();
 }
 
 void ATankPlayerController::ClientNotifyOfMatchState()
@@ -78,23 +79,8 @@ void ATankPlayerController::ClientNotifyOfMatchState()
 	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
 	if (BHUD)
 	{
-		BHUD->DisplayMatchMessage();
+		BHUD->UpdateMatchStateDisplay();
 	}
-}
-
-void ATankPlayerController::ClientRemoveWidgets()
-{
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
-	{
-		BHUD->RemoveWidgetsOnClient();
-	}
-	RemoveInGameMenu();
-}
-
-void ATankPlayerController::EnemyThatKilledPlayer(FVector EnemyLocation)
-{
-	LocationOfEnemy = EnemyLocation;
 }
 
 void ATankPlayerController::OnPossessedTankDeath()
@@ -142,6 +128,17 @@ void ATankPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Scoreboard", IE_Released, this, &ATankPlayerController::HideLeaderboard);
 }
 
+void ATankPlayerController::DetermineInput()
+{
+	bInGameMenuInViewport = false;
+
+	if (bAllowPawnInput)
+	{		
+		if (!GetPawn()) { return; }
+		GetPawn()->EnableInput(this);
+	}
+}
+
 void ATankPlayerController::TogglePlayerHud(bool bShowHud)
 {
 	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
@@ -157,20 +154,12 @@ void ATankPlayerController::ToggleInGameMenu()
 	if (BGI)
 	{
 		BGI->ToggleInGameMenu();
-
 		if (BGI->GetIsGameMenuVisible())
 		{
 			bInGameMenuInViewport = true;
 
 			if (!GetPawn()) { return; }
 			GetPawn()->DisableInput(this);
-		}
-		else
-		{
-			bInGameMenuInViewport = false;
-
-			if (!GetPawn() || !bInMatch) { return; }
-			GetPawn()->EnableInput(this);
 		}
 	}
 }
@@ -209,36 +198,6 @@ void ATankPlayerController::ShowMatchScoreboard()
 	{
 		BHUD->ShowScoreboard(true);
 	}
-}
-
-void ATankPlayerController::UpdateMatchScoreboard()
-{
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
-	{
-		BHUD->UpdateScoreboard();
-	}
-}
-
-void ATankPlayerController::ShowMatchResult()
-{
-	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
-	if (BHUD)
-	{
-		BHUD->ShowMatchResult();
-	}
-}
-
-UAimingComponent * ATankPlayerController::GetAimCompRef() const
-{
-	if (!GetPawn()) { return nullptr; }
-	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
-	return AimingComponent;
-}
-
-ABattleHUD * ATankPlayerController::GetPlayerHud() const
-{
-	return Cast<ABattleHUD>(GetHUD());
 }
 
 
@@ -299,5 +258,26 @@ FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, F
 		ECollisionChannel::ECC_Camera
 	);
 	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Controller data
+
+void ATankPlayerController::LookAtLocation(FVector EnemyLocation)
+{
+	LocationOfEnemy = EnemyLocation;
+}
+
+UAimingComponent * ATankPlayerController::GetAimCompRef() const
+{
+	if (!GetPawn()) { return nullptr; }
+	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
+	return AimingComponent;
+}
+
+ABattleHUD * ATankPlayerController::GetPlayerHud() const
+{
+	return Cast<ABattleHUD>(GetHUD());
 }
 

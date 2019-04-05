@@ -98,7 +98,7 @@ private:
 	UFUNCTION()
 	void GamepadControls();
 
-	/** Closes down game */
+	/** Leaves game */
 	UFUNCTION()
 	void LeaveGame();
 };

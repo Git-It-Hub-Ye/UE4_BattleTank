@@ -83,16 +83,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Config Game", meta = (ClampMin = 1, ClampMax = 100))
 	int32 AssistPoints;
 
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Player data
-
 	/** Min number of players required to play game */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Game", meta = (ClampMin = 1, ClampMax = 4))
 	int32 MinPlayersRequired;
 
 	/** Number of players in game */
 	int32 NumOfPlayers;
+
+	bool bIsGameInProgress;
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -207,20 +205,14 @@ protected:
 	////////////////////////////////////////////////////////////////////////////////
 	// Notify game changes
 
-	/** Notifies client that a game has been created */
-	void NotifyClientGameCreated(APlayerController * NewPlayer);
-
-	/** Notifies client that match has started */
-	void NotifyClientMatchStarted();
-
 	/** Notifies client that match has finished */
 	void NotifyClientGameEnded();
 
-	/** Display match state message to player */
-	void NotifyClientOfMatchState();
+	/** Updates current match display for player */
+	void NotifyClientOfMatchUpdates();
 
-	/** Updates player leaderboard */
-	void UpdateMatchScoreboard();
+	/** Updates match display score and player leaderboard */
+	void UpdateMatchScoreDispaly();
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -236,6 +228,8 @@ protected:
 	virtual void DetermineMatchWinner() PURE_VIRTUAL(ABattleTankGameModeBase::DetermineMatchWinner,)
 
 private:
+
+	void SetUpNewClient(APlayerController * NewPlayer);
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Game behaviour

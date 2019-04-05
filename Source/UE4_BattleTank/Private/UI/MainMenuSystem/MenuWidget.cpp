@@ -21,9 +21,6 @@ void UMenuWidget::Setup()
 
 	PC->SetInputMode(InputMode);
 	PC->bShowMouseCursor = true;
-
-	if (!PC->GetPawn()) { return; }
-	PC->GetPawn()->DisableInput(PC);
 }
 
 void UMenuWidget::TearDown()
@@ -35,6 +32,11 @@ void UMenuWidget::TearDown()
 
 	PC->SetInputMode(FInputModeGameOnly());
 	PC->bShowMouseCursor = false;
+
+	if (MenuInterface)
+	{
+		MenuInterface->DeterminePlayerInput();
+	}
 }
 
 void UMenuWidget::OnLevelRemovedFromWorld(ULevel * InLevel, UWorld * InWorld)

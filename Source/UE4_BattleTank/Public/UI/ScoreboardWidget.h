@@ -11,6 +11,7 @@ class UPanelWidget;
 class UWidgetSwitcher;
 class UTextBlock;
 class UWidgetAnimation;
+class ULayoutWidget;
 enum class EMatchState : uint8;
 
 /** Struct for scoreboard data */
@@ -69,6 +70,26 @@ struct FLeaderboardData {
 		PlayerKills = 0;
 		PlayerAssists = 0;
 		PlayerDeaths = 0;
+	}
+};
+
+struct FColumnData {
+	/** Column name */
+	FText Name;
+
+	/** Column color */
+	FColor Color;
+
+	/** defaults */
+	FColumnData()
+	{
+		Color = FColor(0.f, 0.44f, 1.f, 0.3f);
+	}
+
+	FColumnData(FText InName, FColor InColor)
+		: Name(InName)
+		, Color(InColor)
+	{
 	}
 };
 
@@ -136,7 +157,11 @@ protected:
 
 	/** Displays players ranked by score */
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget * Panel_Leaderboard;
+	UPanelWidget * Panel_LeaderboardGrid;
+
+	/** Holds player data slots */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_LayoutSlots;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	FMatchData MatchData;
@@ -148,8 +173,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Scoreboard")
 	TArray<ATankPlayerState*> SortedPlayers;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Scoreboard")
-	bool bIsLeaderboardVisible;
+	TArray<FColumnData> Columns;
+
+	bool bShowMatchResults;
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -157,18 +183,32 @@ protected:
 
 	TMap<FName, UWidgetAnimation*> AnimationsMap;
 
-public:
-	UFUNCTION(BlueprintImplementableEvent, Category = "Scoreboard")
-	void UpdateLeaderboardData();
+private:
+	////////////////////////////////////////////////////////////////////////////////
+	// Leaderboard display
 
-	/** Set values of match data */
-	void UpdateMatchScoreboard();
+	/** BP widget layout for leaderboad slots */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	TSubclassOf<UUserWidget> LeaderboadSlot;
+
+	/** Slot layout to display player data */
+	ULayoutWidget * SlotLayoutWidget;
+
+	/** Array of slots added to leaderboard */
+	TArray<ULayoutWidget*> Slots;
+
+public:
+	////////////////////////////////////////////////////////////////////////////////
+	// Scoreboard display
 
 	/** Displays mesage to user about match state */
-	void UpdateMessageToUser();
+	void UpdateMatchStateDisplay();
 
-	/** Show user result of match */
-	void DisplayMatchResult();
+	/** Display match score */
+	void UpdateMatchScore();
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Leaderboard display
 
 	/** Show leaderboard */
 	void ShowLeaderboard();
@@ -176,35 +216,64 @@ public:
 	/** Hide leaderboard */
 	void HideLeaderboard();
 
-	bool IsLeaderboardVisible() const;
+	/** Updates leaderboard if currently visible */
+	void UpdateLeaderboard();
 
 protected:
+	/** Finds widgets that exist and setsup for display */
 	virtual bool Initialize() override;
+
+	/** Setsup display data and animations when constructed */
+	virtual void NativeConstruct() override;
 
 	/** Finds what match data should be visible */
 	virtual void WhatDataToDisplay();
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Animations
+
+	/** Plays animations */
 	void PlayAnimationByName(FName AnimName);
 
-	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
-	void UpdateLeaderboard(int32 Index);
-
-	UFUNCTION(BlueprintCallable, Category = "Scoreboard")
-	void SortPlayerByScores();
-
 private:
+	////////////////////////////////////////////////////////////////////////////////
+	// Scoreboard display
 
+	/** Updates timer display */
 	UFUNCTION()
 	void TimerDisplay();
 
-	void GameOverDisplay();
-
+	/** Displays time till match starts */
 	FText GetStartingMatchText();
 
+	/** Displays match end panel */
+	void GameOverDisplay();
+
+	/** Displays end result to user */
 	FText GetMatchResultText() const;
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Leaderboard display
+
+	/** Updates leaderboard */
+	void FillMatchLeaderboard();
+
+	/** Updates round display */
+	void UpdateCurrentRound();
+
+	/** Fills array of player states ranked by score */
+	void SortPlayerByScores();
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Animations
+
+	/** Fills a map with animations */
 	void FillAnimationsMap();
 
+	/** Returns the animation from its name */
 	UWidgetAnimation * GetAnimationByName(FName AnimName) const;
 	
 };

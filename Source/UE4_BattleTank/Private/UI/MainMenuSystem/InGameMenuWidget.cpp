@@ -49,6 +49,7 @@ void UInGameMenuWidget::ReturnToPreviousWidget()
 	if (Panel_Controls == WidgetSwitcher->GetActiveWidget())
 	{
 		WidgetSwitcher->SetActiveWidget(Panel_Menu);
+		Button_Resume->SetKeyboardFocus();
 		Button_Return->SetVisibility(ESlateVisibility::Hidden);
 	}
 	else
@@ -63,6 +64,7 @@ void UInGameMenuWidget::ControlMenu()
 	if (!Panel_Controls) { return; }
 
 	WidgetSwitcher->SetActiveWidget(Panel_Controls);
+	Button_Return->SetKeyboardFocus();
 	Button_Return->SetVisibility(ESlateVisibility::Visible);
 }
 
@@ -72,6 +74,7 @@ void UInGameMenuWidget::MouseAndKeyControls()
 	if (!Panel_MouseAndKey) { return; }
 
 	WidgetSwitcher->SetActiveWidget(Panel_MouseAndKey);
+	Button_Return->SetKeyboardFocus();
 }
 
 void UInGameMenuWidget::GamepadControls()
@@ -80,6 +83,7 @@ void UInGameMenuWidget::GamepadControls()
 	if (!Panel_Gamepad) { return; }
 
 	WidgetSwitcher->SetActiveWidget(Panel_Gamepad);
+	Button_Return->SetKeyboardFocus();
 }
 
 void UInGameMenuWidget::LeaveGame()
