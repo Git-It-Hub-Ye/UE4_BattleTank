@@ -1,15 +1,18 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "Tank.h"
-#include "TankPlayerController.h"
-#include "Online/BattleTankGameModeBase.h"
+#include "UE4_BattleTank.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/AudioComponent.h"
+
+#include "Online/BattleTankGameModeBase.h"
+#include "TankPlayerController.h"
+#include "TankMovement.h"
 #include "AimingComponent.h"
 #include "UI/BattleHUD.h"
-#include "TankMovement.h"
-#include "TimerManager.h"
-#include "Kismet/GameplayStatics.h"
-#include "PhysicalMaterials/PhysicalMaterial.h"
 
 
 ATank::ATank()
@@ -36,9 +39,16 @@ void ATank::BeginPlay()
 	Super::BeginPlay();
 	CurrentHealth = StartingHealth;
 	CurrentArmour = StartingArmour;
-	TankBody->SetSimulatePhysics(true);
 	UpdatePlayerHud();
+
+	if (!TankBody) { return; }
+	TankBody->SetSimulatePhysics(true);
+	TankBody->OnComponentHit.AddDynamic(this, &ATank::OnHit);
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// Player Input
 
 void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 {
@@ -55,12 +65,16 @@ void ATank::Fire()
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////
+// Health, Damage & Death
+
 float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser)
 {
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
-	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentHealth);
+	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentHealth + CurrentArmour);
 
 	if (!IsTankDestroyed())
 	{
@@ -95,13 +109,14 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 		}
 	}
 	return DamageToApply;
-}	
+}
 
 void ATank::OnDeathBehaviour(AController * EventInstigator)
 {
 	if (DestroyedFX)
 	{
-		ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(this, DestroyedFX, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAttached(DestroyedFX, TankBody);
+		UGameplayStatics::SpawnSoundAttached(DestroyedSound, TankBody);
 	}
 
 	OnTankDestroyed(bHasBeenDestroyed);
@@ -123,14 +138,9 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 	SetLifeSpan(DestroyTimer);
 }
 
-void ATank::UpdatePlayerHud()
+void ATank::Execute()
 {
-	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
-	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
-	if (BHUD)
-	{
-		BHUD->UpdateHealthDisplay();
-	}
+	TakeDamage(CurrentHealth + CurrentArmour, FDamageEvent(UDamageType::StaticClass()), GetController(), nullptr);
 }
 
 void ATank::ReplenishHealth(float HealthToAdd)
@@ -144,5 +154,66 @@ void ATank::ReplenishArmour()
 {
 	CurrentArmour = StartingArmour;
 	UpdatePlayerHud();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// Update Hud
+
+void ATank::UpdatePlayerHud()
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD)
+	{
+		BHUD->UpdateHealthDisplay();
+	}
+}
+
+void ATank::OutOfCombatArea(bool bWarnPlayer)
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD)
+	{
+		bWarnPlayer ? BHUD->WarnOutOfCombatArea() : BHUD->RemoveCombatAreaWarnings();
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// Play FX
+
+void ATank::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
+{
+	PlayTankCollisionFX(Hit);
+}
+
+void ATank::PlayTankCollisionFX(const FHitResult & Impact)
+{
+	if (Impact.bBlockingHit)
+	{
+		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Impact.PhysMaterial.Get());
+		USoundBase * ImpactSFX = GetImpactSound(HitSurfaceType);
+
+		if (ImpactSFX)
+		{
+			AudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
+		}
+	}
+}
+
+USoundBase * ATank::GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const
+{
+	USoundBase * CollisionSound = nullptr;
+
+	switch (SurfaceType)
+	{
+	case SURFACE_METAL: CollisionSound = MetalImpactSound; break;
+	case SURFACE_DIRT:  CollisionSound = LandImpactSound;  break;
+	case SURFACE_GRASS: CollisionSound = LandImpactSound;  break;
+	default:			CollisionSound = LandImpactSound; break;
+	}
+	return CollisionSound;
 }
 

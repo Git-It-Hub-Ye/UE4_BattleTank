@@ -35,6 +35,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	bRoundBasedGame = false;
 	bIsGameInProgress = false;
 
+	TimeToExecution = 10.f;
 	Time_WaitToStart = 10;
 	Time_MatchLength = 600;
 	Time_BetweenRounds = 10;
@@ -42,6 +43,7 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	KillPoints = 100;
 	AssistPoints = 25;
 
+	NumOfPlayers = 0;
 	MinPlayersRequired = 1;
 	MaxTriggerNum = 4;
 	CurrentTriggerNum = 0;
@@ -193,7 +195,7 @@ void ABattleTankGameModeBase::FinishMatch()
 void ABattleTankGameModeBase::StopMatch()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_DefaultTimer);
-	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnTriggerFail);
+	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnTrigger);
 }
 
 void ABattleTankGameModeBase::EndGame()
@@ -248,6 +250,61 @@ void ABattleTankGameModeBase::TransitionToMapCamera(APlayerController * PC)
 	}
 }
 
+void ABattleTankGameModeBase::PlayerOutsideCombatArea(ATank * PlayerPawn)
+{
+	SetExecutionTimer(PlayerPawn);
+}
+
+void ABattleTankGameModeBase::PlayerReturnedToCombatArea(ATank * PlayerPawn)
+{
+	StopExecutionTimer(PlayerPawn);
+}
+
+void ABattleTankGameModeBase::SetExecutionTimer(ATank * PlayerPawn)
+{
+	if (PlayerPawn)
+	{
+		FTimerHandle Handle_DeathTimer;
+
+		TimerDel.BindUFunction(this, FName("ExecutePlayer"), PlayerPawn);
+
+		GetWorldTimerManager().SetTimer(Handle_DeathTimer, TimerDel, TimeToExecution, false);
+
+		PlayerExecuteMap.Add(PlayerPawn, Handle_DeathTimer);
+	}
+}
+
+void ABattleTankGameModeBase::StopExecutionTimer(ATank * PlayerPawn)
+{
+	if (PlayerExecuteMap.Contains(PlayerPawn))
+	{
+		FTimerHandle Handle_MapTimer = *PlayerExecuteMap.Find(PlayerPawn);
+		if (Handle_MapTimer.IsValid())
+		{
+			GetWorldTimerManager().ClearTimer(Handle_MapTimer);
+		}
+		PlayerExecuteMap.Remove(PlayerPawn);
+	}
+}
+
+void ABattleTankGameModeBase::ExecutePlayer(ATank * PlayerPawn)
+{
+	if (PlayerExecuteMap.Contains(PlayerPawn))
+	{
+		FTimerHandle Handle_DeathTimer = *PlayerExecuteMap.Find(PlayerPawn);
+		if (Handle_DeathTimer.IsValid())
+		{
+			GetWorldTimerManager().ClearTimer(Handle_DeathTimer);
+		}
+
+		if (PlayerPawn && PlayerPawn->IsPlayerControlled() && !PlayerPawn->IsTankDestroyed())
+		{
+			PlayerPawn->Execute();
+		}
+		PlayerExecuteMap.Remove(PlayerPawn);
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Events
@@ -273,12 +330,12 @@ void ABattleTankGameModeBase::HandleKill(AController * KilledPawn, AController *
 void ABattleTankGameModeBase::TriggerDestroyed()
 {
 	CurrentTriggerNum--;
-	SpawnNewTrigger();
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnTrigger, this, &ABattleTankGameModeBase::SpawnNewTrigger, 10.f, false);
 }
 
 void ABattleTankGameModeBase::SpawnNewTrigger()
 {
-	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnTriggerFail);
+	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnTrigger);
 
 	if (TriggerArray.Num() > 0 && TriggerSpawnBoxArray.Num() > 0)
 	{
@@ -294,7 +351,7 @@ void ABattleTankGameModeBase::SpawnNewTrigger()
 			}
 			else
 			{
-				GetWorldTimerManager().SetTimer(TimerHandle_SpawnTriggerFail, this, &ABattleTankGameModeBase::SpawnNewTrigger, 5.f, false);
+				GetWorldTimerManager().SetTimer(TimerHandle_SpawnTrigger, this, &ABattleTankGameModeBase::SpawnNewTrigger, 5.f, false);
 				break;
 			}
 		}

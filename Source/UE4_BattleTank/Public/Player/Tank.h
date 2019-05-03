@@ -42,6 +42,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UParticleSystem * DestroyedFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	USoundBase * DestroyedSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	USoundBase * MetalImpactSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	USoundBase * LandImpactSound;
+
+	UAudioComponent * AudioComp;
+
 	/** Starting health value */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
 	int32 StartingHealth;
@@ -76,6 +87,10 @@ public:
 	/** Decrease health and play damage fx */
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
+	void OutOfCombatArea(bool bWarnPlayer);
+
+	void Execute();
+
 	/** Return current health as a percentage of starting health, between 0 and 1 */
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetHealthPercent() const { return (float)CurrentHealth / (float)StartingHealth; }
@@ -109,11 +124,18 @@ protected:
 	void OnTankDestroyed(bool bDestroyed);
 
 private:
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit);
 	
 	/** Death behaviour */
 	void OnDeathBehaviour(AController * EventInstigator);
 
 	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
+
+	void PlayTankCollisionFX(const FHitResult & Impact);
+
+	USoundBase * GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
 
 };

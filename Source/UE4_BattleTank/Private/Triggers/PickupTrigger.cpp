@@ -1,0 +1,64 @@
+// Copyright 2018 Stuart McDonald.
+
+#include "PickupTrigger.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
+
+#include "BattleTankGameModeBase.h"
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
+
+
+APickupTrigger::APickupTrigger()
+{
+	ArmourVolume = CreateDefaultSubobject<USphereComponent >(FName("Armour Volume"));
+	ArmourVolume->SetupAttachment(RootComponent);
+	ArmourVolume->bGenerateOverlapEvents = false;
+	ArmourVolume->bHiddenInGame = false;
+	ArmourVolume->bApplyImpulseOnDamage = false;
+
+	AmountToGive = 10.f;
+	ReapplyPickupTime = 1.f;
+	StartingArmour = 10.f;
+
+	bApplyToAllPlayers = false;
+}
+
+void APickupTrigger::BeginPlay()
+{
+	Super::BeginPlay();
+	CurrentArmour = StartingArmour;
+}
+
+float APickupTrigger::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
+	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentArmour);
+
+	CurrentArmour -= DamageToApply;
+	if (CurrentArmour <= 0)
+	{
+		GetWorldTimerManager().ClearAllTimersForObject(this);
+
+		if (ArmourVolume) { ArmourVolume->DestroyComponent(); }
+		TriggerVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		TriggerVolume->Deactivate();
+	}
+	return DamageToApply;
+}
+
+void APickupTrigger::OnEndOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+{
+	GetWorldTimerManager().ClearTimer(Handle_ApplyPickup);
+}
+
+void APickupTrigger::HasBeenDestroyed()
+{
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (BTGM)
+	{
+		BTGM->TriggerDestroyed();
+	}
+	Destroy();
+}

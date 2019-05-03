@@ -10,6 +10,7 @@ class APlayerController;
 class ATank;
 class UAimingComponent;
 class UTextBlock;
+class UPanelWidget;
 class UProgressBar;
 class UImage;
 class UWidgetAnimation;
@@ -51,9 +52,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_WarningMessage;
 
-	/** Play area warning */
+	/** Play are warning */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_WarningOutOfBounds;
+
+	/** Warning panel */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_WarningOutOfBounds;
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -107,6 +112,8 @@ public:
 
 	/** Warn when out of bounds */
 	void NotifyOutOfMatchArea();
+
+	void RemoveCombatAreaWarning();
 	
 
 protected:
@@ -131,12 +138,6 @@ private:
 
 	/** Return health remaining */
 	float GetHealthPercent() const;
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Warning display
-
-	FText GetOutOfBoundsWarning() const;
 
 
 	////////////////////////////////////////////////////////////////////////////////

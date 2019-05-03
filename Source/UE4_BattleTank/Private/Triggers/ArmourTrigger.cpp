@@ -1,6 +1,8 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "ArmourTrigger.h"
+#include "Engine/World.h"
+
 #include "Player/Tank.h"
 
 
@@ -10,6 +12,18 @@ void AArmourTrigger::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActor
 
 	if (Tank && Tank->IsPlayerControlled() && !Tank->IsTankDestroyed())
 	{
-		Tank->ReplenishArmour();
+		bApplyToAllPlayers ? ApplyPickupToAllPlayers(Tank) : Tank->ReplenishArmour();
+	}
+}
+
+void AArmourTrigger::ApplyPickupToAllPlayers(ATank * Tank)
+{
+	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+	{
+		ATank * Pawn = Cast<ATank>(*It);
+		if (Pawn && Pawn->IsPlayerControlled())
+		{
+			Pawn->ReplenishArmour();
+		}
 	}
 }

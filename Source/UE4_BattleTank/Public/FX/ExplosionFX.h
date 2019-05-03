@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "ExplosionFX.generated.h"
 
+class UParticleSystem;
+class USoundBase;
+
 UCLASS()
 class UE4_BATTLETANK_API AExplosionFX : public AActor
 {
@@ -13,23 +16,39 @@ class UE4_BATTLETANK_API AExplosionFX : public AActor
 	
 public:
 	///////////////////////////////////////////////////////////////////////////////////
-	// Particle effects
+	// VFX
 
 	/** Impact fx on default */
-	UPROPERTY(EditDefaultsOnly, Category = ParticleEffects)
+	UPROPERTY(EditDefaultsOnly, Category = "ParticleEffects")
 	UParticleSystem * DefaultFX;
 
 	/** Impact fx on dirt */
-	UPROPERTY(EditDefaultsOnly, Category = ParticleEffects)
+	UPROPERTY(EditDefaultsOnly, Category = "ParticleEffects")
 	UParticleSystem * GrassFX;
 
 	/** Impact fx on dirt */
-	UPROPERTY(EditDefaultsOnly, Category = ParticleEffects)
+	UPROPERTY(EditDefaultsOnly, Category = "ParticleEffects")
 	UParticleSystem * DirtFX;
 
-	/** Impact fx on metal */
-	UPROPERTY(EditDefaultsOnly, Category = ParticleEffects)
-	UParticleSystem * MetalFX;
+
+	///////////////////////////////////////////////////////////////////////////////////
+	// SFX
+
+	/** Sound fx on default */
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
+	USoundBase * DefaultSound;
+
+	/** Sound fx on dirt */
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
+	USoundBase * DirtSound;
+
+	/** Sound fx on rock */
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
+	USoundBase * RockSound;
+
+	/** Sound fx on metal */
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
+	USoundBase * MetalSound;
 
 
 	////////////////////////////////////////////////////////////////
@@ -47,7 +66,9 @@ public:
 
 protected:
 	/** Get fx for material type */
-	UFUNCTION()
-	virtual UParticleSystem * GetExplosionFX(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
+	UParticleSystem * GetExplosionFX(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
+
+	/** Get sound for material type */
+	USoundBase * GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
 	
 };

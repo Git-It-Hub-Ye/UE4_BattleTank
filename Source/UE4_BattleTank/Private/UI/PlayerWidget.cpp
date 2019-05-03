@@ -2,6 +2,7 @@
 
 #include "PlayerWidget.h"
 #include "Components/TextBlock.h"
+#include "Components/PanelWidget.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Animation/WidgetAnimation.h"
@@ -20,6 +21,11 @@ bool UPlayerWidget::Initialize()
 	if (Text_WarningMessage)
 	{
 		Text_WarningMessage->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (Panel_WarningOutOfBounds)
+	{
+		Panel_WarningOutOfBounds->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	return true;
@@ -161,18 +167,21 @@ void UPlayerWidget::RemoveAmmoWarnings()
 
 void UPlayerWidget::NotifyOutOfMatchArea()
 {
-	if (Text_WarningOutOfBounds)
+	if (Panel_WarningOutOfBounds && !Panel_WarningOutOfBounds->IsVisible())
 	{
-		Text_WarningOutOfBounds->SetText(GetOutOfBoundsWarning());
+		Panel_WarningOutOfBounds->SetVisibility(ESlateVisibility::Visible);
+		Text_WarningOutOfBounds->SetText(LOCTEXT("Message", "Turn Back!" LINE_TERMINATOR "Leaving Combat Area!" LINE_TERMINATOR "Time Left"));
 	}
 }
 
-FText UPlayerWidget::GetOutOfBoundsWarning() const
+void UPlayerWidget::RemoveCombatAreaWarning()
 {
-	FText WarningText = FText::GetEmpty();
-	
-	return FText();
+	if (Panel_WarningOutOfBounds && Panel_WarningOutOfBounds->IsVisible())
+	{
+		Panel_WarningOutOfBounds->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Animations

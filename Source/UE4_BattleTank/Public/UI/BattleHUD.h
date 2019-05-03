@@ -67,11 +67,14 @@ public:
 	/** Update player ui when out of ammo. Request from Aiming Component */
 	void WarnOutOfAmmo();
 
-	/** Update player ui when out of match area. Request from Match area trigger */
-	void WarnOutOfMatchArea();
+	/** Update player ui when out of match area */
+	void WarnOutOfCombatArea();
 
 	/** Remove player ui ammo warnings. Request from Aiming Component */
 	void RemoveAmmoWarnings();
+
+	/** Remove player ui warnings about combat area */
+	void RemoveCombatAreaWarnings();
 
 
 	////////////////////////////////////////////////////////////////////////////////

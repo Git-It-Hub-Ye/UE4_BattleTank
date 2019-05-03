@@ -10,6 +10,7 @@ class AAIController;
 class ABattleTankGameState;
 class ASpawnBox_Actor;
 class ASpawnBox_Pawn;
+class ATank;
 enum class EMatchState : uint8;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameTimeChanged);
@@ -128,7 +129,19 @@ protected:
 	FTimerHandle TimerHandle_GameOver;
 
 	/** Timer handle for retrying spawn after failed attempts */
-	FTimerHandle TimerHandle_SpawnTriggerFail;
+	FTimerHandle TimerHandle_SpawnTrigger;
+
+private:
+	/** How long till players outside combat area are killed */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Time", meta = (ClampMin = 0.f, ClampMax = 30.f))
+	float TimeToExecution;
+
+	/** Contains each player outside combat area and their timer to execution */
+	TMap<ATank*, FTimerHandle> PlayerExecuteMap;
+
+	/** Calls function with parameters by a timer */
+	FTimerDelegate TimerDel;
+
 
 public:
 	ABattleTankGameModeBase();
@@ -150,6 +163,10 @@ public:
 
 	/** Changes players camera target to world camera */
 	void TransitionToMapCamera(APlayerController * PC);
+
+	void PlayerOutsideCombatArea(ATank * PlayerPawn);
+
+	void PlayerReturnedToCombatArea(ATank * PlayerPawn);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -239,6 +256,13 @@ private:
 
 	/** Updates player scoreboard */
 	void SwitchToMapCamera();
+
+	void SetExecutionTimer(ATank * PlayerPawn);
+
+	void StopExecutionTimer(ATank * PlayerPawn);
+
+	UFUNCTION()
+	void ExecutePlayer(ATank * PlayerPawn);
 
 
 	////////////////////////////////////////////////////////////////////////////////

@@ -1,11 +1,13 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "TankAIController.h"
-#include "Tank.h"
-#include "Player/AimingComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+
 #include "Online/BattleTankGameModeBase.h"
+#include "Tank.h"
+#include "Player/AimingComponent.h"
+
 
 ATankAIController::ATankAIController()
 {
@@ -95,7 +97,7 @@ void ATankAIController::FireWeapon()
 			AimComponent->AimAt(Enemy->GetActorLocation());
 			if (bCanShoot && !AimComponent->IsBarrelMoving())
 			{
-				AimComponent->FireProjectile();
+				//AimComponent->FireProjectile();
 			}
 		}
 	}

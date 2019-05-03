@@ -29,12 +29,12 @@ private:
 	////////////////////////////////////////////////////////////////////////////////
 	// Bot data
 
-	/** Number of AI bots to spawn in first round. For the following rounds this will be multiplied by the current round */
-	UPROPERTY(EditDefaultsOnly, Category = "Config Bot", meta = (ClampMin = 1, ClampMax = 20))
-	int32 NumOfBotsToSpawn;
+	/** Num of bots to spawn per player, will be multiplied to increase number of bots in later rounds */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Bot", meta = (ClampMin = 1, ClampMax = 30))
+	int32 NumOfBotsPerPlayer;
 
 	/** Max AI bots alive in world at same time */
-	UPROPERTY(EditDefaultsOnly, Category = "Config Bot", meta = (ClampMin = 1, ClampMax = 20))
+	UPROPERTY(EditDefaultsOnly, Category = "Config Bot", meta = (ClampMin = 1, ClampMax = 30))
 	int32 MaxBotAmountAtOnce;
 
 	/** Keeps track of total AI bots spawned */
@@ -77,6 +77,7 @@ protected:
 	/** Call game over if all players are dead */
 	virtual void OnPlayerDeath(APlayerController * PC) override;
 
+private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Handle Waves
@@ -86,6 +87,9 @@ protected:
 
 	/** Start spawning ai */
 	void StartWave();
+
+	/** Sets number of bots to spawn this wave */
+	void SetNumOfBotsToSpawn();
 
 	/** Checks if wave should continue or end */
 	void CheckWaveProgress();

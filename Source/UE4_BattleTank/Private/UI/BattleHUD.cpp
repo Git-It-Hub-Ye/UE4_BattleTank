@@ -141,7 +141,7 @@ void ABattleHUD::WarnOutOfAmmo()
 	}
 }
 
-void ABattleHUD::WarnOutOfMatchArea()
+void ABattleHUD::WarnOutOfCombatArea()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
@@ -154,6 +154,14 @@ void ABattleHUD::RemoveAmmoWarnings()
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
 		PlayerWidget->RemoveAmmoWarnings();
+	}
+}
+
+void ABattleHUD::RemoveCombatAreaWarnings()
+{
+	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
+	{
+		PlayerWidget->RemoveCombatAreaWarning();
 	}
 }
 

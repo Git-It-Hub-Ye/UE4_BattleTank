@@ -1,12 +1,11 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "Triggers.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
-#include "Components/BoxComponent.h"
-#include "BattleTankGameModeBase.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+
+#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 
 
 ATriggers::ATriggers()
@@ -18,57 +17,13 @@ ATriggers::ATriggers()
 	SetRootComponent(TriggerVolume);
 	TriggerVolume->bGenerateOverlapEvents = true;
 	TriggerVolume->bHiddenInGame = true;
-	TriggerVolume->bApplyImpulseOnDamage = false;
-
-	ArmourVolume = CreateDefaultSubobject<USphereComponent >(FName("Armour Volume"));
-	ArmourVolume->SetupAttachment(RootComponent);
-	ArmourVolume->bGenerateOverlapEvents = false;
-	ArmourVolume->bHiddenInGame = false;
-	ArmourVolume->bApplyImpulseOnDamage = false;
-
-	StartingArmour = 10.f;
-	CurrentArmour = 0.f;
 }
 
 void ATriggers::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentArmour = StartingArmour;
 	if (TriggerVolume == nullptr) { return; }
 	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ATriggers::OnOverlap);
-}
-
-void ATriggers::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-	// No Default Behaviour
-}
-
-float ATriggers::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser)
-{
-	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
-	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentArmour);
-
-	CurrentArmour -= DamageToApply;
-	if (CurrentArmour <= 0)
-	{
-		GetWorldTimerManager().ClearAllTimersForObject(this);
-
-		if (ArmourVolume) { ArmourVolume->DestroyComponent(); }
-		TriggerVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		TriggerVolume->Deactivate();
-		GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ATriggers::HasBeenDestroyed, 3.f, false);
-	}
-	return DamageToApply;
-}
-
-void ATriggers::HasBeenDestroyed()
-{
-	GetWorldTimerManager().ClearAllTimersForObject(this);
-	ABattleTankGameModeBase * BTGM = Cast<ABattleTankGameModeBase>(GetWorld()->GetAuthGameMode());
-	if (BTGM)
-	{
-		BTGM->TriggerDestroyed();
-	}
-	Destroy();
+	TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &ATriggers::OnEndOverlap);
 }
 
