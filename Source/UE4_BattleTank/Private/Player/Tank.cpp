@@ -96,12 +96,6 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 		UpdatePlayerHud();
 
-		ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
-		if (PC)
-		{
-			PC->ClientPlayCameraShake(DamageCamShakeBP);
-		}
-
 		if (CurrentHealth <= 0)
 		{
 			bHasBeenDestroyed = true;
@@ -116,10 +110,9 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 	if (DestroyedFX)
 	{
 		UGameplayStatics::SpawnEmitterAttached(DestroyedFX, TankBody);
-		UGameplayStatics::SpawnSoundAttached(DestroyedSound, TankBody);
+		AudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, TankBody);
 	}
 
-	OnTankDestroyed(bHasBeenDestroyed);
 	TankBody->SetCollisionProfileName("DestroyedTank");
 
 	ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;

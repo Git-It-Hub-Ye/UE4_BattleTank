@@ -4,7 +4,28 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+
 #include "Components/AudioComponent.h"
+#include "Tank.h"
+
+
+void UTurret::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetOwner() != NULL)
+	{
+		ATank * OwnerPawn = Cast<ATank>(GetOwner());
+
+		if (OwnerPawn == NULL) { return; }
+		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UTurret::OnOwnerDeath);
+	}
+}
+
+void UTurret::OnOwnerDeath()
+{
+	StopTurretAudio();
+}
 
 void UTurret::RotateTurret(float RelativeSpeed)
 {

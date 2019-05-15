@@ -62,6 +62,9 @@ public:
 	/** Updates client input or ui */
 	void ClientNotifyOfMatchState();
 
+	/** Cleans up any resources necessary to return to main menu */
+	void HandleReturnToMainMenu();
+
 	/** Sets a location for controller to look at */
 	void LookAtLocation(FVector  EnemyLocation);
 
@@ -108,6 +111,13 @@ private:
 
 
 	////////////////////////////////////////////////////////////////////////////////
+	// Setup
+
+	/** Ends and/or destroys game session */
+	void CleanupSessionOnReturnToMenu();
+
+
+	////////////////////////////////////////////////////////////////////////////////
 	// Weapon usage
 
 	/** Returns an out parameter, true if hit landscape */
@@ -140,5 +150,8 @@ private:
 
 	/** Show match hud */
 	void ShowMatchScoreboard();
+
+	/** Remove match hud */
+	void RemoveMatchScoreboard();
 
 };

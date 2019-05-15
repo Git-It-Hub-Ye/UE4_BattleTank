@@ -48,11 +48,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Aim")
 	void RotateTurret(float RelativeSpeed);
 
+protected:
+	virtual void BeginPlay() override;
+
 	/** Stop audio on turret */
-	UFUNCTION(BlueprintCallable, Category = "Audio")
 	void StopTurretAudio();
 
 private:
+	UFUNCTION()
+	void OnOwnerDeath();
+
 	/** Plays sound if turret is rotating */
 	void TurretSFX(float RelativeSpeed);
 

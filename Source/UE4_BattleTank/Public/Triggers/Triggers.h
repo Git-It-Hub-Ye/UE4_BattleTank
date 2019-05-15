@@ -8,23 +8,17 @@
 
 class UBoxComponent;
 class USphereComponent;
+class ATank;
 
 UCLASS()
 class UE4_BATTLETANK_API ATriggers : public AActor
 {
 	GENERATED_BODY()
-	
-protected:
-	/** Volume to trigger behaviour when an actor overlaps */
-	UPROPERTY(VisibleDefaultsOnly)
-	UBoxComponent  * TriggerVolume;
 
 public:
 	ATriggers();
 
 protected:
-	virtual void BeginPlay() override;
-
 	/** Checks for overlaps */
 	UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) PURE_VIRTUAL(ATriggers::OnOverlap, )

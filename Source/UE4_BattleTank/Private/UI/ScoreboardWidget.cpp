@@ -1,17 +1,17 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "ScoreboardWidget.h"
+#include "Animation/WidgetAnimation.h"
+#include "MovieScene.h"
+
+#include "Components/WidgetSwitcher.h"
+#include "Components/PanelWidget.h"
+#include "Components/TextBlock.h"
 #include "Online/BattleTankGameModeBase.h"
 #include "Online/BattleTankGameState.h"
 #include "Online/TankPlayerState.h"
 #include "Player/TankPlayerController.h"
 #include "LayoutWidget.h"
-
-#include "Animation/WidgetAnimation.h"
-#include "MovieScene.h"
-#include "Components/WidgetSwitcher.h"
-#include "Components/PanelWidget.h"
-#include "Components/TextBlock.h"
 
 #define LOCTEXT_NAMESPACE "Scoreboard"
 

@@ -199,6 +199,10 @@ protected:
 	void OnReloadFinished();
 
 private:
+
+	UFUNCTION()
+	void OnOwnerDeath();
+
 	////////////////////////////////////////////////////////////////////////////////
 	// Control
 

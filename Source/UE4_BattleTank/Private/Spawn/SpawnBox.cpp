@@ -2,10 +2,10 @@
 
 #include "SpawnBox.h"
 #include "UE4_BattleTank.h"
-#include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "DrawDebugHelpers.h"
+
+#include "Components/BoxComponent.h"
 
 
 ASpawnBox::ASpawnBox()
@@ -55,7 +55,8 @@ bool ASpawnBox::FindEmptyLocation(FVector & OutLocation)
 			OutLocation = CandidatePoint;
 			if (FindFloorLocation(OutLocation, InitalRotation))
 			{
-				TargetRotation = FRotationMatrix::MakeFromZ(InitalRotation).Rotator();
+				FRotator Rot = FRotationMatrix::MakeFromZX(InitalRotation, GetActorForwardVector()).Rotator();
+				TargetRotation = FRotator(Rot.Pitch, GetActorRotation().Yaw, Rot.Roll);
 				return true;
 			}
 		}
@@ -75,40 +76,7 @@ bool ASpawnBox::CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow)
 		TRACE_SPAWN_SWEEP,
 		FCollisionShape::MakeSphere(SearchRadius)
 	);
-
-	FColor Colour = HasHit ? FColor::Red : FColor::Green;
-
-	DrawDebugSphere(GetWorld(), GlobalLocation, SearchRadius, 10.f, Colour, true);
-
 	return !HasHit;
-}
-
-bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
-{
-	FTransform SpawnT(TargetRotation, TargetLocation);
-	AActor * Spawned = GetWorld()->SpawnActorDeferred<AActor>(ToSpawn, SpawnT);
-	if (Spawned)
-	{
-		Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
-		return true;
-	}
-	return false;
-}
-
-bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
-{
-	TargetLocation.Z += 150.f; // Ensure pawn spawns above surface
-	FTransform SpawnT(FRotator(0.f, GetActorForwardVector().Rotation().Yaw, 0.f), TargetLocation);
-	APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
-	if (Spawned)
-	{
-		Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-		Spawned->SpawnDefaultController();
-		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
-		return true;
-	}
-	return false;
 }
 
 bool ASpawnBox::FindFloorLocation(FVector & OutLocation, FVector & OutRotation)
@@ -126,10 +94,37 @@ bool ASpawnBox::FindFloorLocation(FVector & OutLocation, FVector & OutRotation)
 		TraceParams)
 		)
 	{
-		DrawDebugLine(GetWorld(), StartTrace, HitResult.ImpactPoint, FColor::Red, true);
 		OutLocation = HitResult.ImpactPoint;
 		OutRotation = HitResult.ImpactNormal;
 		return CanSpawnAtLocation(OutLocation, true);
+	}
+	return false;
+}
+
+bool ASpawnBox::SpawnActor(TSubclassOf<AActor> ToSpawn)
+{
+	FTransform SpawnT(TargetRotation, TargetLocation);
+	AActor * Spawned = GetWorld()->SpawnActorDeferred<AActor>(ToSpawn, SpawnT);
+	if (Spawned)
+	{
+		Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
+		return true;
+	}
+	return false;
+}
+
+bool ASpawnBox::SpawnActor(TSubclassOf<APawn> ToSpawn)
+{
+	TargetLocation.Z += 150.f;
+	FTransform SpawnT(TargetRotation, TargetLocation);
+	APawn * Spawned = GetWorld()->SpawnActorDeferred<APawn>(ToSpawn, SpawnT);
+	if (Spawned)
+	{
+		Spawned->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		Spawned->SpawnDefaultController();
+		UGameplayStatics::FinishSpawningActor(Spawned, SpawnT);
+		return true;
 	}
 	return false;
 }

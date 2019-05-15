@@ -5,9 +5,28 @@
 #include "GameFramework/DamageType.h"
 #include "Engine/World.h"
 
+#include "Components/BoxComponent.h"
 #include "Online/BattleTankGameModeBase.h"
 #include "Player/Tank.h"
 
+
+AMatchAreaTrigger::AMatchAreaTrigger()
+{
+	TriggerVolume = CreateDefaultSubobject<UBoxComponent >(FName("Trigger Volume"));
+
+	SetRootComponent(TriggerVolume);
+	TriggerVolume->bGenerateOverlapEvents = true;
+	TriggerVolume->bHiddenInGame = true;
+}
+
+void AMatchAreaTrigger::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (TriggerVolume == nullptr) { return; }
+	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AMatchAreaTrigger::OnOverlap);
+	TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &AMatchAreaTrigger::OnEndOverlap);
+}
 
 void AMatchAreaTrigger::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {

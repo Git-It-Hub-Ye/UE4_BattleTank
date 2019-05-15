@@ -83,6 +83,22 @@ void ATankPlayerController::ClientNotifyOfMatchState()
 	}
 }
 
+void ATankPlayerController::HandleReturnToMainMenu()
+{
+	RemoveMatchScoreboard();
+	CleanupSessionOnReturnToMenu();
+}
+
+void ATankPlayerController::CleanupSessionOnReturnToMenu()
+{
+	UBattleInstance * GI = GetWorld() ? Cast<UBattleInstance>(GetWorld()->GetGameInstance()) : nullptr;
+
+	if (GI)
+	{
+		GI->CleanupSessionOnReturnToMenu();
+	}
+}
+
 void ATankPlayerController::OnPossessedTankDeath()
 {
 	TogglePlayerHud(false);
@@ -197,6 +213,15 @@ void ATankPlayerController::ShowMatchScoreboard()
 	if (BHUD)
 	{
 		BHUD->ShowScoreboard(true);
+	}
+}
+
+void ATankPlayerController::RemoveMatchScoreboard()
+{
+	ABattleHUD * BHUD = Cast<ABattleHUD>(GetPlayerHud());
+	if (BHUD)
+	{
+		BHUD->ShowScoreboard(false);
 	}
 }
 

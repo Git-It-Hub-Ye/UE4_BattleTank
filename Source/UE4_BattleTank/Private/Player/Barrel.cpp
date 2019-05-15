@@ -4,8 +4,29 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
+#include "Tank.h"
+
+
+void UBarrel::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetOwner() != NULL)
+	{
+		ATank * OwnerPawn = Cast<ATank>(GetOwner());
+
+		if (OwnerPawn == NULL) { return; }
+		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UBarrel::OnOwnerDeath);
+	}
+}
+
+void UBarrel::OnOwnerDeath()
+{
+	StopBarrelAudio();
+}
 
 void UBarrel::ElevateBarrel(float RelativeSpeed)
 {

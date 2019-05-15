@@ -186,6 +186,13 @@ void ABattleTankGameModeBase::StartNewRound()
 
 void ABattleTankGameModeBase::FinishMatch()
 {
+	// Stop all pawn movement and disable input for whatever controller was assigned to it
+	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+	{
+		(*It)->DisableInput(nullptr);
+		(*It)->TurnOff();
+	}
+
 	SetMatchState(EMatchState::Finished);
 	StopMatch();
 	NotifyClientOfMatchUpdates();
@@ -200,13 +207,6 @@ void ABattleTankGameModeBase::StopMatch()
 
 void ABattleTankGameModeBase::EndGame()
 {
-	// Stop all pawn movement and disable input for whatever controller was assigned to it
-	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
-	{
-		(*It)->DisableInput(nullptr);
-		(*It)->TurnOff();
-	}
-
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		ATankPlayerController * PC = Cast<ATankPlayerController>(*It);
@@ -220,7 +220,20 @@ void ABattleTankGameModeBase::EndGame()
 			}
 		}
 	}
-	GetWorldTimerManager().SetTimer(TimerHandle_GameOver, this, &ABattleTankGameModeBase::SwitchToMapCamera, 5, false);
+	GetWorldTimerManager().SetTimer(TimerHandle_SwitchToMapCam, this, &ABattleTankGameModeBase::SwitchToMapCamera, 3, false);
+	GetWorldTimerManager().SetTimer(TimerHandle_ReturnPlayers, this, &ABattleTankGameModeBase::ReturnPlayersToMainMenu, 10, false);
+}
+
+void ABattleTankGameModeBase::ReturnPlayersToMainMenu()
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ATankPlayerController * LocalPrimaryController = Cast<ATankPlayerController>(*Iterator);
+		if (LocalPrimaryController && LocalPrimaryController->IsLocalController())
+		{
+			LocalPrimaryController->HandleReturnToMainMenu();
+		}
+	}
 }
 
 void ABattleTankGameModeBase::SwitchToMapCamera()
@@ -330,7 +343,7 @@ void ABattleTankGameModeBase::HandleKill(AController * KilledPawn, AController *
 void ABattleTankGameModeBase::TriggerDestroyed()
 {
 	CurrentTriggerNum--;
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnTrigger, this, &ABattleTankGameModeBase::SpawnNewTrigger, 10.f, false);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnTrigger, this, &ABattleTankGameModeBase::SpawnNewTrigger, 3, false);
 }
 
 void ABattleTankGameModeBase::SpawnNewTrigger()

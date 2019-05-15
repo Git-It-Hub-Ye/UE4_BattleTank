@@ -1,6 +1,7 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "MainMenuWidget.h"
+
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 

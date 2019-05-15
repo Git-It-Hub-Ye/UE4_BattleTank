@@ -1,6 +1,7 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "LayoutWidget.h"
+
 #include "Components/TextBlock.h"
 
 

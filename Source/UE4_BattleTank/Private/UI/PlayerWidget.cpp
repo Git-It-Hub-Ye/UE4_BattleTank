@@ -1,13 +1,13 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "PlayerWidget.h"
+#include "Animation/WidgetAnimation.h"
+#include "MovieScene.h"
+
 #include "Components/TextBlock.h"
 #include "Components/PanelWidget.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
-#include "Animation/WidgetAnimation.h"
-#include "MovieScene.h"
-
 #include "Player/Tank.h"
 #include "Player/AimingComponent.h"
 #include "Player/TankPlayerController.h"

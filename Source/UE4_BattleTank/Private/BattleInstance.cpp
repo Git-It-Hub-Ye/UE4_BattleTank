@@ -73,6 +73,11 @@ bool UBattleInstance::GetIsGameMenuVisible() const
 	return InGameMenu && InGameMenu->IsValidLowLevel() && InGameMenu->IsVisible();
 }
 
+void UBattleInstance::CleanupSessionOnReturnToMenu()
+{
+	ReturnToMainMenu();
+}
+
 void UBattleInstance::DeterminePlayerInput()
 {
 	ATankPlayerController * PC = Cast<ATankPlayerController>(GetFirstLocalPlayerController());
@@ -105,6 +110,9 @@ void UBattleInstance::ReturnToMainMenu()
 
 void UBattleInstance::OuitGame()
 {
-	FGenericPlatformMisc::RequestExit(false);
+	APlayerController * PC = GetFirstLocalPlayerController();
+	if (!PC) { return; }
+
+	PC->ConsoleCommand("quit");
 }
 

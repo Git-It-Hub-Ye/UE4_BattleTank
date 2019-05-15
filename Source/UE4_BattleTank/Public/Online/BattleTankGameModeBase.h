@@ -126,10 +126,13 @@ protected:
 	FTimerHandle TimerHandle_DefaultTimer;
 
 	/** Timer handle for game over */
-	FTimerHandle TimerHandle_GameOver;
+	FTimerHandle TimerHandle_SwitchToMapCam;
 
 	/** Timer handle for retrying spawn after failed attempts */
 	FTimerHandle TimerHandle_SpawnTrigger;
+
+	/** Timer handle for returning players to main menu */
+	FTimerHandle TimerHandle_ReturnPlayers;
 
 private:
 	/** How long till players outside combat area are killed */
@@ -254,13 +257,19 @@ private:
 	/** Handle game countdown timer */
 	void DefaultTimer();
 
+	/** Returns players to main menu */
+	void ReturnPlayersToMainMenu();
+
 	/** Updates player scoreboard */
 	void SwitchToMapCamera();
 
+	/** Sets timer to execute pawn */
 	void SetExecutionTimer(ATank * PlayerPawn);
 
+	/** Stops timer to execute pawn */
 	void StopExecutionTimer(ATank * PlayerPawn);
 
+	/** Executes pawn */
 	UFUNCTION()
 	void ExecutePlayer(ATank * PlayerPawn);
 

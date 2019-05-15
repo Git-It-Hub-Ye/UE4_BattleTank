@@ -7,10 +7,8 @@
 #include "PickupTrigger.generated.h"
 
 
-class ATank;
-
 /**
- * 
+ * When triggered applies behaviour to pawns
  */
 UCLASS()
 class UE4_BATTLETANK_API APickupTrigger : public ATriggers
@@ -18,6 +16,10 @@ class UE4_BATTLETANK_API APickupTrigger : public ATriggers
 	GENERATED_BODY()
 	
 protected:
+	/** Volume to trigger behaviour when an actor overlaps */
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent  * TriggerVolume;
+
 	/** Amount added each time ApplyPickup function is called (eg- Ammo, Health etc)*/
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
 	float AmountToGive = 10.f;

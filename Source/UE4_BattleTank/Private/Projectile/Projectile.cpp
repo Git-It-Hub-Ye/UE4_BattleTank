@@ -2,15 +2,17 @@
 
 #include "Projectile.h"
 #include "UE4_BattleTank.h"
-#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Components/AudioComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "FX/ExplosionFX.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
 #include "TimerManager.h"
+
+#include "Components/StaticMeshComponent.h"
+#include "Components/AudioComponent.h"
+#include "FX/ExplosionFX.h"
+
 
 
 AProjectile::AProjectile()

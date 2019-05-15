@@ -8,7 +8,7 @@
 
 class UAimingComponent;
 class UTankMovement;
-class UCameraShake;
+class UAudioComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankDelegate);
 
@@ -30,11 +30,11 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UTankMovement * MovementComp = nullptr;
 
-private:
-	/** Camera shake when damaged */
-	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	TSubclassOf<UCameraShake> DamageCamShakeBP;
+	/** Audio component for this class */
+	UPROPERTY()
+	UAudioComponent * AudioComp;
 
+private:
 	/** Component for fx on actor */
 	UParticleSystemComponent * ParticleComp;
 
@@ -50,8 +50,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	USoundBase * LandImpactSound;
-
-	UAudioComponent * AudioComp;
 
 	/** Starting health value */
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 1.f, ClampMax = 100.f))
@@ -119,9 +117,6 @@ protected:
 
 	/** Fire aiming component */
 	void Fire();
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Health")
-	void OnTankDestroyed(bool bDestroyed);
 
 private:
 

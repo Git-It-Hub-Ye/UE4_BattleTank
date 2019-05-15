@@ -108,7 +108,7 @@ void ABattleTank_HordeMode::SetNumOfBotsToSpawn()
 
 void ABattleTank_HordeMode::CheckWaveProgress()
 {
-	if (MaxBotNumThisWave > 0 && TotalBotsSpawned < 1)
+	if (MaxBotNumThisWave > 0 && TotalBotsSpawned < MaxBotNumThisWave)
 	{
 		SpawnNewAIPawn();
 	}
@@ -123,7 +123,7 @@ void ABattleTank_HordeMode::SpawnNewAIPawn()
 	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnPawnFail);
 	if (BotSpawnBoxArray.Num() > 0)
 	{
-		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < 1; CurrentNumOfBotsAlive)
+		for (CurrentNumOfBotsAlive; CurrentNumOfBotsAlive < MaxBotAmountAtOnce; CurrentNumOfBotsAlive)
 		{
 			if (bGameOver) { return; }
 

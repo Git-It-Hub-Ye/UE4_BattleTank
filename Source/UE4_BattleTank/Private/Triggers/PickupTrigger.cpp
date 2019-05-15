@@ -4,13 +4,17 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
-#include "BattleTankGameModeBase.h"
-#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "BattleTankGameModeBase.h"
 
 
 APickupTrigger::APickupTrigger()
 {
+	TriggerVolume = CreateDefaultSubobject<USphereComponent >(FName("Trigger Volume"));
+	SetRootComponent(TriggerVolume);
+	TriggerVolume->bGenerateOverlapEvents = true;
+	TriggerVolume->bHiddenInGame = true;
+
 	ArmourVolume = CreateDefaultSubobject<USphereComponent >(FName("Armour Volume"));
 	ArmourVolume->SetupAttachment(RootComponent);
 	ArmourVolume->bGenerateOverlapEvents = false;
@@ -28,6 +32,10 @@ void APickupTrigger::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentArmour = StartingArmour;
+
+	if (TriggerVolume == nullptr) { return; }
+	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &APickupTrigger::OnOverlap);
+	TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &APickupTrigger::OnEndOverlap);
 }
 
 float APickupTrigger::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -43,12 +51,14 @@ float APickupTrigger::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 		if (ArmourVolume) { ArmourVolume->DestroyComponent(); }
 		TriggerVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		TriggerVolume->Deactivate();
+		HasBeenDestroyed();
 	}
 	return DamageToApply;
 }
 
 void APickupTrigger::OnEndOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
+	UE_LOG(LogTemp, Warning, TEXT("YES"))
 	GetWorldTimerManager().ClearTimer(Handle_ApplyPickup);
 }
 
@@ -62,3 +72,4 @@ void APickupTrigger::HasBeenDestroyed()
 	}
 	Destroy();
 }
+

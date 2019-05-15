@@ -54,13 +54,13 @@ private:
 	/** Checks if selected location is empty. Can check between box boundries or surface below if wanting to spawn actor directly on surface */
 	bool CanSpawnAtLocation(FVector Location, bool bCheckSurfaceBelow);
 
+	/** Find floor location under spawned actor */
+	bool FindFloorLocation(FVector & OutLocation, FVector & OutRotation);
+
 	/** Spawns actors inside box, at random empty locations */
 	bool SpawnActor(TSubclassOf<AActor> ToSpawn);
 
 	/** Spawns pawns inside box, at random empty locations */
 	bool SpawnActor(TSubclassOf<APawn> ToSpawn);
-
-	/** Find floor location under spawned actor */
-	bool FindFloorLocation(FVector & OutLocation, FVector & OutRotation);
 
 };

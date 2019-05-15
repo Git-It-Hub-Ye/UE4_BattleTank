@@ -4,7 +4,7 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
-#include "Tank.h"
+#include "Player/Tank.h"
 #include "AimingComponent.h"
 
 void AAmmoTrigger::OnOverlap(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)

@@ -36,6 +36,8 @@ public:
 	void ToggleInGameMenu();
 
 	bool GetIsGameMenuVisible() const;
+
+	void CleanupSessionOnReturnToMenu();
 	
 protected:
 	virtual void DeterminePlayerInput() override;

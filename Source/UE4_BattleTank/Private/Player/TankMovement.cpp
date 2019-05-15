@@ -1,9 +1,12 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "TankMovement.h"
-#include "Track.h"
-#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "Components/AudioComponent.h"
+#include "Tank.h"
+#include "Track.h"
+
 
 
 UTankMovement::UTankMovement()
@@ -17,6 +20,14 @@ void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet
 	RightTrack = RightTrackToSet;
 	
 	EngineAudio = SFXPlay(EngineLoopSfx);
+
+	if (GetOwner() != NULL)
+	{
+		ATank * OwnerPawn = Cast<ATank>(GetOwner());
+
+		if (OwnerPawn == NULL) { return; }
+		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UTankMovement::OnOwnerDeath);
+	}
 }
 
 void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
@@ -53,16 +64,9 @@ void UTankMovement::IntendTurnRight(float Throw)
 	RightTrack->SetThrottle(-Throw, bTurningRight);
 }
 
-float UTankMovement::GetRightTrackWheelSpeed() const
+void UTankMovement::OnOwnerDeath()
 {
-	if (!RightTrack) { return 0.f; }
-	return RightTrack->GetFrontAndRearWheelSpeed();
-}
-
-float UTankMovement::GetLeftTrackWheelSpeed() const
-{
-	if (!LeftTrack) { return 0.f; }
-	return LeftTrack->GetFrontAndRearWheelSpeed();
+	StopEngineSound();
 }
 
 float UTankMovement::GetMovementSpeed(float Throw)
@@ -102,5 +106,17 @@ void UTankMovement::StopEngineSound()
 	{
 		EngineAudio->Stop();
 	}
+}
+
+float UTankMovement::GetRightTrackWheelSpeed() const
+{
+	if (!RightTrack) { return 0.f; }
+	return RightTrack->GetFrontAndRearWheelSpeed();
+}
+
+float UTankMovement::GetLeftTrackWheelSpeed() const
+{
+	if (!LeftTrack) { return 0.f; }
+	return LeftTrack->GetFrontAndRearWheelSpeed();
 }
 

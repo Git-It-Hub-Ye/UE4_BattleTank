@@ -56,11 +56,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Aim")
 	void ElevateBarrel(float RelativeSpeed);
 
+protected:
+	virtual void BeginPlay() override;
+
 	/** Stop audio on barrel */
-	UFUNCTION(BlueprintCallable, Category = "Audio")
 	void StopBarrelAudio();
 
 private:
+	UFUNCTION()
+	void OnOwnerDeath();
+
 	/** Plays sound if barrel is rotating */
 	void BarrelSFX(float RelativeSpeed);
 

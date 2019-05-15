@@ -1,16 +1,18 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "AimingComponent.h"
-#include "TankPlayerController.h"
-#include "AIBot/TankAIController.h"
-#include "UI/BattleHUD.h"
-#include "Turret.h"
-#include "Barrel.h"
-#include "Projectile.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+
 #include "Components/AudioComponent.h"
+#include "TankPlayerController.h"
+#include "AIBot/TankAIController.h"
+#include "Tank.h"
+#include "Turret.h"
+#include "Barrel.h"
+#include "Projectile.h"
+#include "UI/BattleHUD.h"
 
 
 UAimingComponent::UAimingComponent()
@@ -41,6 +43,19 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 	{
 		ReloadProjectile();
 	}
+
+	if (GetOwner() != NULL)
+	{
+		ATank * OwnerPawn = Cast<ATank>(GetOwner());
+
+		if (OwnerPawn == NULL) { return; }
+		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UAimingComponent::OnOwnerDeath);
+	}
+}
+
+void UAimingComponent::OnOwnerDeath()
+{
+	StopActions();
 }
 
 void UAimingComponent::StopActions()

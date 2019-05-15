@@ -70,13 +70,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AnimBP")
 	float GetLeftTrackWheelSpeed() const;
 
+protected :
 	/** Stops engine sound */
-	UFUNCTION(BlueprintCallable, Category = "Audio")
 	void StopEngineSound();
 
 private:
 	/** Add force to tracks to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;
+
+	UFUNCTION()
+	void OnOwnerDeath();
 
 	/** How fast is tank moving */
 	float GetMovementSpeed(float Throw);

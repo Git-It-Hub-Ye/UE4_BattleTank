@@ -97,7 +97,7 @@ void ATankAIController::FireWeapon()
 			AimComponent->AimAt(Enemy->GetActorLocation());
 			if (bCanShoot && !AimComponent->IsBarrelMoving())
 			{
-				//AimComponent->FireProjectile();
+				AimComponent->FireProjectile();
 			}
 		}
 	}

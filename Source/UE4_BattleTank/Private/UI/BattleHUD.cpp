@@ -2,8 +2,8 @@
 
 #include "BattleHUD.h"
 #include "UObject/ConstructorHelpers.h"
-
 #include "Blueprint/UserWidget.h"
+
 #include "UI/PlayerWidget.h"
 #include "UI/ScoreboardWidget.h"
 
