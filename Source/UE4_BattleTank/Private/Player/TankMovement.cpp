@@ -8,7 +8,6 @@
 #include "Track.h"
 
 
-
 UTankMovement::UTankMovement()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -18,7 +17,7 @@ void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet
 {
 	LeftTrack = LeftTrackToSet;
 	RightTrack = RightTrackToSet;
-	
+
 	EngineAudio = SFXPlay(EngineLoopSfx);
 
 	if (GetOwner() != NULL)
@@ -49,7 +48,6 @@ void UTankMovement::IntendMoveForward(float Throw)
 
 	if (!ensure(LeftTrack && RightTrack)) { return; }
 	if (Throw == 0.f && bTurningRight) { return; }
-
 	LeftTrack->SetThrottle(Throw, bTurningRight);
 	RightTrack->SetThrottle(Throw, bTurningRight);
 }

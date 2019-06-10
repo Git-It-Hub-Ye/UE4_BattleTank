@@ -16,7 +16,7 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UE4_BATTLETANK_API UTrack : public UStaticMeshComponent
 {
 	GENERATED_BODY()
-	
+
 private:
 	/** Max force to add to track */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
