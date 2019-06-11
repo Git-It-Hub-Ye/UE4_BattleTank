@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/NavMovementComponent.h"
+#include "SimpleWheeledVehicleMovementComponent.h"
 #include "TankMovement.generated.h"
 
 class UTrack;
@@ -14,7 +14,7 @@ class UAudioComponent;
 * Responsible for driving the tank wheels.
 */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class UE4_BATTLETANK_API UTankMovement : public UNavMovementComponent
+class UE4_BATTLETANK_API UTankMovement : public USimpleWheeledVehicleMovementComponent
 {
 	GENERATED_BODY()
 	
