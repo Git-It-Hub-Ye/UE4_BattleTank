@@ -121,6 +121,9 @@ protected:
 	/** Move tank forward or back */
 	void MoveForward(float Value);
 
+	/** Move tank right and left */
+	void TurnRight(float Value);
+
 private:
 
 	UFUNCTION()

@@ -12,6 +12,9 @@ UTankMovement::UTankMovement()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	DriveTorquePerWheel = 1000.f;
+	BrakeTorquePerWheel = 1000.f;
+	TurnRate = 0.5f;
 	bBrakesApplied = false;
 }
 
@@ -44,19 +47,19 @@ void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceM
 	IntendTurnRight(RightThrow);
 }
 
-void UTankMovement::IntendMoveForward(float Throw)
+void UTankMovement::IntendMoveForward(float Value)
 {
-	TankSFXPitch(FGenericPlatformMath::Abs<float>(GetMovementSpeed(Throw)));
+	TankSFXPitch(FGenericPlatformMath::Abs<float>(GetMovementSpeed(Value)));
 
-	if (Throw < 0 && ForwardSpeed > 0)
+	if (Value < 0 && ForwardSpeed > 0)
 	{
 		ApplyBrakes(true);
 	}
-	else if (Throw != 0)
+	else if (Value != 0)
 	{
 		if (bBrakesApplied == true) { ApplyBrakes(false); }
-		DriveRightWheels(Throw);
-		DriveLeftWheels(Throw);
+		DriveRightWheels(Value);
+		DriveLeftWheels(Value);
 	}
 	else if (bBrakesApplied == false)
 	{
@@ -64,8 +67,14 @@ void UTankMovement::IntendMoveForward(float Throw)
 	}
 }
 
-void UTankMovement::IntendTurnRight(float Throw)
+void UTankMovement::IntendTurnRight(float Value)
 {
+	if (Value != 0)
+	{
+		if (GetOwner() == NULL) { return; }
+		float TurningSpeed = Value * TurnRate;
+		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+	}
 }
 
 void UTankMovement::DriveRightWheels(float Throttle)
@@ -123,12 +132,12 @@ void UTankMovement::OnOwnerDeath()
 	StopEngineSound();
 }
 
-float UTankMovement::GetMovementSpeed(float Throw)
+float UTankMovement::GetMovementSpeed(float Value)
 {
-	if (!GetOwner()) { return Throw; }
+	if (!GetOwner()) { return Value; }
 
 	ForwardSpeed = FVector::DotProduct(GetOwner()->GetActorForwardVector(), GetOwner()->GetVelocity());
-	TurningSpeed = FVector::DotProduct(GetOwner()->GetActorRightVector(), GetOwner()->GetVelocity());
+	float TurningSpeed = FVector::DotProduct(GetOwner()->GetActorRightVector(), GetOwner()->GetVelocity());
 
 	float TurningPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 100.f), FVector2D(MinSoundPitch, MaxTurnSoundPitch), FGenericPlatformMath::Abs<float>(TurningSpeed));
 	float TotalPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(ForwardSpeed));

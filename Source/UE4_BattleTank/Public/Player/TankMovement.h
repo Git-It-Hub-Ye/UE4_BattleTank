@@ -19,29 +19,30 @@ class UE4_BATTLETANK_API UTankMovement : public USimpleWheeledVehicleMovementCom
 	GENERATED_BODY()
 	
 private:
-	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
 	int32 FirstRightWheelElement;
 
-	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
 	int32 LastRightWheelElement;
 
-	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
 	int32 FirstLeftWheelElement;
 
-	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
 	int32 LastLeftWheelElement;
 
-	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
 	float DriveTorquePerWheel;
 
-	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
 	float BrakeTorquePerWheel;
+
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 1.f))
+	float TurnRate;
 
 	float CurrentThrottle;
 
 	float ForwardSpeed;
-
-	float TurningSpeed;
 
 	bool bBrakesApplied;
 
@@ -82,11 +83,11 @@ public:
 
 	/** Add force to tracks for forward movement */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	void IntendMoveForward(float Throw);
+	void IntendMoveForward(float value);
 
 	/** Add force to tracks for turning movement */
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	void IntendTurnRight(float Throw);
+	void IntendTurnRight(float value);
 
 	/** Speed of wheel for this track */
 	UFUNCTION(BlueprintCallable, Category = "AnimBP")
@@ -114,7 +115,7 @@ private:
 	void OnOwnerDeath();
 
 	/** How fast is tank moving */
-	float GetMovementSpeed(float Throw);
+	float GetMovementSpeed(float Value);
 
 	/** Set pitch of sound */
 	void TankSFXPitch(float PitchRange);
