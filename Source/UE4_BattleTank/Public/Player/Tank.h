@@ -118,6 +118,9 @@ protected:
 	/** Fire aiming component */
 	void Fire();
 
+	/** Move tank forward or back */
+	void MoveForward(float Value);
+
 private:
 
 	UFUNCTION()

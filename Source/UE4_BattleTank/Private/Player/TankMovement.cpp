@@ -11,12 +11,14 @@
 UTankMovement::UTankMovement()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	bBrakesApplied = false;
 }
 
 void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet)
 {
-	LeftTrack = LeftTrackToSet;
-	RightTrack = RightTrackToSet;
+	/*LeftTrack = LeftTrackToSet;
+	RightTrack = RightTrackToSet;*/
 
 	EngineAudio = SFXPlay(EngineLoopSfx);
 
@@ -46,20 +48,74 @@ void UTankMovement::IntendMoveForward(float Throw)
 {
 	TankSFXPitch(FGenericPlatformMath::Abs<float>(GetMovementSpeed(Throw)));
 
-	if (!ensure(LeftTrack && RightTrack)) { return; }
-	if (Throw == 0.f && bTurningRight) { return; }
-	LeftTrack->SetThrottle(Throw, bTurningRight);
-	RightTrack->SetThrottle(Throw, bTurningRight);
+	if (Throw < 0 && ForwardSpeed > 0)
+	{
+		ApplyBrakes(true);
+	}
+	else if (Throw != 0)
+	{
+		if (bBrakesApplied == true) { ApplyBrakes(false); }
+		DriveRightWheels(Throw);
+		DriveLeftWheels(Throw);
+	}
+	else if (bBrakesApplied == false)
+	{
+		ApplyBrakes(true);
+	}
 }
 
 void UTankMovement::IntendTurnRight(float Throw)
 {
-	if (!ensure(LeftTrack && RightTrack)) { return; }
-	if (Throw == 0.f) { bTurningRight = false; return; }
-	
-	bTurningRight = true;
-	LeftTrack->SetThrottle(Throw, bTurningRight);
-	RightTrack->SetThrottle(-Throw, bTurningRight);
+}
+
+void UTankMovement::DriveRightWheels(float Throttle)
+{
+	CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	auto TorqueApplied = CurrentThrottle * DriveTorquePerWheel;
+
+	if (WheelSetups.Num() > 0)
+	{
+		for (int32 i = FirstRightWheelElement; i < LastRightWheelElement + 1; i++)
+		{
+			SetDriveTorque(TorqueApplied, i);
+		}
+	}
+}
+
+void UTankMovement::DriveLeftWheels(float Throttle)
+{
+	CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	auto TorqueApplied = CurrentThrottle * DriveTorquePerWheel;
+
+	if (WheelSetups.Num() > 0)
+	{
+		for (int32 i = FirstLeftWheelElement; i < LastLeftWheelElement + 1; i++)
+		{
+			SetDriveTorque(TorqueApplied, i);
+		}
+	}
+}
+
+void UTankMovement::ApplyBrakes(bool bApplyBrakes)
+{
+	if (WheelSetups.Num() > 0)
+	{
+		float TorqueApplied = 0;
+		if (bApplyBrakes)
+		{
+			TorqueApplied = BrakeTorquePerWheel;
+			bBrakesApplied = true;
+		}
+		else
+		{
+			bBrakesApplied = false;
+		}
+
+		for (int32 i = 0; i < WheelSetups.Num(); i++)
+		{
+			SetBrakeTorque(TorqueApplied, i);
+		}
+	}
 }
 
 void UTankMovement::OnOwnerDeath()
@@ -71,8 +127,8 @@ float UTankMovement::GetMovementSpeed(float Throw)
 {
 	if (!GetOwner()) { return Throw; }
 
-	float ForwardSpeed = FVector::DotProduct(GetOwner()->GetActorForwardVector(), GetOwner()->GetVelocity());
-	float TurningSpeed = FVector::DotProduct(GetOwner()->GetActorRightVector(), GetOwner()->GetVelocity());
+	ForwardSpeed = FVector::DotProduct(GetOwner()->GetActorForwardVector(), GetOwner()->GetVelocity());
+	TurningSpeed = FVector::DotProduct(GetOwner()->GetActorRightVector(), GetOwner()->GetVelocity());
 
 	float TurningPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 100.f), FVector2D(MinSoundPitch, MaxTurnSoundPitch), FGenericPlatformMath::Abs<float>(TurningSpeed));
 	float TotalPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(ForwardSpeed));

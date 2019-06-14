@@ -55,6 +55,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ATank::Fire);
+	InputComponent->BindAxis("MoveForward", this, &ATank::MoveForward);
 }
 
 void ATank::Fire()
@@ -62,6 +63,14 @@ void ATank::Fire()
 	if (AimingComp && !IsTankDestroyed())
 	{
 		AimingComp->FireProjectile();
+	}
+}
+
+void ATank::MoveForward(float Value)
+{
+	if (MovementComp)
+	{
+		MovementComp->IntendMoveForward(Value);
 	}
 }
 

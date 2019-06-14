@@ -19,6 +19,32 @@ class UE4_BATTLETANK_API UTankMovement : public USimpleWheeledVehicleMovementCom
 	GENERATED_BODY()
 	
 private:
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	int32 FirstRightWheelElement;
+
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	int32 LastRightWheelElement;
+
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	int32 FirstLeftWheelElement;
+
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	int32 LastLeftWheelElement;
+
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	float DriveTorquePerWheel;
+
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	float BrakeTorquePerWheel;
+
+	float CurrentThrottle;
+
+	float ForwardSpeed;
+
+	float TurningSpeed;
+
+	bool bBrakesApplied;
+
 	/** Left track reference */
 	UTrack * LeftTrack = nullptr;
 
@@ -77,6 +103,12 @@ protected :
 private:
 	/** Add force to tracks to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed) override;
+
+	void DriveRightWheels(float Throttle);
+
+	void DriveLeftWheels(float Throttle);
+
+	void ApplyBrakes(bool bApplyBrakes);
 
 	UFUNCTION()
 	void OnOwnerDeath();
