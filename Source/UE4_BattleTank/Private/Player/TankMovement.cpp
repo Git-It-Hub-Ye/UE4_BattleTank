@@ -16,6 +16,7 @@ UTankMovement::UTankMovement()
 	BrakeTorquePerWheel = 1000.f;
 	TurnRate = 0.5f;
 	bBrakesApplied = false;
+	bIsTurning = false;
 }
 
 void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet)
@@ -72,8 +73,26 @@ void UTankMovement::IntendTurnRight(float Value)
 	if (Value != 0)
 	{
 		if (GetOwner() == NULL) { return; }
+
+		bIsTurning = true;
+
 		float TurningSpeed = Value * TurnRate;
 		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+
+		WheelTurnYaw += Value * WheelTurnMultiplier;
+
+		// Don't let WheelTurnYaw get too high, reduce to zero when wheel has completed 100 full roations in a row.
+		if (WheelTurnYaw == -36000.f || WheelTurnYaw == 36000.f)
+		{
+			WheelTurnYaw = 0.f;
+		}
+
+		LeftWheelYaw = WheelTurnYaw;
+		RightWheelYaw = WheelTurnYaw * -1;
+	}
+	else
+	{
+		bIsTurning = false;
 	}
 }
 

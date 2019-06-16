@@ -17,6 +17,19 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UE4_BATTLETANK_API UTankMovement : public USimpleWheeledVehicleMovementComponent
 {
 	GENERATED_BODY()
+
+protected:
+	/** Is turning */
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool bIsTurning;
+
+	/** Speed of turning */
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float RightWheelYaw;
+
+	/** Speed of turning */
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float LeftWheelYaw;
 	
 private:
 	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0))
@@ -40,11 +53,16 @@ private:
 	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 1.f))
 	float TurnRate;
 
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f))
+	float WheelTurnMultiplier;
+
 	float CurrentThrottle;
 
 	float ForwardSpeed;
 
 	bool bBrakesApplied;
+
+	float WheelTurnYaw;
 
 	/** Left track reference */
 	UTrack * LeftTrack = nullptr;
@@ -70,9 +88,6 @@ private:
 
 	/** Component for start & end sounds */
 	UAudioComponent * EngineAudio = nullptr;
-
-	/** Is tank turning */
-	bool bTurningRight = false;
 
 public:
 	UTankMovement();
