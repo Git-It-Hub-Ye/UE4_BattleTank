@@ -41,9 +41,18 @@ void ATank::BeginPlay()
 	CurrentArmour = StartingArmour;
 	UpdatePlayerHud();
 
-	if (!TankBody) { return; }
+	if (TankBody == NULL) { return; }
 	TankBody->SetSimulatePhysics(true);
 	TankBody->OnComponentHit.AddDynamic(this, &ATank::OnHit);
+
+	if (MovementComp == NULL || TrackMat == NULL) { return; }
+	MovementComp->SetLeftTrackMat(SetTrackMats(LeftTrackElement, TrackMat));
+	MovementComp->SetRightTrackMat(SetTrackMats(RightTrackElement, TrackMat));
+}
+
+UMaterialInstanceDynamic * ATank::SetTrackMats(int32 Element, UMaterialInterface * Mat)
+{
+	return Mat != NULL ? TankBody->CreateDynamicMaterialInstance(Element, Mat) : NULL;
 }
 
 
@@ -61,7 +70,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 
 void ATank::Fire()
 {
-	if (AimingComp && !IsTankDestroyed())
+	if (AimingComp != NULL && IsTankDestroyed() == false)
 	{
 		AimingComp->FireProjectile();
 	}
@@ -69,7 +78,7 @@ void ATank::Fire()
 
 void ATank::MoveForward(float Value)
 {
-	if (MovementComp)
+	if (MovementComp != NULL)
 	{
 		MovementComp->IntendMoveForward(Value);
 	}
@@ -77,7 +86,7 @@ void ATank::MoveForward(float Value)
 
 void ATank::TurnRight(float Value)
 {
-	if (MovementComp)
+	if (MovementComp != NULL)
 	{
 		MovementComp->IntendTurnRight(Value);
 	}
@@ -94,7 +103,7 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
 	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentHealth + CurrentArmour);
 
-	if (!IsTankDestroyed())
+	if (IsTankDestroyed() == false)
 	{
 		int32 DamageDealt = DamageToApply;
 		if (CurrentArmour > 0)
@@ -125,7 +134,7 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 
 void ATank::OnDeathBehaviour(AController * EventInstigator)
 {
-	if (DestroyedFX)
+	if (DestroyedFX != NULL)
 	{
 		UGameplayStatics::SpawnEmitterAttached(DestroyedFX, TankBody);
 		AudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, TankBody);
@@ -134,13 +143,13 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 	TankBody->SetCollisionProfileName("DestroyedTank");
 
 	ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
-	if (PC && EventInstigator && EventInstigator->GetPawn())
+	if (PC != NULL && EventInstigator != NULL && EventInstigator->GetPawn() != NULL)
 	{
 		PC->LookAtLocation(EventInstigator->GetPawn()->GetActorLocation());
 	}
 
 	ABattleTankGameModeBase * const GM = GetWorld()->GetAuthGameMode<ABattleTankGameModeBase>();
-	if (GM && Controller)
+	if (GM != NULL && Controller != NULL)
 	{
 		GM->HandleKill(Controller, EventInstigator);
 	}
@@ -175,7 +184,7 @@ void ATank::UpdatePlayerHud()
 {
 	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
 	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
-	if (BHUD)
+	if (BHUD != NULL)
 	{
 		BHUD->UpdateHealthDisplay();
 	}
@@ -185,7 +194,7 @@ void ATank::OutOfCombatArea(bool bWarnPlayer)
 {
 	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
 	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
-	if (BHUD)
+	if (BHUD != NULL)
 	{
 		bWarnPlayer ? BHUD->WarnOutOfCombatArea() : BHUD->RemoveCombatAreaWarnings();
 	}
@@ -202,12 +211,12 @@ void ATank::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrim
 
 void ATank::PlayTankCollisionFX(const FHitResult & Impact)
 {
-	if (Impact.bBlockingHit)
+	if (Impact.bBlockingHit == true)
 	{
 		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Impact.PhysMaterial.Get());
 		USoundBase * ImpactSFX = GetImpactSound(HitSurfaceType);
 
-		if (ImpactSFX)
+		if (ImpactSFX != NULL)
 		{
 			AudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
 		}

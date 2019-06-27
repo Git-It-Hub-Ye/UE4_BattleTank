@@ -1,11 +1,12 @@
 // Copyright 2018 Stuart McDonald.
 
 #include "TankMovement.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Components/AudioComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Tank.h"
-#include "Track.h"
 
 
 UTankMovement::UTankMovement()
@@ -16,14 +17,10 @@ UTankMovement::UTankMovement()
 	BrakeTorquePerWheel = 1000.f;
 	TurnRate = 0.5f;
 	bBrakesApplied = false;
-	bIsTurning = false;
 }
 
-void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet)
+void UTankMovement::BeginPlay()
 {
-	/*LeftTrack = LeftTrackToSet;
-	RightTrack = RightTrackToSet;*/
-
 	EngineAudio = SFXPlay(EngineLoopSfx);
 
 	if (GetOwner() != NULL)
@@ -34,6 +31,10 @@ void UTankMovement::Initialise(UTrack * LeftTrackToSet, UTrack * RightTrackToSet
 		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UTankMovement::OnOwnerDeath);
 	}
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Drive tank
 
 void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
 {
@@ -50,60 +51,53 @@ void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceM
 
 void UTankMovement::IntendMoveForward(float Value)
 {
-	TankSFXPitch(FGenericPlatformMath::Abs<float>(GetMovementSpeed(Value)));
+	MoveForwardValue = FMath::Clamp<float>(Value, -0.5f, 1.f);
 
-	if (Value < 0 && ForwardSpeed > 0)
-	{
-		ApplyBrakes(true);
-	}
-	else if (Value != 0)
+	if (MoveForwardValue != 0)
 	{
 		if (bBrakesApplied == true) { ApplyBrakes(false); }
-		DriveRightWheels(Value);
-		DriveLeftWheels(Value);
+		DriveRightWheels(MoveForwardValue);
+		DriveLeftWheels(MoveForwardValue);
 	}
 	else if (bBrakesApplied == false)
 	{
 		ApplyBrakes(true);
 	}
+
+	ApplyMovementSpeedBehaviours();
 }
 
 void UTankMovement::IntendTurnRight(float Value)
 {
-	if (Value != 0)
+	TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
+
+	if (TurnRightValue != 0)
 	{
 		if (GetOwner() == NULL) { return; }
 
-		bIsTurning = true;
+		float CurrentThrottle = TurnRightValue * TurnRate * GetWorld()->DeltaTimeSeconds;
 
-		float TurningSpeed = Value * TurnRate;
+		TurnSpeed += CurrentThrottle;
+		TurnSpeed = FMath::Clamp<float>(TurnSpeed, -TurnRate, TurnRate);
+
+		float TurningSpeed = FMath::Clamp<float>(TurnSpeed, -TurnRate, TurnRate);
+
 		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
-
-		WheelTurnYaw += Value * WheelTurnMultiplier;
-
-		// Don't let WheelTurnYaw get too high, reduce to zero when wheel has completed 100 full roations in a row.
-		if (WheelTurnYaw == -36000.f || WheelTurnYaw == 36000.f)
-		{
-			WheelTurnYaw = 0.f;
-		}
-
-		LeftWheelYaw = WheelTurnYaw;
-		RightWheelYaw = WheelTurnYaw * -1;
 	}
-	else
+	else if (TurnSpeed != 0.f)
 	{
-		bIsTurning = false;
+		TurnSpeed = 0;
 	}
 }
 
 void UTankMovement::DriveRightWheels(float Throttle)
 {
-	CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
 	auto TorqueApplied = CurrentThrottle * DriveTorquePerWheel;
 
 	if (WheelSetups.Num() > 0)
 	{
-		for (int32 i = FirstRightWheelElement; i < LastRightWheelElement + 1; i++)
+		for (int32 i = FirstRightWheelIndex; i < LastRightWheelIndex + 1; i++)
 		{
 			SetDriveTorque(TorqueApplied, i);
 		}
@@ -112,12 +106,12 @@ void UTankMovement::DriveRightWheels(float Throttle)
 
 void UTankMovement::DriveLeftWheels(float Throttle)
 {
-	CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
 	auto TorqueApplied = CurrentThrottle * DriveTorquePerWheel;
 
 	if (WheelSetups.Num() > 0)
 	{
-		for (int32 i = FirstLeftWheelElement; i < LastLeftWheelElement + 1; i++)
+		for (int32 i = FirstLeftWheelIndex; i < LastLeftWheelIndex + 1; i++)
 		{
 			SetDriveTorque(TorqueApplied, i);
 		}
@@ -146,22 +140,144 @@ void UTankMovement::ApplyBrakes(bool bApplyBrakes)
 	}
 }
 
-void UTankMovement::OnOwnerDeath()
+void UTankMovement::ApplyMovementSpeedBehaviours()
 {
-	StopEngineSound();
+	float EnginePitch = MoveForwardValue;
+	float ForwardSpeed = MoveForwardValue;
+	float TurningSpeed = TurnRightValue;
+
+	if (GetOwner())
+	{
+		float ForwardVelocity = FVector::DotProduct(GetOwner()->GetActorForwardVector(), GetOwner()->GetVelocity());
+		EnginePitch = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(ForwardVelocity));
+		ForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-700.f, 700.f), FVector2D(-1, 1), ForwardVelocity);
+
+		FRotator NewYawRot = GetOwner()->GetActorRotation();
+		float YawRotSpeed = FMath::FindDeltaAngleDegrees(NewYawRot.Yaw, LastYawRot.Yaw);
+		LastYawRot = NewYawRot;
+		TurningSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-TurnRate, TurnRate), FVector2D(-1, 1), YawRotSpeed);
+	}
+
+	AnimateTracks(ForwardSpeed, TurningSpeed);
+	TurnWheels(ForwardSpeed, TurnSpeed);
+	
+	TankSFXPitch(FGenericPlatformMath::Abs<float>(EnginePitch));
 }
 
-float UTankMovement::GetMovementSpeed(float Value)
+
+////////////////////////////////////////////////////////////////////////////////
+// Animation data
+
+void UTankMovement::TurnWheels(float ForwardSpeed, float TurnSpeed)
 {
-	if (!GetOwner()) { return Value; }
+	float WheelSpeedYaw = 0.f;
+	if (MoveForwardValue != 0.f)
+	{
+		WheelSpeedYaw = SetWheelTurnValue(ForwardSpeed);
 
-	ForwardSpeed = FVector::DotProduct(GetOwner()->GetActorForwardVector(), GetOwner()->GetVelocity());
-	float TurningSpeed = FVector::DotProduct(GetOwner()->GetActorRightVector(), GetOwner()->GetVelocity());
+		LeftFrontBackYaw -= WheelSpeedYaw;
+		RightFrontBackYaw -= WheelSpeedYaw;
+	}
+	else if (TurnRightValue != 0.f)
+	{
+		WheelSpeedYaw = SetWheelTurnValue(TurnSpeed);
 
-	float TurningPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 100.f), FVector2D(MinSoundPitch, MaxTurnSoundPitch), FGenericPlatformMath::Abs<float>(TurningSpeed));
-	float TotalPitchRange = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(ForwardSpeed));
-	return TotalPitchRange < TurningPitchRange ? TurningPitchRange : TotalPitchRange;
+		LeftWheelYaw -= WheelSpeedYaw;
+		LeftFrontBackYaw -= WheelSpeedYaw;
+
+		RightWheelYaw += WheelSpeedYaw;
+		RightFrontBackYaw += WheelSpeedYaw;
+	}
 }
+
+float UTankMovement::SetWheelTurnValue(float TurnSpeed)
+{
+	float WheelSpeedYaw = TurnSpeed * WheelTurnMultiplier;
+
+	// Don't let WheelTurnYaw get too high.
+	if (LeftFrontBackYaw <= -36000.f || LeftFrontBackYaw >= 36000.f)
+	{
+		LeftFrontBackYaw = 0.f;
+	}
+	if (RightFrontBackYaw <= -36000.f || RightFrontBackYaw >= 36000.f)
+	{
+		RightFrontBackYaw = 0.f;
+	}
+	return WheelSpeedYaw;
+}
+
+void UTankMovement::AnimateTracks(float ForwardSpeed, float TurnSpeed)
+{
+	float TrackOffset = 0;
+
+	if (MoveForwardValue != 0.f)
+	{
+		float MaxSpeed = ForwardSpeed * GetWorld()->GetDeltaSeconds();
+		TrackOffset = MaxSpeed * TrackSpeedMultiplier;
+
+		AnimateTrackMatLeft(-TrackOffset);
+		AnimateTrackMatRight(-TrackOffset);
+	}
+	else if (TurnRightValue != 0.f)
+	{
+		TrackOffset = TurnSpeed * GetWorld()->GetDeltaSeconds();
+
+		AnimateTrackMatLeft(TrackOffset);
+		AnimateTrackMatRight(-TrackOffset);
+	}
+}
+
+void UTankMovement::AnimateTrackMatLeft(float NewOffset)
+{	
+	if (LeftTrackMat != NULL)
+	{
+		float CurrentOffset;
+		LeftTrackMat->GetScalarParameterValue(TrackScalarParamName, CurrentOffset);
+		NewOffset += CurrentOffset;
+
+		LeftTrackMat->SetScalarParameterValue(TrackScalarParamName, NewOffset);
+
+		// Don't let Scalar value get too high.
+		if (CurrentOffset < -10000.f || CurrentOffset > 10000.f)
+		{
+			LeftTrackMat->SetScalarParameterValue(TrackScalarParamName, 0.f);
+		}
+	}
+}
+
+void UTankMovement::AnimateTrackMatRight(float NewOffset)
+{
+	if (RightTrackMat != NULL)
+	{
+		float CurrentOffset;
+		RightTrackMat->GetScalarParameterValue(TrackScalarParamName, CurrentOffset);
+		NewOffset += CurrentOffset;
+
+		RightTrackMat->SetScalarParameterValue(TrackScalarParamName, NewOffset);
+
+		// Don't let Scalar value get too high.
+		if (CurrentOffset < -10000.f || CurrentOffset > 10000.f)
+		{
+			RightTrackMat->SetScalarParameterValue(TrackScalarParamName, 0.f);
+		}
+	}
+}
+
+void UTankMovement::SetLeftTrackMat(UMaterialInstanceDynamic * TrackMat)
+{
+	if (TrackMat == NULL) { return; }
+	LeftTrackMat = TrackMat;
+}
+
+void UTankMovement::SetRightTrackMat(UMaterialInstanceDynamic * TrackMat)
+{
+	if (TrackMat == NULL) { return; }
+	RightTrackMat = TrackMat;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// SFX
 
 void UTankMovement::TankSFXPitch(float PitchRange)
 {
@@ -190,15 +306,8 @@ void UTankMovement::StopEngineSound()
 	}
 }
 
-float UTankMovement::GetRightTrackWheelSpeed() const
+void UTankMovement::OnOwnerDeath()
 {
-	if (!RightTrack) { return 0.f; }
-	return RightTrack->GetFrontAndRearWheelSpeed();
-}
-
-float UTankMovement::GetLeftTrackWheelSpeed() const
-{
-	if (!LeftTrack) { return 0.f; }
-	return LeftTrack->GetFrontAndRearWheelSpeed();
+	StopEngineSound();
 }
 

@@ -76,6 +76,18 @@ private:
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
+	/** Crosshair to display on player ui for this weapon */
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UMaterialInterface * TrackMat;
+
+	/** Element of tank to apply dynamic track material */
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f))
+	int32 LeftTrackElement;
+
+	/** Element of tank to apply dynamic track material */
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f))
+	int32 RightTrackElement;
+
 public:
 	ATank();
 
@@ -138,5 +150,7 @@ private:
 	void PlayTankCollisionFX(const FHitResult & Impact);
 
 	USoundBase * GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
+
+	UMaterialInstanceDynamic * SetTrackMats(int32 Element, UMaterialInterface * Mat);
 
 };
