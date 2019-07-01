@@ -7,6 +7,7 @@
 #include "TimerManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "Online/BattleTankGameModeBase.h"
 #include "TankPlayerController.h"
@@ -45,14 +46,11 @@ void ATank::BeginPlay()
 	TankBody->SetSimulatePhysics(true);
 	TankBody->OnComponentHit.AddDynamic(this, &ATank::OnHit);
 
-	if (MovementComp == NULL || TrackMat == NULL) { return; }
-	MovementComp->SetLeftTrackMat(SetTrackMats(LeftTrackElement, TrackMat));
-	MovementComp->SetRightTrackMat(SetTrackMats(RightTrackElement, TrackMat));
-}
+	EngineAudio = SFXPlay(EngineLoopSfx);
 
-UMaterialInstanceDynamic * ATank::SetTrackMats(int32 Element, UMaterialInterface * Mat)
-{
-	return Mat != NULL ? TankBody->CreateDynamicMaterialInstance(Element, Mat) : NULL;
+	if (TrackMat == NULL) { return; }
+	SetLeftTrackMat(SetTrackMats(LeftTrackElement, TrackMat));
+	SetRightTrackMat(SetTrackMats(RightTrackElement, TrackMat));
 }
 
 
@@ -80,16 +78,44 @@ void ATank::MoveForward(float Value)
 {
 	if (MovementComp != NULL)
 	{
+		MoveForwardValue = FMath::Clamp<float>(Value, -1, 1);
 		MovementComp->IntendMoveForward(Value);
 	}
+
+	ApplyInputMovementBehaviours();
 }
 
 void ATank::TurnRight(float Value)
 {
 	if (MovementComp != NULL)
 	{
+		TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
+
+		float MaxSpeed = FGenericPlatformMath::Abs<float>(TurnRightValue * TurnRate);
+		float MaxTurnSpeed = TurnRightValue * TurnRate;
+
+		TurnSpeed += MaxTurnSpeed * GetWorld()->DeltaTimeSeconds;
+		TurnSpeed = FMath::Clamp<float>(TurnSpeed, -MaxSpeed, MaxSpeed);
+
 		MovementComp->IntendTurnRight(Value);
 	}
+}
+
+void ATank::ApplyInputMovementBehaviours()
+{
+	float ForwardVelocity = FVector::DotProduct(GetActorForwardVector(), GetVelocity());
+	float ForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-700.f, 700.f), FVector2D(-1, 1), ForwardVelocity);
+
+	FRotator NewYawRot = GetActorRotation();
+	float YawRotSpeed = FMath::FindDeltaAngleDegrees(NewYawRot.Yaw, LastYawRot.Yaw);
+	LastYawRot = NewYawRot;
+	float TurningSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-TurnRate, TurnRate), FVector2D(-1, 1), YawRotSpeed);
+
+	AnimateTracks(ForwardSpeed, TurningSpeed);
+	TurnWheels(ForwardSpeed, TurnSpeed);
+
+	float EnginePitch = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(ForwardVelocity));
+	TankSFXPitch(FGenericPlatformMath::Abs<float>(EnginePitch));
 }
 
 
@@ -201,12 +227,135 @@ void ATank::OutOfCombatArea(bool bWarnPlayer)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+// Wheel animation
+
+void ATank::TurnWheels(float ForwardSpeed, float TurnSpeed)
+{
+	float WheelSpeedYaw = 0.f;
+	if (MoveForwardValue != 0.f)
+	{
+		WheelSpeedYaw = SetWheelTurnValue(ForwardSpeed);
+
+		LeftFrontBackYaw -= WheelSpeedYaw;
+		RightFrontBackYaw -= WheelSpeedYaw;
+	}
+	else if (TurnRightValue != 0.f)
+	{
+		WheelSpeedYaw = SetWheelTurnValue(TurnSpeed);
+
+		LeftWheelYaw -= WheelSpeedYaw;
+		LeftFrontBackYaw -= WheelSpeedYaw;
+
+		RightWheelYaw += WheelSpeedYaw;
+		RightFrontBackYaw += WheelSpeedYaw;
+	}
+}
+
+float ATank::SetWheelTurnValue(float TurnSpeed)
+{
+	float WheelSpeedYaw = TurnSpeed * WheelTurnMultiplier;
+
+	// Don't let WheelTurnYaw get too high.
+	if (LeftFrontBackYaw <= -36000.f || LeftFrontBackYaw >= 36000.f)
+	{
+		LeftFrontBackYaw = 0.f;
+	}
+	if (RightFrontBackYaw <= -36000.f || RightFrontBackYaw >= 36000.f)
+	{
+		RightFrontBackYaw = 0.f;
+	}
+	return WheelSpeedYaw;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Track animation
+
+UMaterialInstanceDynamic * ATank::SetTrackMats(int32 Element, UMaterialInterface * Mat)
+{
+	return Mat != NULL ? TankBody->CreateDynamicMaterialInstance(Element, Mat) : NULL;
+}
+
+void ATank::SetLeftTrackMat(UMaterialInstanceDynamic * TrackMat)
+{
+	if (TrackMat == NULL) { return; }
+	LeftTrackMat = TrackMat;
+}
+
+void ATank::SetRightTrackMat(UMaterialInstanceDynamic * TrackMat)
+{
+	if (TrackMat == NULL) { return; }
+	RightTrackMat = TrackMat;
+}
+
+void ATank::AnimateTracks(float ForwardSpeed, float TurnSpeed)
+{
+	float TrackOffset = 0;
+
+	if (MoveForwardValue != 0.f)
+	{
+		float MaxSpeed = ForwardSpeed * GetWorld()->GetDeltaSeconds();
+		TrackOffset = MaxSpeed * TrackSpeedMultiplier;
+
+		AnimateTrackMatLeft(-TrackOffset);
+		AnimateTrackMatRight(-TrackOffset);
+	}
+	else if (TurnRightValue != 0.f)
+	{
+		TrackOffset = TurnSpeed * GetWorld()->GetDeltaSeconds();
+
+		AnimateTrackMatLeft(TrackOffset);
+		AnimateTrackMatRight(-TrackOffset);
+	}
+}
+
+void ATank::AnimateTrackMatLeft(float NewOffset)
+{
+	if (LeftTrackMat != NULL)
+	{
+		float CurrentOffset;
+		LeftTrackMat->GetScalarParameterValue(TrackScalarParamName, CurrentOffset);
+		NewOffset += CurrentOffset;
+
+		LeftTrackMat->SetScalarParameterValue(TrackScalarParamName, NewOffset);
+
+		// Don't let Scalar value get too high.
+		if (CurrentOffset < -10000.f || CurrentOffset > 10000.f)
+		{
+			LeftTrackMat->SetScalarParameterValue(TrackScalarParamName, 0.f);
+		}
+	}
+}
+
+void ATank::AnimateTrackMatRight(float NewOffset)
+{
+	if (RightTrackMat != NULL)
+	{
+		float CurrentOffset;
+		RightTrackMat->GetScalarParameterValue(TrackScalarParamName, CurrentOffset);
+		NewOffset += CurrentOffset;
+
+		RightTrackMat->SetScalarParameterValue(TrackScalarParamName, NewOffset);
+
+		// Don't let Scalar value get too high.
+		if (CurrentOffset < -10000.f || CurrentOffset > 10000.f)
+		{
+			RightTrackMat->SetScalarParameterValue(TrackScalarParamName, 0.f);
+		}
+	}
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////
 // Play FX
 
 void ATank::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
 {
-	PlayTankCollisionFX(Hit);
+	if (OtherActor != NULL)
+	{
+		PlayTankCollisionFX(Hit);
+	}
 }
 
 void ATank::PlayTankCollisionFX(const FHitResult & Impact)
@@ -235,5 +384,32 @@ USoundBase * ATank::GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) co
 	default:			CollisionSound = LandImpactSound; break;
 	}
 	return CollisionSound;
+}
+
+void ATank::TankSFXPitch(float PitchRange)
+{
+	if (EngineAudio)
+	{
+		EngineAudio->SetPitchMultiplier(PitchRange);
+	}
+}
+
+UAudioComponent * ATank::SFXPlay(USoundBase * SoundFX)
+{
+	UAudioComponent * AC = nullptr;
+	if (SoundFX)
+	{
+		AC = UGameplayStatics::SpawnSoundAttached(SoundFX, GetRootComponent());
+		AC->FadeIn(0.1f, 1.f);
+	}
+	return AC;
+}
+
+void ATank::StopEngineSound()
+{
+	if (EngineAudio && EngineAudio->IsPlaying())
+	{
+		EngineAudio->Stop();
+	}
 }
 
