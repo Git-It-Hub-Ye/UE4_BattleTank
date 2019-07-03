@@ -203,26 +203,26 @@ void UAimingComponent::OnFire()
 
 		FTransform SpawnT(GetAdjustedAim().Rotation(), Barrel->GetSocketLocation(FName("Projectile")));
 
-		SpawnParticleEffect(FireFX);
-
 		AProjectile * Projectile = Cast<AProjectile>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, WeaponData.ProjectileBlueprint, SpawnT));
 		if (Projectile && CompOwner)
 		{
+			SpawnParticleEffect(FireFX);
+
 			Projectile->Instigator = CompOwner;
 			Projectile->SetOwner(CompOwner);
 
 			UGameplayStatics::FinishSpawningActor(Projectile, SpawnT);
 			Projectile->LaunchProjectile(WeaponData.LaunchSpeed);
 			PlaySoundFX(FireSound);
-		}
 
-		ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
-		if (PC)
-		{
-			PC->ClientPlayCameraShake(FireCamShakeBP);
-		}
+			ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
+			if (PC)
+			{
+				PC->ClientPlayCameraShake(FireCamShakeBP);
+			}
 
-		ReloadProjectile();
+			ReloadProjectile();
+		}
 	}
 }
 

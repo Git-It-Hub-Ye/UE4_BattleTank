@@ -78,30 +78,32 @@ void ATank::MoveForward(float Value)
 {
 	if (MovementComp != NULL)
 	{
-		MoveForwardValue = FMath::Clamp<float>(Value, -1, 1);
 		MovementComp->IntendMoveForward(Value);
-	}
 
-	ApplyInputMovementBehaviours();
+		if (Value == 0.f)
+		{
+			ApplyBrakes();
+		}
+	}
 }
 
 void ATank::TurnRight(float Value)
 {
 	if (MovementComp != NULL)
 	{
-		TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
-
-		float MaxSpeed = FGenericPlatformMath::Abs<float>(TurnRightValue * TurnRate);
-		float MaxTurnSpeed = TurnRightValue * TurnRate;
-
-		TurnSpeed += MaxTurnSpeed * GetWorld()->DeltaTimeSeconds;
-		TurnSpeed = FMath::Clamp<float>(TurnSpeed, -MaxSpeed, MaxSpeed);
-
 		MovementComp->IntendTurnRight(Value);
 	}
 }
 
-void ATank::ApplyInputMovementBehaviours()
+void ATank::ApplyBrakes()
+{
+	if (MovementComp != NULL)
+	{
+		MovementComp->ApplyBrakes(true);
+	}
+}
+
+void ATank::ApplyInputMovementBehaviours(float TurnRate, float TurnSpeed)
 {
 	float ForwardVelocity = FVector::DotProduct(GetActorForwardVector(), GetVelocity());
 	float ForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-700.f, 700.f), FVector2D(-1, 1), ForwardVelocity);
@@ -203,44 +205,22 @@ void ATank::ReplenishArmour()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////
-// Update Hud
-
-void ATank::UpdatePlayerHud()
-{
-	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
-	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
-	if (BHUD != NULL)
-	{
-		BHUD->UpdateHealthDisplay();
-	}
-}
-
-void ATank::OutOfCombatArea(bool bWarnPlayer)
-{
-	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
-	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
-	if (BHUD != NULL)
-	{
-		bWarnPlayer ? BHUD->WarnOutOfCombatArea() : BHUD->RemoveCombatAreaWarnings();
-	}
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Wheel animation
 
 void ATank::TurnWheels(float ForwardSpeed, float TurnSpeed)
 {
+	if (MovementComp == NULL) { return; }
+
 	float WheelSpeedYaw = 0.f;
-	if (MoveForwardValue != 0.f)
+	if (MovementComp->GetForwardValue() != 0.f)
 	{
 		WheelSpeedYaw = SetWheelTurnValue(ForwardSpeed);
 
-		LeftFrontBackYaw -= WheelSpeedYaw;
-		RightFrontBackYaw -= WheelSpeedYaw;
+		LeftFrontBackYaw -= WheelSpeedYaw + TurnSpeed;
+		RightFrontBackYaw -= WheelSpeedYaw - TurnSpeed;
 	}
-	else if (TurnRightValue != 0.f)
+	else if (MovementComp->GetTurnRightValue() != 0.f)
 	{
 		WheelSpeedYaw = SetWheelTurnValue(TurnSpeed);
 
@@ -254,7 +234,7 @@ void ATank::TurnWheels(float ForwardSpeed, float TurnSpeed)
 
 float ATank::SetWheelTurnValue(float TurnSpeed)
 {
-	float WheelSpeedYaw = TurnSpeed * WheelTurnMultiplier;
+	float WheelSpeedYaw = TurnSpeed * TurnSpeedMultiplier;
 
 	// Don't let WheelTurnYaw get too high.
 	if (LeftFrontBackYaw <= -36000.f || LeftFrontBackYaw >= 36000.f)
@@ -291,17 +271,18 @@ void ATank::SetRightTrackMat(UMaterialInstanceDynamic * TrackMat)
 
 void ATank::AnimateTracks(float ForwardSpeed, float TurnSpeed)
 {
+	if (MovementComp == NULL) { return; }
 	float TrackOffset = 0;
 
-	if (MoveForwardValue != 0.f)
+	if (MovementComp->GetForwardValue() != 0.f)
 	{
-		float MaxSpeed = ForwardSpeed * GetWorld()->GetDeltaSeconds();
-		TrackOffset = MaxSpeed * TrackSpeedMultiplier;
+		TrackOffset = ForwardSpeed * TurnSpeedMultiplier * GetWorld()->GetDeltaSeconds();
+		float TurnModifier = TurnSpeed * GetWorld()->GetDeltaSeconds();
 
-		AnimateTrackMatLeft(-TrackOffset);
-		AnimateTrackMatRight(-TrackOffset);
+		AnimateTrackMatLeft(-TrackOffset + TurnModifier);
+		AnimateTrackMatRight(-TrackOffset - TurnModifier);
 	}
-	else if (TurnRightValue != 0.f)
+	else if (MovementComp->GetTurnRightValue() != 0.f)
 	{
 		TrackOffset = TurnSpeed * GetWorld()->GetDeltaSeconds();
 
@@ -343,6 +324,30 @@ void ATank::AnimateTrackMatRight(float NewOffset)
 		{
 			RightTrackMat->SetScalarParameterValue(TrackScalarParamName, 0.f);
 		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// Update Hud
+
+void ATank::UpdatePlayerHud()
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD != NULL)
+	{
+		BHUD->UpdateHealthDisplay();
+	}
+}
+
+void ATank::OutOfCombatArea(bool bWarnPlayer)
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	ABattleHUD * BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD != NULL)
+	{
+		bWarnPlayer ? BHUD->WarnOutOfCombatArea() : BHUD->RemoveCombatAreaWarnings();
 	}
 }
 

@@ -83,57 +83,32 @@ private:
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
-
-	////////////////////////////////////////////////////////////////////////////////////
-	// Input data
-
-	/** Current forward input value */
-	float MoveForwardValue;
-
-	/** Current turn input value */
-	float TurnRightValue;
-
-	/** Speed to rotate tank */
-	float TurnSpeed;
-
 	/** Previous saved rotation of tank */
 	FRotator LastYawRot;
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Wheel animation
+	// Animation
 
-	/** How much to multiply wheel rotation by (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Animate Wheel", meta = (ClampMin = 0.f))
-	float WheelTurnMultiplier;
-
-	/** How fast to rotate tank (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Animate Wheel", meta = (ClampMin = 0.f, ClampMax = 1.f))
-	float TurnRate;
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Track material animation
+	/** How much to multiply wheel and track rotation by (Higher values = faster) */
+	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
+	float TurnSpeedMultiplier;
 
 	/** Crosshair to display on player ui for this weapon */
-	UPROPERTY(EditDefaultsOnly, Category = "Animate Track")
+	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track")
 	UMaterialInterface * TrackMat;
 
 	/** Element of tank to apply dynamic track material */
-	UPROPERTY(EditdefaultsOnly, Category = "Animate Track", meta = (ClampMin = 0.f))
+	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
 	int32 LeftTrackElement;
 
 	/** Element of tank to apply dynamic track material */
-	UPROPERTY(EditdefaultsOnly, Category = "Animate Track", meta = (ClampMin = 0.f))
+	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
 	int32 RightTrackElement;
 
-	/** Name of track mat parameter to animate */
-	UPROPERTY(EditdefaultsOnly, Category = "Animate Track")
+	/** Name of track material parameter to animate */
+	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track")
 	FName TrackScalarParamName;
-
-	/** How much to multiply track animation by (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Animate Track", meta = (ClampMin = 0.f))
-	float TrackSpeedMultiplier;
 
 	/** Dynamic material for track rotation */
 	UMaterialInstanceDynamic * LeftTrackMat;
@@ -203,6 +178,12 @@ public:
 	/** Bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/** Stop tank */
+	void ApplyBrakes();
+
+	/** Gets actor speed for wheel, track animations and sfx */
+	void ApplyInputMovementBehaviours(float TurnRate, float TurnSpeed);
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Tank Behaviour
@@ -269,13 +250,6 @@ private:
 
 	/** Death behaviour */
 	void OnDeathBehaviour(AController * EventInstigator);
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Input data
-
-	/** How fast is tank moving */
-	void ApplyInputMovementBehaviours();
 
 
 	////////////////////////////////////////////////////////////////////////////////

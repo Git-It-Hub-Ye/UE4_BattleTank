@@ -6,9 +6,7 @@
 #include "SimpleWheeledVehicleMovementComponent.h"
 #include "TankMovement.generated.h"
 
-class UTrack;
-class USoundBase;
-class UAudioComponent;
+class ATank;
 
 /**
 * Drives wheels and rotates tank
@@ -19,6 +17,9 @@ class UE4_BATTLETANK_API UTankMovement : public USimpleWheeledVehicleMovementCom
 	GENERATED_BODY()
 
 private:
+
+	/** Owning actor of this component */
+	ATank * TankOwner;
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Drive wheel data
@@ -50,6 +51,10 @@ private:
 	/** Are wheel brakes currently on */
 	bool bBrakesApplied;
 
+	float MoveForwardValue;
+
+	float TurnRightValue;
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Tank rotation
@@ -76,6 +81,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void IntendTurnRight(float value);
 
+	/** Applies brake torque for all wheels */
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	void ApplyBrakes(bool bApplyBrakes);
+
+	float GetForwardValue() { return MoveForwardValue; }
+
+	float GetTurnRightValue() { return TurnRightValue; }
+
+protected:
+	virtual void BeginPlay() override;
+
 private:
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +106,6 @@ private:
 	/** Sets drive torque for each wheel on left side */
 	void DriveLeftWheels(float Throttle);
 
-	/** Applies brake torque for all wheels */
-	void ApplyBrakes(bool bApplyBrakes);
+	void MovementValuesForAnimation();
 
 };

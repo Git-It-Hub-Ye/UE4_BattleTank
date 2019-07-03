@@ -18,6 +18,14 @@ UTankMovement::UTankMovement()
 	bBrakesApplied = false;
 }
 
+void UTankMovement::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetOwner() == NULL) { return; }
+	TankOwner = Cast<ATank>(GetOwner());
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Drive tank
@@ -37,20 +45,23 @@ void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceM
 
 void UTankMovement::IntendMoveForward(float Value)
 {
+	MoveForwardValue = FMath::Clamp<float>(Value, -1, 1);
+
 	if (Value != 0)
 	{
 		if (bBrakesApplied == true) { ApplyBrakes(false); }
 		DriveRightWheels(Value);
 		DriveLeftWheels(Value);
 	}
-	else if (bBrakesApplied == false)
-	{
-		ApplyBrakes(true);
-	}
+
+	MovementValuesForAnimation();
 }
+
 
 void UTankMovement::IntendTurnRight(float Value)
 {
+	TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
+
 	if (Value != 0.f)
 	{
 		if (GetOwner() == NULL) { return; }
@@ -65,6 +76,7 @@ void UTankMovement::IntendTurnRight(float Value)
 
 		float TurningSpeed = FMath::Clamp<float>(TurnSpeed, -TurnRate, TurnRate);
 		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+
 	}
 	else if (TurnSpeed != 0.f)
 	{
@@ -104,8 +116,8 @@ void UTankMovement::ApplyBrakes(bool bApplyBrakes)
 {
 	if (WheelSetups.Num() > 0)
 	{
-		float TorqueApplied = 0;
-		if (bApplyBrakes)
+		float TorqueApplied = 0.f;
+		if (bApplyBrakes == true)
 		{
 			TorqueApplied = BrakeTorquePerWheel;
 			bBrakesApplied = true;
@@ -114,11 +126,18 @@ void UTankMovement::ApplyBrakes(bool bApplyBrakes)
 		{
 			bBrakesApplied = false;
 		}
-
 		for (int32 i = 0; i < WheelSetups.Num(); i++)
 		{
 			SetBrakeTorque(TorqueApplied, i);
 		}
+	}
+}
+
+void UTankMovement::MovementValuesForAnimation()
+{
+	if (TankOwner != NULL)
+	{
+		TankOwner->ApplyInputMovementBehaviours(TurnRate, TurnSpeed);
 	}
 }
 
