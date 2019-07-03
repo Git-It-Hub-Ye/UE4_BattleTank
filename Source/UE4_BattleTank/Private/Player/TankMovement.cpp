@@ -21,7 +21,7 @@ UTankMovement::UTankMovement()
 void UTankMovement::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	if (GetOwner() == NULL) { return; }
 	TankOwner = Cast<ATank>(GetOwner());
 }

@@ -27,8 +27,6 @@ void ATankAIController::SetPawn(APawn * InPawn)
 		if (BlackboardToUse)
 		{
 			UseBlackboard(BlackboardToUse, BB);
-			EnemyKeyId = "Enemy";
-			CanShootKeyId = "EnemyInSight";
 			BB->SetValueAsBool(CanShootKeyId, true);
 		}
 		if (BehaviorTreeToUse)
@@ -101,6 +99,17 @@ void ATankAIController::FireWeapon()
 			}
 		}
 	}
+}
+
+void ATankAIController::ApplyBrakes(bool bApplyBrake)
+{
+	ATank * AIPawn = Cast<ATank>(GetPawn());
+
+	if (AIPawn == NULL) { return; }
+
+	BB->SetValueAsBool(BrakesAppliedID, bApplyBrake);
+	
+	AIPawn->ApplyBrakes(bApplyBrake);
 }
 
 void ATankAIController::OnPossessedTankDeath()

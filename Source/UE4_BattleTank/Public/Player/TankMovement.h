@@ -85,9 +85,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void ApplyBrakes(bool bApplyBrakes);
 
-	float GetForwardValue() { return MoveForwardValue; }
+	float GetForwardValue() const { return MoveForwardValue; }
 
-	float GetTurnRightValue() { return TurnRightValue; }
+	float GetTurnRightValue() const { return TurnRightValue; }
 
 protected:
 	virtual void BeginPlay() override;

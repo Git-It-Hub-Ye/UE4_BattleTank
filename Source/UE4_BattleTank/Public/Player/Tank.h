@@ -179,7 +179,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Stop tank */
-	void ApplyBrakes();
+	void ApplyBrakes(bool bApplyBrake);
 
 	/** Gets actor speed for wheel, track animations and sfx */
 	void ApplyInputMovementBehaviours(float TurnRate, float TurnSpeed);

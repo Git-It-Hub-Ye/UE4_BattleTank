@@ -82,7 +82,7 @@ void ATank::MoveForward(float Value)
 
 		if (Value == 0.f)
 		{
-			ApplyBrakes();
+			ApplyBrakes(true);
 		}
 	}
 }
@@ -95,11 +95,11 @@ void ATank::TurnRight(float Value)
 	}
 }
 
-void ATank::ApplyBrakes()
+void ATank::ApplyBrakes(bool bApplyBrake)
 {
 	if (MovementComp != NULL)
 	{
-		MovementComp->ApplyBrakes(true);
+		MovementComp->ApplyBrakes(bApplyBrake);
 	}
 }
 

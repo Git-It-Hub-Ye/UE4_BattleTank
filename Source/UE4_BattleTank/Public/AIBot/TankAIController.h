@@ -25,10 +25,16 @@ protected:
 	UBlackboardComponent * BB;
 
 	/** Key for enemy value */
+	UPROPERTY(EditDefaultsOnly, Category = "Behaviour")
 	FName EnemyKeyId;
 
 	/** Key for line of sight value */
+	UPROPERTY(EditDefaultsOnly, Category = "Behaviour")
 	FName CanShootKeyId;
+
+	/** Key for applying brakes */
+	UPROPERTY(EditDefaultsOnly, Category = "Behaviour")
+	FName BrakesAppliedID;
 
 public:
 	ATankAIController();
@@ -39,6 +45,9 @@ public:
 
 	/** Fire weapons on pawn */
 	void FireWeapon();
+
+	/** Apply brakes on pawn */
+	void ApplyBrakes(bool bApplyBrakes);
 
 private:
 	/** Set pawn and delegates */
