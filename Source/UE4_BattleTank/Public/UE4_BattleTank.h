@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PhysXPublic.h"
+#include "PhysXVehicleManager.h"
 
 #define SURFACE_GRASS			SurfaceType1
 #define SURFACE_DIRT			SurfaceType2
