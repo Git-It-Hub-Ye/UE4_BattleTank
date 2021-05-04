@@ -1,4 +1,4 @@
-// Copyright 2018 Stuart McDonald.
+// Copyright 2018 to 2021 Stuart McDonald.
 
 #include "Barrel.h"
 #include "Engine/World.h"

@@ -1,4 +1,4 @@
-// Copyright 2018 Stuart McDonald.
+// Copyright 2018 to 2021 Stuart McDonald.
 
 #pragma once
 
@@ -7,9 +7,7 @@
 #include "MenuInterface.h"
 #include "MenuWidget.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class UE4_BATTLETANK_API UMenuWidget : public UUserWidget
 {

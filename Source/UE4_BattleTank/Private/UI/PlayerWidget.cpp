@@ -1,4 +1,4 @@
-// Copyright 2018 Stuart McDonald.
+// Copyright 2018 to 2021 Stuart McDonald.
 
 #include "PlayerWidget.h"
 #include "Animation/WidgetAnimation.h"

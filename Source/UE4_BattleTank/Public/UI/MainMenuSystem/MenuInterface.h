@@ -1,4 +1,4 @@
-// Copyright 2018 Stuart McDonald.
+// Copyright 2018 to 2021 Stuart McDonald.
 
 #pragma once
 
@@ -14,7 +14,7 @@ class UMenuInterface : public UInterface
 };
 
 /**
- * 
+ * Communicate between game classes and Menus
  */
 class UE4_BATTLETANK_API IMenuInterface
 {
