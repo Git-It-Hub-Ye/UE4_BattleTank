@@ -17,6 +17,6 @@ class UE4_BATTLETANK_API ASpawnBox_Actor : public ASpawnBox
 
 public:
 	/** Try place actor */
-	bool PlaceActors(TSubclassOf<AActor> ToSpawn, float SearchRadius);
+	bool PlaceActors(TSubclassOf<AActor> ToSpawn, float Radius);
 
 };

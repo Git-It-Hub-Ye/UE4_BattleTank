@@ -269,10 +269,10 @@ private:
 	UMaterialInstanceDynamic * SetTrackMats(int32 Element, UMaterialInterface * Mat);
 
 	/** Set material of left track */
-	void SetLeftTrackMat(UMaterialInstanceDynamic * TrackMat);
+	void SetLeftTrackMat(UMaterialInstanceDynamic * Track_Mat);
 
 	/** Set material of right track */
-	void SetRightTrackMat(UMaterialInstanceDynamic * TrackMat);
+	void SetRightTrackMat(UMaterialInstanceDynamic * Trac_kMat);
 
 	/** Set track speed */
 	void AnimateTracks(float ForwardSpeed, float TurnSpeed);

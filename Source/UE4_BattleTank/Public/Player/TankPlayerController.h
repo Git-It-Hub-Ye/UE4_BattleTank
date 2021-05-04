@@ -107,7 +107,7 @@ private:
 	void OnPossessedTankDeath();
 
 	/** Rotates camera to aim at location of enemy that killed player */
-	void ATankPlayerController::AimCameraAfterDeath(FVector LookAtLocation);
+	void AimCameraAfterDeath(FVector LookAtLocation);
 
 
 	////////////////////////////////////////////////////////////////////////////////

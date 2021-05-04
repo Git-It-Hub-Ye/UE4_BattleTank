@@ -3,11 +3,11 @@
 #include "SpawnBox_Pawn.h"
 
 
-bool ASpawnBox_Pawn::PlacePawns(TSubclassOf<APawn> ToSpawn, float SearchRadius)
+bool ASpawnBox_Pawn::PlacePawns(TSubclassOf<APawn> ToSpawn, float Radius)
 {
 	if (ToSpawn)
 	{
-		return PlacePawn(ToSpawn, SearchRadius);
+		return PlacePawn(ToSpawn, Radius);
 	}
 	return false;
 }

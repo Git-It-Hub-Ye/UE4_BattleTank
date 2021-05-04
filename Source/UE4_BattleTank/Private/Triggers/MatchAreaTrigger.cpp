@@ -15,7 +15,7 @@ AMatchAreaTrigger::AMatchAreaTrigger()
 	TriggerVolume = CreateDefaultSubobject<UBoxComponent >(FName("Trigger Volume"));
 
 	SetRootComponent(TriggerVolume);
-	TriggerVolume->bGenerateOverlapEvents = true;
+	TriggerVolume->SetGenerateOverlapEvents(true);
 	TriggerVolume->bHiddenInGame = true;
 }
 

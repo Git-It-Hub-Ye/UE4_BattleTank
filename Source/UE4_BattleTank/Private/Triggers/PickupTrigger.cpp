@@ -12,12 +12,12 @@ APickupTrigger::APickupTrigger()
 {
 	TriggerVolume = CreateDefaultSubobject<USphereComponent >(FName("Trigger Volume"));
 	SetRootComponent(TriggerVolume);
-	TriggerVolume->bGenerateOverlapEvents = true;
+	TriggerVolume->SetGenerateOverlapEvents(true);
 	TriggerVolume->bHiddenInGame = true;
 
 	ArmourVolume = CreateDefaultSubobject<USphereComponent >(FName("Armour Volume"));
 	ArmourVolume->SetupAttachment(RootComponent);
-	ArmourVolume->bGenerateOverlapEvents = false;
+	ArmourVolume->SetGenerateOverlapEvents(false);
 	ArmourVolume->bHiddenInGame = false;
 	ArmourVolume->bApplyImpulseOnDamage = false;
 

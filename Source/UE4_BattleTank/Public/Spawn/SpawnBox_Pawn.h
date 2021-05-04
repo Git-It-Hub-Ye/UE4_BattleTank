@@ -17,6 +17,6 @@ class UE4_BATTLETANK_API ASpawnBox_Pawn : public ASpawnBox
 	
 public:
 	/** Try place pawn */
-	bool PlacePawns(TSubclassOf<APawn> ToSpawn, float SearchRadius);
+	bool PlacePawns(TSubclassOf<APawn> ToSpawn, float Radius);
 	
 };

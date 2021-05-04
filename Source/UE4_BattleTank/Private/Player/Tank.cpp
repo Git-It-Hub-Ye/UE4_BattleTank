@@ -257,16 +257,16 @@ UMaterialInstanceDynamic * ATank::SetTrackMats(int32 Element, UMaterialInterface
 	return Mat != NULL ? TankBody->CreateDynamicMaterialInstance(Element, Mat) : NULL;
 }
 
-void ATank::SetLeftTrackMat(UMaterialInstanceDynamic * TrackMat)
+void ATank::SetLeftTrackMat(UMaterialInstanceDynamic * Track_Mat)
 {
 	if (TrackMat == NULL) { return; }
-	LeftTrackMat = TrackMat;
+	LeftTrackMat = Cast<UMaterialInstanceDynamic>(Track_Mat);
 }
 
-void ATank::SetRightTrackMat(UMaterialInstanceDynamic * TrackMat)
+void ATank::SetRightTrackMat(UMaterialInstanceDynamic * Track_Mat)
 {
 	if (TrackMat == NULL) { return; }
-	RightTrackMat = TrackMat;
+	RightTrackMat = Cast<UMaterialInstanceDynamic>(Track_Mat);
 }
 
 void ATank::AnimateTracks(float ForwardSpeed, float TurnSpeed)
