@@ -1,4 +1,4 @@
-// Copyright 2018 to 2021 Stuart McDonald.
+// Copyright 2018 - 2021 Stuart McDonald.
 
 #include "BattleTankGameModeBase.h"
 #include "UObject/ConstructorHelpers.h"
