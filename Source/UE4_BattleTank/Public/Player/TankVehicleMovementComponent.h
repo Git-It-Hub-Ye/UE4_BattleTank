@@ -130,11 +130,15 @@ public:
 
 protected:
 
+	/** Read current state for simulation */
+	virtual void UpdateState(float DeltaTime) override;
+
 #if WITH_PHYSX && PHYSICS_INTERFACE_PHYSX
 
 	/** Allocate and setup the PhysX vehicle */
 	virtual void SetupVehicle() override;
 
+	/** Pass input values to vehicle simulation */
 	virtual void UpdateSimulation(float DeltaTime) override;
 
 #endif // WITH_PHYSX
@@ -144,6 +148,11 @@ protected:
 
 	/** Update simulation data: transmission */
 	void UpdateTransmissionSetup(const FTankVehicleTransmissionData& NewGearSetup);
+
+private:
+
+	/** Calculates tank braking (customised for turning in place) */
+	float CalcTankBrakeInput();
 	
 };
 

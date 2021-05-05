@@ -4,6 +4,7 @@
 #include "UE4_BattleTank.h"
 #include "Components/PrimitiveComponent.h"
 #include "PhysicsEngine/BodyInstance.h"
+#include "GameFramework/Controller.h"
 
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 
@@ -170,6 +171,61 @@ static void SetupDriveHelper(const UTankVehicleMovementComponent* VehicleData, c
 }
 
 #endif // WITH_PHYSX 
+
+void UTankVehicleMovementComponent::UpdateState(float DeltaTime)
+{
+	// update input values
+	AController* Controller = GetController();
+
+	// TODO: IsLocallyControlled will fail if the owner is unpossessed (i.e. Controller == nullptr);
+	// Should we remove input instead of relying on replicated state in that case?
+	if (Controller && Controller->IsLocalController())
+	{
+		if (bReverseAsBrake)
+		{
+			//for reverse as state we want to automatically shift between reverse and first gear
+			if (FMath::Abs(GetForwardSpeed()) < WrongDirectionThreshold)	//we only shift between reverse and first if the car is slow enough. This isn't 100% correct since we really only care about engine speed, but good enough
+			{
+				if (RawThrottleInput < -KINDA_SMALL_NUMBER && GetCurrentGear() >= 0 && GetTargetGear() >= 0)
+				{
+					SetTargetGear(-1, true);
+				}
+				else if (RawThrottleInput > KINDA_SMALL_NUMBER && GetCurrentGear() <= 0 && GetTargetGear() <= 0)
+				{
+					SetTargetGear(1, true);
+				}
+			}
+		}
+
+		if (bUseRVOAvoidance)
+		{
+			CalculateAvoidanceVelocity(DeltaTime);
+			UpdateAvoidance(DeltaTime);
+		}
+
+		SteeringInput = SteeringInputRate.InterpInputValue(DeltaTime, SteeringInput, CalcSteeringInput());
+		ThrottleInput = ThrottleInputRate.InterpInputValue(DeltaTime, ThrottleInput, CalcThrottleInput());
+		BrakeInput = BrakeInputRate.InterpInputValue(DeltaTime, BrakeInput, CalcTankBrakeInput());
+		HandbrakeInput = HandbrakeInputRate.InterpInputValue(DeltaTime, HandbrakeInput, CalcHandbrakeInput());
+
+		// and send to server
+		ServerUpdateState(SteeringInput, ThrottleInput, BrakeInput, HandbrakeInput, GetCurrentGear());
+
+		if (PawnOwner && PawnOwner->IsNetMode(NM_Client))
+		{
+			MarkForClientCameraUpdate();
+		}
+	}
+	else
+	{
+		// use replicated values for remote pawns
+		SteeringInput = ReplicatedState.SteeringInput;
+		ThrottleInput = ReplicatedState.ThrottleInput;
+		BrakeInput = ReplicatedState.BrakeInput;
+		HandbrakeInput = ReplicatedState.HandbrakeInput;
+		SetTargetGear(ReplicatedState.CurrentGear, true);
+	}
+}
 
 #if WITH_PHYSX_VEHICLES
 
@@ -352,6 +408,58 @@ void UTankVehicleMovementComponent::ComputeConstants()
 {
 	Super::ComputeConstants();
 	MaxEngineRPM = EngineSetup.MaxRPM;
+}
+
+float UTankVehicleMovementComponent::CalcTankBrakeInput()
+{
+	if (bReverseAsBrake)
+	{
+		const float ForwardSpeed = GetForwardSpeed();
+
+		float NewBrakeInput = 0.0f;
+
+		if (RawThrottleInput != 0.f)
+		{
+			if (RawThrottleInput > 0.f) // if player wants to move forwards...
+			{
+				// if vehicle is moving backwards, then press brake
+				if (ForwardSpeed < -WrongDirectionThreshold)
+				{
+					NewBrakeInput = 1.0f;
+				}
+
+			}
+			else if (RawThrottleInput < 0.f) // if player wants to move backwards...
+			{
+				// if vehicle is moving forwards, then press brake
+				if (ForwardSpeed > WrongDirectionThreshold)
+				{
+					NewBrakeInput = 1.0f; // Seems a bit severe to have 0 or 1 braking. Better control can be had by allowing continuous brake input values
+				}
+			}
+		}
+		else if (RawSteeringInput != 0.f)
+		{
+			NewBrakeInput = 0.0f;
+		}
+		else // if player isn't pressing forward or backwards...
+		{
+			if (ForwardSpeed < StopThreshold && ForwardSpeed > -StopThreshold) //auto break 
+			{
+				NewBrakeInput = 1.f;
+			}
+			else
+			{
+				NewBrakeInput = IdleBrakeInput;
+			}
+		}
+
+		return FMath::Clamp<float>(NewBrakeInput, 0.0, 1.0);
+	}
+	else
+	{
+		return FMath::Abs(RawBrakeInput);
+	}
 }
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
