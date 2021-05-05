@@ -79,6 +79,7 @@ void ATankVehicle::MoveForward(float Value)
 {
 	if (MovementComp != NULL)
 	{
+		MovementComp->SetThrottleInput(Value);
 	}
 	else
 	{
@@ -90,6 +91,7 @@ void ATankVehicle::TurnRight(float Value)
 {
 	if (MovementComp != NULL)
 	{
+		MovementComp->SetSteeringInput(Value);
 	}
 	else
 	{

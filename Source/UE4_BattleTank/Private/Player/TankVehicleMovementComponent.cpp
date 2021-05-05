@@ -229,7 +229,37 @@ void UTankVehicleMovementComponent::UpdateSimulation(float DeltaTime)
 
 	FPhysicsCommand::ExecuteWrite(UpdatedPrimitive->GetBodyInstance()->GetPhysicsActorHandle(), [&](const FPhysicsActorHandle& Actor)
 		{
+			PxVehicleDriveTankRawInputData RawInputData(PxVehicleDriveTankControlModel::eSPECIAL);
+
+			RawInputData.setAnalogAccel(ThrottleInput);
+			RawInputData.setAnalogLeftBrake(BrakeInput);
+			RawInputData.setAnalogRightBrake(BrakeInput);
 			
+			if (GetUseAutoGears() == false)
+			{
+				RawInputData.setGearUp(bRawGearUpInput);
+				RawInputData.setGearDown(bRawGearDownInput);
+			}
+
+			PxVehiclePadSmoothingData SmoothData = {
+				{
+					ThrottleInputRate.RiseRate,
+					BrakeInputRate.RiseRate,
+					BrakeInputRate.RiseRate,
+					SteeringInputRate.RiseRate,
+					SteeringInputRate.RiseRate
+				},
+				{
+					ThrottleInputRate.FallRate,
+					BrakeInputRate.FallRate,
+					BrakeInputRate.FallRate,
+					SteeringInputRate.FallRate,
+					SteeringInputRate.FallRate
+				}
+			};
+
+			PxVehicleDriveTank* PVehicleDriveTank = (PxVehicleDriveTank*)PVehicleDrive;
+			PxVehicleDriveTankSmoothAnalogRawInputsAndSetAnalogInputs(SmoothData, RawInputData, DeltaTime, *PVehicleDriveTank);
 		});
 }
 
