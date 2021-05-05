@@ -181,6 +181,45 @@ void UTankVehicleMovementComponent::SetupVehicle()
 	// Setup mass properties
 	SetupVehicleMass();
 
+	PxVehicleWheelsSimData* WheelsSimData = PxVehicleWheelsSimData::allocate(WheelSetups.Num());
+	SetupWheels(WheelsSimData);
+
+	// Setup drive data
+	PxVehicleDriveSimData DriveData;
+	SetupDriveHelper(this, WheelsSimData, DriveData);
+
+	// Create the vehicle
+	PxVehicleDriveTank* VehicleDriveTank = PxVehicleDriveTank::allocate(WheelSetups.Num());
+	check(VehicleDriveTank);
+
+	VehicleDriveTank->setDriveModel(PxVehicleDriveTankControlModel::eSPECIAL);
+
+	FPhysicsCommand::ExecuteWrite(UpdatedPrimitive->GetBodyInstance()->GetPhysicsActorHandle(), [&](const FPhysicsActorHandle& Actor)
+		{
+
+#if WITH_IMMEDIATE_PHYSX
+			PxRigidActor* PRigidActor = nullptr;
+#else
+			PxRigidActor* PRigidActor = Actor.SyncActor;
+#endif
+
+			if (PRigidActor)
+			{
+				if (PxRigidDynamic* PRigidDynamic = PRigidActor->is<PxRigidDynamic>())
+				{
+					VehicleDriveTank->setup(GPhysXSDK, FPhysicsInterface::GetPxRigidDynamic_AssumesLocked(UpdatedPrimitive->GetBodyInstance()->GetPhysicsActorHandle()), *WheelsSimData, DriveData, WheelSetups.Num());
+					VehicleDriveTank->setToRestState();
+
+					// cleanup
+					WheelsSimData->free();
+				}
+			}
+		});
+
+	// cache values
+	PVehicle = VehicleDriveTank;
+	PVehicleDrive = VehicleDriveTank;
+
 	SetUseAutoGears(TransmissionSetup.bUseGearAutoBox);
 }
 
