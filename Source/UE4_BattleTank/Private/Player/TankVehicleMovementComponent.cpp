@@ -232,8 +232,20 @@ void UTankVehicleMovementComponent::UpdateSimulation(float DeltaTime)
 			PxVehicleDriveTankRawInputData RawInputData(PxVehicleDriveTankControlModel::eSPECIAL);
 
 			RawInputData.setAnalogAccel(ThrottleInput);
+			RawInputData.setAnalogLeftThrust(SteeringInput);
+			RawInputData.setAnalogRightThrust(-SteeringInput);
 			RawInputData.setAnalogLeftBrake(BrakeInput);
 			RawInputData.setAnalogRightBrake(BrakeInput);
+
+			if (FMath::IsNearlyZero(ThrottleInput, 0.1f))
+			{
+				RawInputData.setAnalogAccel(FMath::Abs<float>(SteeringInput));
+
+				if (!FMath::IsNearlyZero(SteeringInput, 0.1f))
+				{
+					SetTargetGear(1, true);
+				}
+			}
 			
 			if (GetUseAutoGears() == false)
 			{
