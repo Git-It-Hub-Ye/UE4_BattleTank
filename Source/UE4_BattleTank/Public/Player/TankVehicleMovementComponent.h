@@ -113,6 +113,14 @@ public:
 	/** Transmission data */
 	UPROPERTY(EditAnywhere, Category = "MechanicalSetup")
 	FTankVehicleTransmissionData TransmissionSetup;
+
+protected:
+
+	/** Current Steer value for left track */
+	float ThrustInput_LeftTrack;
+
+	/** Current Steer value for right track */
+	float ThrustInput_RightTrack;
 	
 public:
 

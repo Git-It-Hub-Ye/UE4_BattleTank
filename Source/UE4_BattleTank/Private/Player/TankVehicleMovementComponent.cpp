@@ -288,10 +288,51 @@ void UTankVehicleMovementComponent::UpdateSimulation(float DeltaTime)
 			PxVehicleDriveTankRawInputData RawInputData(PxVehicleDriveTankControlModel::eSPECIAL);
 
 			RawInputData.setAnalogAccel(ThrottleInput);
-			RawInputData.setAnalogLeftThrust(SteeringInput);
-			RawInputData.setAnalogRightThrust(-SteeringInput);
+			RawInputData.setAnalogLeftThrust(ThrustInput_LeftTrack);
+			RawInputData.setAnalogRightThrust(ThrustInput_RightTrack);
 			RawInputData.setAnalogLeftBrake(BrakeInput);
 			RawInputData.setAnalogRightBrake(BrakeInput);
+
+			if (ThrottleInput != 0.f)
+			{
+				ThrustInput_LeftTrack = 1.f;
+				ThrustInput_RightTrack = 1.f;
+			}
+			else
+			{
+				ThrustInput_LeftTrack = 0.f;
+				ThrustInput_RightTrack = 0.f;
+			}
+
+			if (RawSteeringInput != 0.f)
+			{
+				if (ThrottleInput >= 0.1f)
+				{
+					if (RawSteeringInput < 0.f)
+					{
+						ThrustInput_LeftTrack = 0.1;
+						ThrustInput_RightTrack = 1;
+					}
+					else if (RawSteeringInput > 0.f)
+					{
+						ThrustInput_LeftTrack = 1;
+						ThrustInput_RightTrack = 0.1;
+					}
+				}
+				else
+				{
+					if (RawSteeringInput < 0.f)
+					{
+						ThrustInput_LeftTrack = -1.f;
+						ThrustInput_RightTrack = 1.f;
+					}
+					else if (RawSteeringInput > 0.f)
+					{
+						ThrustInput_LeftTrack = 1.f;
+						ThrustInput_RightTrack = -1.f;
+					}
+				}
+			}
 
 			if (FMath::IsNearlyZero(ThrottleInput, 0.1f))
 			{
