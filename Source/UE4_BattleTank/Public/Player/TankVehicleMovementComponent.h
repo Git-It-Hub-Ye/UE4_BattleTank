@@ -161,6 +161,12 @@ private:
 
 	/** Calculates tank braking (customised for turning in place) */
 	float CalcTankBrakeInput();
+
+	/** Calculates Left track steer value */
+	float CalcTrackSteer_Left();
+
+	/** Calculates Right track steer value */
+	float CalcTrackSteer_Right();
 	
 };
 

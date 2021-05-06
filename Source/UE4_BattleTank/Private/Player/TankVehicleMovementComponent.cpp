@@ -207,6 +207,9 @@ void UTankVehicleMovementComponent::UpdateState(float DeltaTime)
 		ThrottleInput = ThrottleInputRate.InterpInputValue(DeltaTime, ThrottleInput, CalcThrottleInput());
 		BrakeInput = BrakeInputRate.InterpInputValue(DeltaTime, BrakeInput, CalcTankBrakeInput());
 		HandbrakeInput = HandbrakeInputRate.InterpInputValue(DeltaTime, HandbrakeInput, CalcHandbrakeInput());
+		ThrustInput_LeftTrack = SteeringInputRate.InterpInputValue(DeltaTime, ThrustInput_LeftTrack, CalcTrackSteer_Left());
+		ThrustInput_RightTrack = SteeringInputRate.InterpInputValue(DeltaTime, ThrustInput_RightTrack, CalcTrackSteer_Right());
+
 
 		// and send to server
 		ServerUpdateState(SteeringInput, ThrottleInput, BrakeInput, HandbrakeInput, GetCurrentGear());
@@ -293,48 +296,7 @@ void UTankVehicleMovementComponent::UpdateSimulation(float DeltaTime)
 			RawInputData.setAnalogLeftBrake(BrakeInput);
 			RawInputData.setAnalogRightBrake(BrakeInput);
 
-			if (ThrottleInput != 0.f)
-			{
-				ThrustInput_LeftTrack = 1.f;
-				ThrustInput_RightTrack = 1.f;
-			}
-			else
-			{
-				ThrustInput_LeftTrack = 0.f;
-				ThrustInput_RightTrack = 0.f;
-			}
-
-			if (RawSteeringInput != 0.f)
-			{
-				if (ThrottleInput >= 0.1f)
-				{
-					if (RawSteeringInput < 0.f)
-					{
-						ThrustInput_LeftTrack = 0.1;
-						ThrustInput_RightTrack = 1;
-					}
-					else if (RawSteeringInput > 0.f)
-					{
-						ThrustInput_LeftTrack = 1;
-						ThrustInput_RightTrack = 0.1;
-					}
-				}
-				else
-				{
-					if (RawSteeringInput < 0.f)
-					{
-						ThrustInput_LeftTrack = -1.f;
-						ThrustInput_RightTrack = 1.f;
-					}
-					else if (RawSteeringInput > 0.f)
-					{
-						ThrustInput_LeftTrack = 1.f;
-						ThrustInput_RightTrack = -1.f;
-					}
-				}
-			}
-
-			if (FMath::IsNearlyZero(ThrottleInput, 0.1f))
+			if (FMath::IsNearlyZero(ThrottleInput, 0.1f) && BrakeInput == 0.f)
 			{
 				RawInputData.setAnalogAccel(FMath::Abs<float>(SteeringInput));
 
@@ -468,7 +430,6 @@ float UTankVehicleMovementComponent::CalcTankBrakeInput()
 				{
 					NewBrakeInput = 1.0f;
 				}
-
 			}
 			else if (RawThrottleInput < 0.f) // if player wants to move backwards...
 			{
@@ -501,6 +462,62 @@ float UTankVehicleMovementComponent::CalcTankBrakeInput()
 	{
 		return FMath::Abs(RawBrakeInput);
 	}
+}
+
+float UTankVehicleMovementComponent::CalcTrackSteer_Left()
+{
+	float SteerValue = 0.f;
+
+	if (ThrottleInput != 0.f)
+	{
+		SteerValue = 1.f;
+
+		if (RawSteeringInput < 0.f)
+		{
+			SteerValue = 0.1f;
+		}
+	}
+	else if (RawSteeringInput != 0.f)
+	{
+		if (RawSteeringInput < 0.f)
+		{
+			SteerValue = -1.f;
+		}
+		else if (RawSteeringInput > 0.f)
+		{
+			SteerValue = 1.f;
+		}
+	}
+
+	return SteerValue;
+}
+
+float UTankVehicleMovementComponent::CalcTrackSteer_Right()
+{
+	float SteerValue = 0.f;
+
+	if (ThrottleInput != 0.f)
+	{
+		SteerValue = 1.f;
+
+		if (RawSteeringInput > 0.f)
+		{
+			SteerValue = 0.1f;
+		}
+	}
+	else if (RawSteeringInput != 0.f)
+	{
+		if (RawSteeringInput < 0.f)
+		{
+			SteerValue = 1.f;
+		}
+		else if (RawSteeringInput > 0.f)
+		{
+			SteerValue = -1.f;
+		}
+	}
+
+	return SteerValue;
 }
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
