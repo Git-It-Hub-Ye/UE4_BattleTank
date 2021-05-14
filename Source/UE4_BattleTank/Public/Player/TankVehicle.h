@@ -19,6 +19,7 @@ class UE4_BATTLETANK_API ATankVehicle : public AWheeledVehicle {
 	GENERATED_BODY()
 
 protected:
+
 	////////////////////////////////////////////////////////////////////////////////
 	// Components
 
@@ -29,26 +30,6 @@ protected:
 	/** Audio component for this class */
 	UPROPERTY()
 	UAudioComponent* AudioComp;
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Animation wheel data
-
-	/** Speed of turning for right wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float RightWheelYaw;
-
-	/** Speed of turning for left wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float LeftWheelYaw;
-
-	/** Speed of turning for right front and back wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float RightFrontBackYaw;
-
-	/** Speed of turning for left front and back wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float LeftFrontBackYaw;
 
 private:
 
@@ -79,44 +60,58 @@ private:
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
-	/** Previous saved rotation of tank */
-	FRotator LastYawRot;
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Animation
 
-	/** How much to multiply wheel and track rotation by (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
-	float TurnSpeedMultiplier;
-
-	/** Crosshair to display on player ui for this weapon */
-	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track")
-	UMaterialInterface* TrackMat;
-
-	/** Element of tank to apply dynamic track material */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
+	/** Element of mesh to apply dynamic track material */
+	UPROPERTY(EditdefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f))
 	int32 LeftTrackElement;
 
-	/** Element of tank to apply dynamic track material */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
+	/** Element of mesh to apply dynamic track material */
+	UPROPERTY(EditdefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f))
 	int32 RightTrackElement;
 
 	/** Name of track material parameter to animate */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track")
+	UPROPERTY(EditdefaultsOnly, Category = "Config Track")
 	FName TrackScalarParamName;
 
-	/** Dynamic material for track rotation */
+	/** Max range of forward Speed for track animation. Closer to actual forward speed of actor will create smoother movement. */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 1.f, ClampMax = 1000.f))
+	float MaxTrackForwardSpeed;
+
+	/**  Range between MaxTrackForwardSpeed & -MaxTrackForwardSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	float TrackForwardSpeed_Range;
+
+	/** Max range of turn Speed for track animation. Closer to actual turn speed of actor will create smoother movement. */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 1.f, ClampMax = 1000.f))
+	float MaxTrackTurnSpeed;
+
+	/** Range between MaxTrackTurnSpeed & -MaxTrackTurnSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	float TrackTurnSpeed_Range;
+
+	/** Dynamic material for left track rotation */
 	UMaterialInstanceDynamic* LeftTrackMat;
 
-	/** Dynamic material for track rotation */
+	/** Dynamic material for right track rotation */
 	UMaterialInstanceDynamic* RightTrackMat;
 
-	/** Speed of left track material animation */
-	float LeftTrackSpeed;
+	/** Previous saved rotation of tank */
+	FRotator LastYawRot;
 
-	/** Speed of right track material animation */
-	float RightTrackSpeed;
+	/** Current range of forward speed */
+	float ForwardSpeedValue;
+
+	/** Current range of turn speed */
+	float TurnSpeedValue;
+
+	/** UV offset for left track animation */
+	float LeftTrackUVOffset;
+
+	/** UV offset for right track animation */
+	float RightTrackUVOffset;
 
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +160,7 @@ private:
 	USoundBase* LandImpactSound;
 
 public:
+
 	ATankVehicle(const FObjectInitializer& ObjectInitializer);
 
 
@@ -178,7 +174,7 @@ public:
 	void ApplyBrakes(bool bApplyBrake);
 
 	/** Gets actor speed for wheel, track animations and sfx */
-	void ApplyInputMovementBehaviours(float TurnRate, float TurnSpeed);
+	void ApplyInputMovementBehaviours();
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -221,6 +217,7 @@ public:
 	void OutOfCombatArea(bool bWarnPlayer);
 
 protected:
+
 	virtual void BeginPlay() override;
 
 
@@ -249,17 +246,6 @@ private:
 
 	void SetMovementComp();
 
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Wheel animation
-
-	/** Set wheel rotation of tank */
-	void TurnWheels(float ForwardSpeed, float TurnSpeed);
-
-	/** Set wheel rotation value to apply */
-	float SetWheelTurnValue(float TurnSpeed);
-
-
 	////////////////////////////////////////////////////////////////////////////////
 	// Track material animation
 
@@ -273,13 +259,13 @@ private:
 	void SetRightTrackMat(UMaterialInstanceDynamic* Mat);
 
 	/** Set track speed */
-	void AnimateTracks(float ForwardSpeed, float TurnSpeed);
+	void AnimateTracks(float ForwardInput, float RotationRangeValue);
 
 	/** Animate left track */
-	void AnimateTrackMatLeft(float NewOffset);
+	void AnimateTrackMatLeft(float PositionOffset);
 
 	/** Animate right track */
-	void AnimateTrackMatRight(float NewOffset);
+	void AnimateTrackMatRight(float PositionOffset);
 
 
 	////////////////////////////////////////////////////////////////////////////////
