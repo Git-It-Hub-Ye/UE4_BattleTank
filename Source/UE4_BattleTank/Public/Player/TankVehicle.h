@@ -76,21 +76,13 @@ private:
 	UPROPERTY(EditdefaultsOnly, Category = "Config Track")
 	FName TrackScalarParamName;
 
-	/** Max range of forward Speed for track animation. Closer to actual forward speed of actor will create smoother movement. */
+	/** Max range of Wheel Speed for track animation. Closer to actual speed of wheel will create more accurate movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 1.f, ClampMax = 1000.f))
-	float MaxTrackForwardSpeed;
+	float MaxTrackWheelSpeed;
 
-	/**  Range between MaxTrackForwardSpeed & -MaxTrackForwardSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
+	/** Range between MaxTrackWheelSpeed & -MaxTrackWheelSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
-	float TrackForwardSpeed_Range;
-
-	/** Max range of turn Speed for track animation. Closer to actual turn speed of actor will create smoother movement. */
-	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 1.f, ClampMax = 1000.f))
-	float MaxTrackTurnSpeed;
-
-	/** Range between MaxTrackTurnSpeed & -MaxTrackTurnSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
-	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
-	float TrackTurnSpeed_Range;
+	float TrackSpeed_Range;
 
 	/** Dynamic material for left track rotation */
 	UMaterialInstanceDynamic* LeftTrackMat;
@@ -98,14 +90,11 @@ private:
 	/** Dynamic material for right track rotation */
 	UMaterialInstanceDynamic* RightTrackMat;
 
-	/** Previous saved rotation of tank */
-	FRotator LastYawRot;
+	/** Current range of left wheel speed */
+	float LeftWheelSpeedValue;
 
-	/** Current range of forward speed */
-	float ForwardSpeedValue;
-
-	/** Current range of turn speed */
-	float TurnSpeedValue;
+	/** Current range of right wheel speed */
+	float RightWheelSpeedValue;
 
 	/** UV offset for left track animation */
 	float LeftTrackUVOffset;
@@ -172,9 +161,6 @@ public:
 
 	/** Stop tank */
 	void ApplyBrakes(bool bApplyBrake);
-
-	/** Gets actor speed for wheel, track animations and sfx */
-	void ApplyInputMovementBehaviours();
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -258,8 +244,11 @@ private:
 	/** Set material of right track */
 	void SetRightTrackMat(UMaterialInstanceDynamic* Mat);
 
+	/** Gets wheel speeds for track animations and sfx */
+	void ApplyInputMovementBehaviours();
+
 	/** Set track speed */
-	void AnimateTracks(float ForwardInput, float RotationRangeValue);
+	void AnimateTracks(float LeftRangeValue, float RightRangeValue);
 
 	/** Animate left track */
 	void AnimateTrackMatLeft(float PositionOffset);

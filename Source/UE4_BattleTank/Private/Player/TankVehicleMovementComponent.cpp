@@ -196,7 +196,7 @@ void UTankVehicleMovementComponent::UpdateState(float DeltaTime)
 				}
 			}
 		}
-
+		
 		if (bUseRVOAvoidance)
 		{
 			CalculateAvoidanceVelocity(DeltaTime);
@@ -209,7 +209,6 @@ void UTankVehicleMovementComponent::UpdateState(float DeltaTime)
 		HandbrakeInput = HandbrakeInputRate.InterpInputValue(DeltaTime, HandbrakeInput, CalcHandbrakeInput());
 		ThrustInput_LeftTrack = SteeringInputRate.InterpInputValue(DeltaTime, ThrustInput_LeftTrack, CalcTrackSteer_Left());
 		ThrustInput_RightTrack = SteeringInputRate.InterpInputValue(DeltaTime, ThrustInput_RightTrack, CalcTrackSteer_Right());
-
 
 		// and send to server
 		ServerUpdateState(SteeringInput, ThrottleInput, BrakeInput, HandbrakeInput, GetCurrentGear());
@@ -311,7 +310,7 @@ void UTankVehicleMovementComponent::UpdateSimulation(float DeltaTime)
 				RawInputData.setGearUp(bRawGearUpInput);
 				RawInputData.setGearDown(bRawGearDownInput);
 			}
-
+			
 			PxVehiclePadSmoothingData SmoothData = {
 				{
 					ThrottleInputRate.RiseRate,
@@ -518,6 +517,38 @@ float UTankVehicleMovementComponent::CalcTrackSteer_Right()
 	}
 
 	return SteerValue;
+}
+
+float UTankVehicleMovementComponent::GetLeftWheelSpeed()
+{
+#if WITH_PHYSX_VEHICLES
+
+	if (PVehicle && Wheels.Num() > 0)
+	{
+		float RotationSpeed = PVehicle->mWheelsDynData.getWheelRotationSpeed(0);
+
+		return RotationSpeed;
+	}
+
+#endif // WITH_PHYSX
+
+	return 0.f;
+}
+
+float UTankVehicleMovementComponent::GetRightWheelSpeed()
+{
+#if WITH_PHYSX_VEHICLES
+
+	if (PVehicle && Wheels.Num() > 1)
+	{
+		float RotationSpeed = PVehicle->mWheelsDynData.getWheelRotationSpeed(1);
+
+		return RotationSpeed;
+	}
+
+#endif // WITH_PHYSX
+
+	return 0.f;
 }
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

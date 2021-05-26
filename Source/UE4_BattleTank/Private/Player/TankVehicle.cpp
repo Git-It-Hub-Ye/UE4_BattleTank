@@ -33,10 +33,8 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	DestroyTimer = 5.f;
 	bHasBeenDestroyed = false;
 
-	MaxTrackForwardSpeed = 750.f;
-	TrackForwardSpeed_Range = 2.f;
-	MaxTrackTurnSpeed = 0.4f;
-	TrackTurnSpeed_Range = 1.f;
+	MaxTrackWheelSpeed = 30.f;
+	TrackSpeed_Range = 1.f;
 
 	LeftTrackUVOffset = 0.f;
 	RightTrackUVOffset = 0.f;
@@ -92,6 +90,7 @@ void ATankVehicle::MoveForward(float Value)
 	{
 		SetMovementComp();
 	}
+
 	ApplyInputMovementBehaviours();
 }
 
@@ -116,22 +115,6 @@ void ATankVehicle::ApplyBrakes(bool bApplyBrake)
 	{
 		SetMovementComp();
 	}
-}
-
-void ATankVehicle::ApplyInputMovementBehaviours()
-{
-	if (MovementComp == NULL) { return; }
-	ForwardSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackForwardSpeed, MaxTrackForwardSpeed), FVector2D(-TrackForwardSpeed_Range, TrackForwardSpeed_Range), MovementComp->GetForwardSpeed());
-
-	FRotator NewYawRot = GetActorRotation();
-	float YawRotSpeed = FMath::FindDeltaAngleDegrees(NewYawRot.Yaw, LastYawRot.Yaw);
-	LastYawRot = NewYawRot;
-	TurnSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackTurnSpeed, MaxTrackTurnSpeed), FVector2D(-TrackTurnSpeed_Range, TrackTurnSpeed_Range), YawRotSpeed);
-
-	AnimateTracks(ForwardSpeedValue, TurnSpeedValue);
-	
-	float EnginePitch = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(MovementComp->GetForwardSpeed()));
-	TankSFXPitch(FGenericPlatformMath::Abs<float>(EnginePitch));
 }
 
 void ATankVehicle::SetMovementComp()
@@ -237,27 +220,43 @@ void ATankVehicle::SetLeftTrackMat(UMaterialInstanceDynamic* Mat)
 {
 	if (Mat == NULL) { return; }
 	LeftTrackMat = Mat;
-	LeftTrackMat->SetScalarParameterValue(TrackScalarParamName, -9990);
 }
 
 void ATankVehicle::SetRightTrackMat(UMaterialInstanceDynamic* Mat)
 {
 	if (Mat == NULL) { return; }
 	RightTrackMat = Mat;
-	RightTrackMat->SetScalarParameterValue(TrackScalarParamName,-9990);
 }
 
-void ATankVehicle::AnimateTracks(float ForwardRangeValue, float RotationRangeValue)
+void ATankVehicle::ApplyInputMovementBehaviours()
+{
+	if (MovementComp->GetBrakeInputValue() != 1.f)
+	{
+		LeftWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetLeftWheelSpeed());
+		RightWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetRightWheelSpeed());
+
+		AnimateTracks(LeftWheelSpeedValue, RightWheelSpeedValue);
+
+		float EnginePitch = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(MovementComp->GetForwardSpeed()));
+		TankSFXPitch(FGenericPlatformMath::Abs<float>(EnginePitch));
+	}
+	else
+	{
+		AnimateTracks(0.f, 0.f);
+	}
+}
+
+void ATankVehicle::AnimateTracks(float LeftRangeValue, float RightRangeValue)
 {
 	if (MovementComp == NULL) { return; }
-	float ForwardOffset = 0;
-	float TurnOffset = 0;
+	float LeftOffset = 0;
+	float RightOffset = 0;
 
-	ForwardOffset = ForwardRangeValue * GetWorld()->GetDeltaSeconds();
-	TurnOffset = RotationRangeValue * GetWorld()->GetDeltaSeconds();
+	LeftOffset = LeftRangeValue * GetWorld()->GetDeltaSeconds();
+	RightOffset = RightRangeValue * GetWorld()->GetDeltaSeconds();
 
-	AnimateTrackMatLeft(-ForwardOffset + TurnOffset);
-	AnimateTrackMatRight(-ForwardOffset - TurnOffset);
+	AnimateTrackMatLeft(-LeftOffset);
+	AnimateTrackMatRight(-RightOffset);
 }
 
 void ATankVehicle::AnimateTrackMatLeft(float PositionOffset)

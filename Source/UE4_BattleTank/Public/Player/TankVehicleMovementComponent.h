@@ -121,7 +121,7 @@ protected:
 
 	/** Current Steer value for right track */
 	float ThrustInput_RightTrack;
-	
+
 public:
 
 	UTankVehicleMovementComponent(const FObjectInitializer& ObjectInitializer);
@@ -135,6 +135,13 @@ public:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
 #endif
+
+	/** Return Brake Value */
+	float GetBrakeInputValue() const { return BrakeInput; };
+
+	float GetLeftWheelSpeed();
+
+	float GetRightWheelSpeed();
 
 protected:
 
