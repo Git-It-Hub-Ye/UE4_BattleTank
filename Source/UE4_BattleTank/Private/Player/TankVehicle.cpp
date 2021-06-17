@@ -28,6 +28,18 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 
 	AimingComp = CreateDefaultSubobject<UAimingComponent>(FName("AimComponent"));
 
+	EngineAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("EngineAudio"));
+	EngineAudioComp->SetupAttachment(GetMesh());
+	EngineAudioComp->SetAutoActivate(true);
+
+	TrackAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("TrackAudio"));
+	TrackAudioComp->SetupAttachment(GetMesh());
+	TrackAudioComp->SetAutoActivate(false);
+
+	StressAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("StressAudio"));
+	StressAudioComp->SetupAttachment(GetMesh());
+	StressAudioComp->SetAutoActivate(false);
+
 	StartingHealth = 100;
 	StartingArmour = 50;
 	DestroyTimer = 5.f;
@@ -38,6 +50,8 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 
 	LeftTrackUVOffset = 0.f;
 	RightTrackUVOffset = 0.f;
+
+	bIsBraking = true;
 }
 
 void ATankVehicle::BeginPlay()
@@ -52,8 +66,6 @@ void ATankVehicle::BeginPlay()
 	GetMesh()->OnComponentHit.AddDynamic(this, &ATankVehicle::OnHit);
 
 	SetMovementComp();
-
-	EngineAudio = SFXPlay(EngineLoopSfx);
 
 	SetLeftTrackMat(SetTrackMats(LeftTrackElement, GetMesh()->GetMaterial(LeftTrackElement)));
 	SetRightTrackMat(SetTrackMats(RightTrackElement, GetMesh()->GetMaterial(RightTrackElement)));
@@ -117,6 +129,26 @@ void ATankVehicle::ApplyBrakes(bool bApplyBrake)
 	}
 }
 
+void ATankVehicle::ApplyInputMovementBehaviours()
+{
+	// Only do calculations when brakes are not applied
+	if (MovementComp != NULL && MovementComp->GetBrakeInputValue() != 1.f)
+	{
+		LeftWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetLeftWheelSpeed());
+		RightWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetRightWheelSpeed());
+	
+		AnimateTracks(LeftWheelSpeedValue, RightWheelSpeedValue);
+
+		SFXTrackSpeedValue = FMath::Max(FMath::Abs(MovementComp->GetLeftWheelSpeed()), FMath::Abs(MovementComp->GetRightWheelSpeed()));
+	}
+	else
+	{
+		AnimateTracks(0.f, 0.f);
+	}
+
+	TankDriveSFX();
+}
+
 void ATankVehicle::SetMovementComp()
 {
 	MovementComp = Cast<UTankVehicleMovementComponent>(GetMovementComponent());
@@ -165,11 +197,11 @@ float ATankVehicle::TakeDamage(float DamageAmount, struct FDamageEvent const& Da
 void ATankVehicle::OnDeathBehaviour(AController* EventInstigator)
 {
 	ApplyBrakes(true);
-
+	
 	if (DestroyedFX != NULL)
 	{
 		UGameplayStatics::SpawnEmitterAttached(DestroyedFX, GetMesh());
-		AudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
+		GeneralAudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
 	}
 
 	GetMesh()->SetCollisionProfileName("DestroyedTank");
@@ -226,24 +258,6 @@ void ATankVehicle::SetRightTrackMat(UMaterialInstanceDynamic* Mat)
 {
 	if (Mat == NULL) { return; }
 	RightTrackMat = Mat;
-}
-
-void ATankVehicle::ApplyInputMovementBehaviours()
-{
-	if (MovementComp->GetBrakeInputValue() != 1.f)
-	{
-		LeftWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetLeftWheelSpeed());
-		RightWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetRightWheelSpeed());
-
-		AnimateTracks(LeftWheelSpeedValue, RightWheelSpeedValue);
-
-		float EnginePitch = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 650.f), FVector2D(MinSoundPitch, MaxSoundPitch), FGenericPlatformMath::Abs<float>(MovementComp->GetForwardSpeed()));
-		TankSFXPitch(FGenericPlatformMath::Abs<float>(EnginePitch));
-	}
-	else
-	{
-		AnimateTracks(0.f, 0.f);
-	}
 }
 
 void ATankVehicle::AnimateTracks(float LeftRangeValue, float RightRangeValue)
@@ -336,7 +350,7 @@ void ATankVehicle::PlayTankCollisionFX(const FHitResult& Impact)
 
 		if (ImpactSFX != NULL)
 		{
-			AudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
+			GeneralAudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
 		}
 	}
 }
@@ -355,11 +369,45 @@ USoundBase* ATankVehicle::GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceTy
 	return CollisionSound;
 }
 
-void ATankVehicle::TankSFXPitch(float PitchRange)
+void ATankVehicle::TankDriveSFX()
 {
-	if (EngineAudio)
+	if (MovementComp == NULL) { return; }
+	if (EngineAudioComp)
 	{
-		EngineAudio->SetPitchMultiplier(PitchRange);
+		EngineAudioComp->SetFloatParameter("RPM", MovementComp->GetEngineRotationSpeed());
+	}
+
+	if (TrackAudioComp)
+	{
+		if (MovementComp->GetThrottleInputValue() != 0.f && bIsBraking == true)
+		{
+			bIsBraking = false;
+			if (StressAudioComp && !StressAudioComp->IsPlaying())
+			{
+				StressAudioComp->Play();
+				StressAudioComp->SetFloatParameter("Speed", 75.f);
+				StressAudioComp->FadeOut(FadeOutTime_Stress, 0.f);
+			}
+			TrackAudioComp->Play();
+		}
+		else if (TrackAudioComp->IsPlaying())
+		{
+			if (!bIsBraking && MovementComp->GetThrottleInputValue() == 0.f)
+			{
+				if (FMath::Abs(MovementComp->GetForwardSpeed()) >= 300.f && StressAudioComp)
+				{
+					StressAudioComp->Play();
+					StressAudioComp->SetFloatParameter("Speed", MovementComp->GetForwardSpeed());
+					StressAudioComp->FadeOut(FadeOutTime_Stress, 0.f);
+				}
+				bIsBraking = true;
+				TrackAudioComp->FadeOut(FadeOutTime_Track, 0.f);
+			}
+			else
+			{
+				TrackAudioComp->SetFloatParameter("Speed", SFXTrackSpeedValue);
+			}
+		}
 	}
 }
 
@@ -369,16 +417,32 @@ UAudioComponent* ATankVehicle::SFXPlay(USoundBase* SoundFX)
 	if (SoundFX)
 	{
 		AC = UGameplayStatics::SpawnSoundAttached(SoundFX, GetRootComponent());
-		AC->FadeIn(0.1f, 1.f);
+		AC->FadeIn(0.5f, 1.f);
 	}
 	return AC;
 }
 
-void ATankVehicle::StopEngineSound()
+void ATankVehicle::SFXStop(UAudioComponent* AudioComp)
 {
-	if (EngineAudio && EngineAudio->IsPlaying())
+	if (AudioComp && AudioComp->IsPlaying())
 	{
-		EngineAudio->Stop();
+		AudioComp->FadeOut(0.1f, 0.f);
+	}
+}
+
+void ATankVehicle::StopAudioSound()
+{
+	if (GeneralAudioComp && GeneralAudioComp->IsPlaying())
+	{
+		GeneralAudioComp->Stop();
+	}
+	if (EngineAudioComp && EngineAudioComp->IsPlaying())
+	{
+		EngineAudioComp->Stop();
+	}
+	if (TrackAudioComp && TrackAudioComp->IsPlaying())
+	{
+		TrackAudioComp->Stop();
 	}
 }
 

@@ -136,6 +136,9 @@ public:
 
 #endif
 
+	/** Return throttle Value */
+	float GetThrottleInputValue() const { return ThrottleInput || SteeringInput; };
+
 	/** Return Brake Value */
 	float GetBrakeInputValue() const { return BrakeInput; };
 

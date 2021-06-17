@@ -9,6 +9,18 @@
 #include "Tank.h"
 
 
+UTurret::UTurret()
+{
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryComponentTick.bCanEverTick = false;
+
+	TurretAudio = CreateDefaultSubobject<UAudioComponent>(FName("TurretAudio"));
+	TurretAudio->SetupAttachment(this);
+	TurretAudio->SetAutoActivate(false);
+
+	bIsTurning = false;
+}
+
 void UTurret::BeginPlay()
 {
 	Super::BeginPlay();
@@ -37,64 +49,32 @@ void UTurret::RotateTurret(float RelativeSpeed)
 	auto RotationChange = RelativeSpeed * MaxDegreesPerSecond * GetWorld()->DeltaTimeSeconds;
 	auto NewRotation = RelativeRotation.Yaw + RotationChange;
 
-	TurretSFX(RotationChange);
-	TurretSFXPitch(FGenericPlatformMath::Abs<float>(RelativeSpeed));
-
+	TurretSFX(RelativeSpeed);
 	SetRelativeRotation(FRotator(0, NewRotation, 0));
 }
 
 void UTurret::TurretSFX(float RelativeSpeed)
 {
-	if (RelativeSpeed != 0.f && !bIsRotating)
-	{
-		bIsRotating = true;
-		SFXRotateTurretPlay();
-	}
-	else if (RelativeSpeed == 0.f && bIsRotating)
-	{
-		// Stop playing sfx with timer for smoother sound
-		bIsRotating = false;
-		GetWorld()->GetTimerManager().SetTimer(SFXHandle, this, &UTurret::SFXRotateTurretStop, 0.2f, false);
-	}
-}
-
-void UTurret::TurretSFXPitch(float RelativeSpeed)
-{
-	if (TurretAudio && RelativeSpeed != 0.f)
-	{
-		float NewPitch = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 1.f), FVector2D(MinSoundPitch, MaxSoundPitch), RelativeSpeed);
-		TurretAudio->SetPitchMultiplier(NewPitch);
-	}
-}
-
-void UTurret::SFXRotateTurretPlay()
-{
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-	// Is active return
-	if (TurretAudio && TurretAudio->IsActive()) { return; }
-
-	TurretAudio = SFXPlay(RotateLoopSfx);
-}
-
-void UTurret::SFXRotateTurretStop()
-{
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 	if (TurretAudio)
 	{
-		TurretAudio->FadeOut(0.1f, 0.f);
-		TurretAudio = nullptr;
+		if (RelativeSpeed != 0.f)
+		{
+			if (!bIsTurning && FMath::Abs(RelativeSpeed) >= 0.3f)
+			{
+				bIsTurning = true;
+				TurretAudio->Play();
+			}
+			else
+			{
+				TurretAudio->SetFloatParameter("Speed", RelativeSpeed);
+			}
+		}
+		else if (bIsTurning && TurretAudio->IsPlaying())
+		{
+			bIsTurning = false;
+			TurretAudio->FadeOut(FadeOutTime_SFX, 0.f);
+		}
 	}
-}
-
-UAudioComponent * UTurret::SFXPlay(USoundBase * SoundFX)
-{
-	UAudioComponent * AC = nullptr;
-	if (SoundFX)
-	{
-		AC = UGameplayStatics::SpawnSoundAttached(SoundFX, this);
-		AC->FadeIn(0.1f, 1.f);
-	}
-	return AC;
 }
 
 void UTurret::StopTurretAudio()

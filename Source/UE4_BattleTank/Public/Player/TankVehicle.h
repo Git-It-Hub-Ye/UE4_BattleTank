@@ -27,10 +27,6 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UAimingComponent* AimingComp = nullptr;
 
-	/** Audio component for this class */
-	UPROPERTY()
-	UAudioComponent* AudioComp;
-
 private:
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +55,8 @@ private:
 
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
+
+	bool bIsBraking;
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -117,24 +115,21 @@ private:
 	////////////////////////////////////////////////////////////////////////////////
 	// SFX
 
-	/** Component for start & end sounds */
-	UAudioComponent* EngineAudio = nullptr;
+	/** Audio component for this class */
+	UPROPERTY()
+	UAudioComponent* GeneralAudioComp;
 
-	/** Tank engine sound loop */
-	UPROPERTY(EditdefaultsOnly, Category = "Audio")
-	USoundBase* EngineLoopSfx;
+	/** Component for engine sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* EngineAudioComp;
 
-	/** Max pitch for tank sound, when moving fast */
-	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
-	float MaxSoundPitch = 2.f;
+	/** Component for track sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* TrackAudioComp;
 
-	/** Min pitch for tank sound, when rotating slow */
-	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
-	float MinSoundPitch = 1.f;
-
-	/** Max pitch for tank sound, when rotating fast */
-	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
-	float MaxTurnSoundPitch = 2.f;
+	/** Component for stress sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* StressAudioComp;
 
 	/** Sound of tank being destroyed */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
@@ -148,6 +143,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	USoundBase* LandImpactSound;
 
+	/** Fastest track for track sfx */
+	float SFXTrackSpeedValue;
+
+	/** Track sfx fade out time */
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	float FadeOutTime_Track;
+
+	/** Stress sfx fade out time */
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	float FadeOutTime_Stress;
+	
 public:
 
 	ATankVehicle(const FObjectInitializer& ObjectInitializer);
@@ -230,6 +236,9 @@ private:
 	/** Death behaviour */
 	void OnDeathBehaviour(AController* EventInstigator);
 
+	/** Gets wheel speeds for track animations and sfx */
+	void ApplyInputMovementBehaviours();
+
 	void SetMovementComp();
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -243,9 +252,6 @@ private:
 
 	/** Set material of right track */
 	void SetRightTrackMat(UMaterialInstanceDynamic* Mat);
-
-	/** Gets wheel speeds for track animations and sfx */
-	void ApplyInputMovementBehaviours();
 
 	/** Set track speed */
 	void AnimateTracks(float LeftRangeValue, float RightRangeValue);
@@ -277,13 +283,16 @@ private:
 	/** Get sound to play for surface collision */
 	USoundBase* GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
 
-	/** Set pitch of sound */
-	void TankSFXPitch(float PitchRange);
+	/** Set pitch and volume of sound */
+	void TankDriveSFX();
 
 	/** Play sound on tank */
 	UAudioComponent* SFXPlay(USoundBase* SoundFX);
 
-	/** Stops engine sound */
-	void StopEngineSound();
+	/** Stop sound on tank */
+	void SFXStop(UAudioComponent* AudioComp);
+
+	/** Stops audio */
+	void StopAudioSound();
 
 };
