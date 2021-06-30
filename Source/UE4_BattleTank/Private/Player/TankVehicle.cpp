@@ -26,8 +26,10 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	// Will set physics after spawn in begin play to avoid teleport flag errors.
 	GetMesh()->SetSimulatePhysics(false);
 
+	// Create Tank Components
 	AimingComp = CreateDefaultSubobject<UAimingComponent>(FName("AimComponent"));
 
+	// Setup Audio Components
 	EngineAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("EngineAudio"));
 	EngineAudioComp->SetupAttachment(GetMesh());
 	EngineAudioComp->SetAutoActivate(true);
@@ -40,6 +42,7 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	StressAudioComp->SetupAttachment(GetMesh());
 	StressAudioComp->SetAutoActivate(false);
 
+	// Setup default variables
 	StartingHealth = 100;
 	StartingArmour = 50;
 	DestroyTimer = 5.f;
@@ -201,7 +204,7 @@ void ATankVehicle::OnDeathBehaviour(AController* EventInstigator)
 	if (DestroyedFX != NULL)
 	{
 		UGameplayStatics::SpawnEmitterAttached(DestroyedFX, GetMesh());
-		GeneralAudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
+		CollisionAudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
 	}
 
 	GetMesh()->SetCollisionProfileName("DestroyedTank");
@@ -335,38 +338,22 @@ void ATankVehicle::OutOfCombatArea(bool bWarnPlayer)
 
 void ATankVehicle::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor != NULL)
+	if (FMath::Abs(MovementComp->GetForwardSpeed()) > 450.f)
 	{
-		PlayTankCollisionFX(Hit);
+		PlayTankCollisionFX(Hit, HighImpactSound);
+	}
+	else if (FMath::Abs(MovementComp->GetForwardSpeed()) > 100.f || SFXTrackSpeedValue > 5.f)
+	{
+		PlayTankCollisionFX(Hit, LowImpactSound);
 	}
 }
 
-void ATankVehicle::PlayTankCollisionFX(const FHitResult& Impact)
+void ATankVehicle::PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX)
 {
-	if (Impact.bBlockingHit == true)
+	if (ImpactSFX != NULL)
 	{
-		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Impact.PhysMaterial.Get());
-		USoundBase* ImpactSFX = GetImpactSound(HitSurfaceType);
-
-		if (ImpactSFX != NULL)
-		{
-			GeneralAudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
-		}
+		CollisionAudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
 	}
-}
-
-USoundBase* ATankVehicle::GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const
-{
-	USoundBase* CollisionSound = nullptr;
-
-	switch (SurfaceType)
-	{
-	case SURFACE_METAL: CollisionSound = MetalImpactSound; break;
-	case SURFACE_DIRT:  CollisionSound = LandImpactSound;  break;
-	case SURFACE_GRASS: CollisionSound = LandImpactSound;  break;
-	default:			CollisionSound = LandImpactSound; break;
-	}
-	return CollisionSound;
 }
 
 void ATankVehicle::TankDriveSFX()
@@ -432,9 +419,9 @@ void ATankVehicle::SFXStop(UAudioComponent* AudioComp)
 
 void ATankVehicle::StopAudioSound()
 {
-	if (GeneralAudioComp && GeneralAudioComp->IsPlaying())
+	if (CollisionAudioComp && CollisionAudioComp->IsPlaying())
 	{
-		GeneralAudioComp->Stop();
+		CollisionAudioComp->Stop();
 	}
 	if (EngineAudioComp && EngineAudioComp->IsPlaying())
 	{

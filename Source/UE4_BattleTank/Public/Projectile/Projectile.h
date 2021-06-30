@@ -12,6 +12,7 @@ class UAudioComponent;
 class UParticleSystemComponent;
 class UParticleSystem;
 class AExplosionFX;
+class UDamageType;
 
 // Struct for projectile data
 USTRUCT(BlueprintType)

@@ -117,7 +117,7 @@ private:
 
 	/** Audio component for this class */
 	UPROPERTY()
-	UAudioComponent* GeneralAudioComp;
+	UAudioComponent* CollisionAudioComp;
 
 	/** Component for engine sound */
 	UPROPERTY(VisibleDefaultsOnly)
@@ -137,11 +137,11 @@ private:
 
 	/** Sounds of tank impacting metal objects */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
-	USoundBase* MetalImpactSound;
+	USoundBase* HighImpactSound;
 
 	/** Sounds of tank impacting landscape */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
-	USoundBase* LandImpactSound;
+	USoundBase* LowImpactSound;
 
 	/** Fastest track for track sfx */
 	float SFXTrackSpeedValue;
@@ -153,6 +153,8 @@ private:
 	/** Stress sfx fade out time */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	float FadeOutTime_Stress;
+
+	bool bIsColliding = false;
 	
 public:
 
@@ -200,6 +202,8 @@ public:
 
 	/** Return if current health is lower than starting health */
 	bool IsTankDamaged() const { return CurrentHealth < StartingHealth; }
+
+	void ComponentCollision(const FHitResult& Impact) { PlayTankCollisionFX(Impact, LowImpactSound); }
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -273,15 +277,12 @@ private:
 	////////////////////////////////////////////////////////////////////////////////
 	// SFX
 
-	/** Sends hit result to find hit objects surface */
+	/** Activates on hit */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** Play collision sound */
-	void PlayTankCollisionFX(const FHitResult& Impact);
-
-	/** Get sound to play for surface collision */
-	USoundBase* GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
+	void PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX);
 
 	/** Set pitch and volume of sound */
 	void TankDriveSFX();

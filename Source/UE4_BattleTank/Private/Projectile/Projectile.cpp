@@ -4,6 +4,7 @@
 #include "UE4_BattleTank.h"
 #include "Engine/World.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/DamageType.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,7 +13,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "FX/ExplosionFX.h"
-
 
 
 AProjectile::AProjectile()

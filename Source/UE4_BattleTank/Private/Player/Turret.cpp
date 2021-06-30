@@ -2,11 +2,10 @@
 
 #include "Turret.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "TimerManager.h"
 
 #include "Components/AudioComponent.h"
 #include "Tank.h"
+#include "TankVehicle.h"
 
 
 UTurret::UTurret()
@@ -27,10 +26,10 @@ void UTurret::BeginPlay()
 
 	if (GetOwner() != NULL)
 	{
-		ATank * OwnerPawn = Cast<ATank>(GetOwner());
+		ATank * TankOwner = Cast<ATank>(GetOwner());
 
-		if (OwnerPawn == NULL) { return; }
-		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UTurret::OnOwnerDeath);
+		if (TankOwner == NULL) { return; }
+		TankOwner->OnDeath.AddUniqueDynamic(this, &UTurret::OnOwnerDeath);
 	}
 }
 

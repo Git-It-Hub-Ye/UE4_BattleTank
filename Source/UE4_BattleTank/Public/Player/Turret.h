@@ -6,7 +6,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Turret.generated.h"
 
-class USoundBase;
 class UAudioComponent;
 
 /**
@@ -46,6 +45,7 @@ protected:
 	void StopTurretAudio();
 
 private:
+
 	UFUNCTION()
 	void OnOwnerDeath();
 
