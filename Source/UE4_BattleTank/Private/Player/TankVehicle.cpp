@@ -106,7 +106,7 @@ void ATankVehicle::MoveForward(float Value)
 		SetMovementComp();
 	}
 
-	ApplyInputMovementBehaviours();
+	ApplyInputAnimationValues();
 }
 
 void ATankVehicle::TurnRight(float Value)
@@ -132,7 +132,7 @@ void ATankVehicle::ApplyBrakes(bool bApplyBrake)
 	}
 }
 
-void ATankVehicle::ApplyInputMovementBehaviours()
+void ATankVehicle::ApplyInputAnimationValues()
 {
 	// Only do calculations when brakes are not applied
 	if (MovementComp != NULL && MovementComp->GetBrakeInputValue() != 1.f)
@@ -199,7 +199,7 @@ float ATankVehicle::TakeDamage(float DamageAmount, struct FDamageEvent const& Da
 
 void ATankVehicle::OnDeathBehaviour(AController* EventInstigator)
 {
-	ApplyBrakes(true);
+	//ApplyBrakes(true);
 	
 	if (DestroyedFX != NULL)
 	{

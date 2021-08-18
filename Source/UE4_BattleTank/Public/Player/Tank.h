@@ -7,7 +7,7 @@
 #include "Tank.generated.h"
 
 class UAimingComponent;
-class UTankMovement;
+class UTankAISimpleMovementComp;
 class UAudioComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankDelegate);
@@ -31,7 +31,7 @@ protected:
 
 	/** Move tank */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	UTankMovement * MovementComp = nullptr;
+	UTankAISimpleMovementComp* MovementComp = nullptr;
 
 	/** Audio component for this class */
 	UPROPERTY()
@@ -178,11 +178,8 @@ public:
 	/** Bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	/** Stop tank */
-	void ApplyBrakes(bool bApplyBrake);
-
 	/** Gets actor speed for wheel, track animations and sfx */
-	void ApplyInputMovementBehaviours(float TurnRate, float TurnSpeed);
+	void ApplyInputAnimationValues(float TurnRate, float TurnSpeed);
 
 
 	////////////////////////////////////////////////////////////////////////////////

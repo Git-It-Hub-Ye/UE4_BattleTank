@@ -241,7 +241,7 @@ private:
 	void OnDeathBehaviour(AController* EventInstigator);
 
 	/** Gets wheel speeds for track animations and sfx */
-	void ApplyInputMovementBehaviours();
+	void ApplyInputAnimationValues();
 
 	void SetMovementComp();
 

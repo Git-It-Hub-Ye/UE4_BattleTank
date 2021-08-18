@@ -12,8 +12,7 @@ UTankMovement::UTankMovement()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	DriveTorquePerWheel = 1000.f;
-	BrakeTorquePerWheel = 1000.f;
+	ForwardMovementRate = 100.f;
 	TurnRate = 0.5f;
 	bBrakesApplied = false;
 }
@@ -46,17 +45,18 @@ void UTankMovement::RequestDirectMove(const FVector & MoveVelocity, bool bForceM
 void UTankMovement::IntendMoveForward(float Value)
 {
 	MoveForwardValue = FMath::Clamp<float>(Value, -1, 1);
+	float ForwardSpeed = MoveForwardValue * ForwardMovementRate * GetWorld()->GetDeltaSeconds();
 
 	if (Value != 0)
 	{
+		if (GetOwner() == NULL) { return; }
+
 		if (bBrakesApplied == true) { ApplyBrakes(false); }
-		DriveRightWheels(Value);
-		DriveLeftWheels(Value);
+		GetOwner()->AddActorLocalOffset(FVector(ForwardSpeed, 0.f, 0.f));
 	}
 
 	MovementValuesForAnimation();
 }
-
 
 void UTankMovement::IntendTurnRight(float Value)
 {
@@ -75,40 +75,7 @@ void UTankMovement::IntendTurnRight(float Value)
 		TurnSpeed = FMath::Clamp<float>(TurnSpeed, -MaxSpeed, MaxSpeed);
 
 		float TurningSpeed = FMath::Clamp<float>(TurnSpeed, -TurnRate, TurnRate);
-		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
-
-	}
-	else if (TurnSpeed != 0.f)
-	{
-		TurnSpeed = 0;
-	}
-}
-
-void UTankMovement::DriveRightWheels(float Throttle)
-{
-	float CurrentThrottle = FMath::Clamp<float>(Throttle, -0.5f, 1);
-	auto TorqueApplied = CurrentThrottle * DriveTorquePerWheel;
-
-	if (WheelSetups.Num() > 0)
-	{
-		for (int32 i = FirstRightWheelIndex; i < LastRightWheelIndex + 1; i++)
-		{
-			SetDriveTorque(TorqueApplied, i);
-		}
-	}
-}
-
-void UTankMovement::DriveLeftWheels(float Throttle)
-{
-	float CurrentThrottle = FMath::Clamp<float>(Throttle, -0.5f, 1);
-	auto TorqueApplied = CurrentThrottle * DriveTorquePerWheel;
-
-	if (WheelSetups.Num() > 0)
-	{
-		for (int32 i = FirstLeftWheelIndex; i < LastLeftWheelIndex + 1; i++)
-		{
-			SetDriveTorque(TorqueApplied, i);
-		}
+		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f));
 	}
 }
 
@@ -116,7 +83,7 @@ void UTankMovement::ApplyBrakes(bool bApplyBrakes)
 {
 	if (WheelSetups.Num() > 0)
 	{
-		float TorqueApplied = 0.f;
+		/*float TorqueApplied = 0.f;
 		if (bApplyBrakes == true)
 		{
 			TorqueApplied = BrakeTorquePerWheel;
@@ -129,7 +96,7 @@ void UTankMovement::ApplyBrakes(bool bApplyBrakes)
 		for (int32 i = 0; i < WheelSetups.Num(); i++)
 		{
 			SetBrakeTorque(TorqueApplied, i);
-		}
+		}*/
 	}
 }
 
@@ -137,7 +104,7 @@ void UTankMovement::MovementValuesForAnimation()
 {
 	if (TankOwner != NULL)
 	{
-		TankOwner->ApplyInputMovementBehaviours(TurnRate, TurnSpeed);
+		//TankOwner->ApplyInputMovementBehaviours(TurnRate, TurnSpeed);
 	}
 }
 

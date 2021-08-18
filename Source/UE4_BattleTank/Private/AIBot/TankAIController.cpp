@@ -108,8 +108,6 @@ void ATankAIController::ApplyBrakes(bool bApplyBrake)
 	if (AIPawn == NULL) { return; }
 
 	BB->SetValueAsBool(BrakesAppliedID, bApplyBrake);
-	
-	AIPawn->ApplyBrakes(bApplyBrake);
 }
 
 void ATankAIController::OnPossessedTankDeath()

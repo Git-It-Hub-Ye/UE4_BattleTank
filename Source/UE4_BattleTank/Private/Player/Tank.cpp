@@ -11,7 +11,7 @@
 
 #include "Online/BattleTankGameModeBase.h"
 #include "TankPlayerController.h"
-#include "TankMovement.h"
+#include "AIBot/TankAISimpleMovementComp.h"
 #include "AimingComponent.h"
 #include "UI/BattleHUD.h"
 
@@ -27,7 +27,7 @@ ATank::ATank()
 	TankBody->SetSimulatePhysics(false);
 	
 	AimingComp = CreateDefaultSubobject<UAimingComponent>(FName("AimComponent"));
-	MovementComp = CreateDefaultSubobject<UTankMovement>(FName("MoveComponent"));
+	MovementComp = CreateDefaultSubobject<UTankAISimpleMovementComp>(FName("MoveComponent"));
 
 	StartingHealth = 100;
 	StartingArmour = 50;
@@ -79,11 +79,6 @@ void ATank::MoveForward(float Value)
 	if (MovementComp != NULL)
 	{
 		MovementComp->IntendMoveForward(Value);
-
-		if (Value == 0.f)
-		{
-			ApplyBrakes(true);
-		}
 	}
 }
 
@@ -95,15 +90,7 @@ void ATank::TurnRight(float Value)
 	}
 }
 
-void ATank::ApplyBrakes(bool bApplyBrake)
-{
-	if (MovementComp != NULL)
-	{
-		MovementComp->ApplyBrakes(bApplyBrake);
-	}
-}
-
-void ATank::ApplyInputMovementBehaviours(float TurnRate, float TurnSpeed)
+void ATank::ApplyInputAnimationValues(float TurnRate, float TurnSpeed)
 {
 	float ForwardVelocity = FVector::DotProduct(GetActorForwardVector(), GetVelocity());
 	float ForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-700.f, 700.f), FVector2D(-1, 1), ForwardVelocity);
