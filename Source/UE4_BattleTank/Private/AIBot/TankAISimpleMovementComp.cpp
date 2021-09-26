@@ -22,7 +22,7 @@ void UTankAISimpleMovementComp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ApplyBrakes(bBrakesApplied);
+	void SetBrakesAtStart();
 
 	if (GetOwner() == NULL) { return; }
 	TankOwner = Cast<ATank>(GetOwner());
@@ -47,13 +47,17 @@ void UTankAISimpleMovementComp::RequestDirectMove(const FVector& MoveVelocity, b
 
 void UTankAISimpleMovementComp::IntendMoveForward(float Value)
 {
-	MoveForwardValue = FMath::Clamp<float>(Value, -1, 1);
-	float ForwardSpeed = MoveForwardValue * ForwardMovementRate * GetWorld()->GetDeltaSeconds();
+	float MoveForwardValue = FMath::Clamp<float>(Value, -0.5, 1.f);
+	float MaxSpeed = FGenericPlatformMath::Abs<float>(MoveForwardValue * ForwardMovementRate);
+
+	float ForwardSpeed  = MoveForwardValue * ForwardMovementRate;
+	CurrentForwardSpeed += ForwardSpeed * GetWorld()->GetDeltaSeconds();
+	CurrentForwardSpeed = FMath::Clamp<float>(CurrentForwardSpeed, -MaxSpeed, MaxSpeed);
 
 	if (Value != 0)
 	{
 		if (GetOwner() == NULL) { return; }
-		GetOwner()->AddActorLocalOffset(FVector(ForwardSpeed, 0.f, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+		GetOwner()->AddActorLocalOffset(FVector(CurrentForwardSpeed, 0.f, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 	}
 
 	MovementValuesForAnimation();
@@ -61,18 +65,21 @@ void UTankAISimpleMovementComp::IntendMoveForward(float Value)
 
 void UTankAISimpleMovementComp::IntendTurnRight(float Value)
 {
-	TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
+	float TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
+	float MaxSpeed = FGenericPlatformMath::Abs<float>(TurnRightValue * TurnRate);
 
-	if (GetOwner() == NULL) { return; }
-	float TurningSpeed = TurnRightValue * TurnRate * GetWorld()->DeltaTimeSeconds;
+	float TurningSpeed = TurnRightValue * TurnRate;
+	CurrentTurningSpeed += TurningSpeed * GetWorld()->DeltaTimeSeconds;
+	CurrentTurningSpeed = FMath::Clamp<float>(CurrentTurningSpeed, -MaxSpeed, MaxSpeed);
 
 	if (Value != 0)
 	{
-		GetOwner()->AddActorLocalRotation(FRotator(0.f, TurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+		if (GetOwner() == NULL) { return; }
+		GetOwner()->AddActorLocalRotation(FRotator(0.f, CurrentTurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 	}
 }
 
-void UTankAISimpleMovementComp::ApplyBrakes(bool bApplyBrakes)
+void UTankAISimpleMovementComp::SetBrakesAtStart()
 {
 	for (int32 i = 0; i < WheelSetups.Num(); i++)
 	{
@@ -84,7 +91,7 @@ void UTankAISimpleMovementComp::MovementValuesForAnimation()
 {
 	if (TankOwner != NULL)
 	{
-		TankOwner->ApplyInputAnimationValues(TurnRate, TurnSpeed);
+		TankOwner->ApplyInputAnimationValues(CurrentForwardSpeed, CurrentTurningSpeed);
 	}
 }
 

@@ -287,12 +287,6 @@ private:
 	/** Set pitch and volume of sound */
 	void TankDriveSFX();
 
-	/** Play sound on tank */
-	UAudioComponent* SFXPlay(USoundBase* SoundFX);
-
-	/** Stop sound on tank */
-	void SFXStop(UAudioComponent* AudioComp);
-
 	/** Stops audio */
 	void StopAudioSound();
 

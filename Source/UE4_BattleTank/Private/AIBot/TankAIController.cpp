@@ -28,6 +28,7 @@ void ATankAIController::SetPawn(APawn * InPawn)
 		{
 			UseBlackboard(BlackboardToUse, BB);
 			BB->SetValueAsBool(CanShootKeyId, true);
+			BB->SetValueAsBool(BrakesAppliedID, true);
 		}
 		if (BehaviorTreeToUse)
 		{
@@ -108,6 +109,8 @@ void ATankAIController::ApplyBrakes(bool bApplyBrake)
 	if (AIPawn == NULL) { return; }
 
 	BB->SetValueAsBool(BrakesAppliedID, bApplyBrake);
+
+	AIPawn->ApplyBrakes(bApplyBrake);
 }
 
 void ATankAIController::OnPossessedTankDeath()

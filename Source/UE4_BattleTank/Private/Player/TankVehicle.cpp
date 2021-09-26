@@ -207,6 +207,8 @@ void ATankVehicle::OnDeathBehaviour(AController* EventInstigator)
 		CollisionAudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
 	}
 
+	StopAudioSound();
+
 	GetMesh()->SetCollisionProfileName("DestroyedTank");
 
 	ATankPlayerController* const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
@@ -395,25 +397,6 @@ void ATankVehicle::TankDriveSFX()
 				TrackAudioComp->SetFloatParameter("Speed", SFXTrackSpeedValue);
 			}
 		}
-	}
-}
-
-UAudioComponent* ATankVehicle::SFXPlay(USoundBase* SoundFX)
-{
-	UAudioComponent* AC = nullptr;
-	if (SoundFX)
-	{
-		AC = UGameplayStatics::SpawnSoundAttached(SoundFX, GetRootComponent());
-		AC->FadeIn(0.5f, 1.f);
-	}
-	return AC;
-}
-
-void ATankVehicle::SFXStop(UAudioComponent* AudioComp)
-{
-	if (AudioComp && AudioComp->IsPlaying())
-	{
-		AudioComp->FadeOut(0.1f, 0.f);
 	}
 }
 

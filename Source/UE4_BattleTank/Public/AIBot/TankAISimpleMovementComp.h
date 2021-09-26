@@ -22,14 +22,14 @@ private:
 	ATank* TankOwner;
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Drive wheel data
+	// Drive data
 
 	/** Are wheel brakes currently on */
 	bool bBrakesApplied;
 
-	float MoveForwardValue;
+	float CurrentForwardSpeed;
 
-	float TurnRightValue;
+	float CurrentTurningSpeed;
 
 	/** Rate of max forward speed */
 	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 1000.f))
@@ -40,11 +40,9 @@ private:
 	// Tank rotation
 
 	/** How fast to rotate tank (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 1.f))
 	float TurnRate;
 
-	/** Speed to rotate tank */
-	float TurnSpeed;
 
 public:
 	UTankAISimpleMovementComp();
@@ -61,13 +59,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void IntendTurnRight(float value);
 
-	/** Applies brake torque for all wheels */
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	void ApplyBrakes(bool bApplyBrakes);
+	void SetBrakesAtStart();
 
-	float GetForwardValue() const { return MoveForwardValue; }
+	float GetForwardValue() const { return CurrentForwardSpeed; }
 
-	float GetTurnRightValue() const { return TurnRightValue; }
+	float GetTurnRightValue() const { return CurrentTurningSpeed; }
 
 protected:
 	virtual void BeginPlay() override;

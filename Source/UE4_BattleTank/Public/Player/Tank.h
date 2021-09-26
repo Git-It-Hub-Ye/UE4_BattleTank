@@ -33,13 +33,25 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UTankAISimpleMovementComp* MovementComp = nullptr;
 
-	/** Audio component for this class */
-	UPROPERTY()
-	UAudioComponent * AudioComp;
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Animation wheel data
+
+	/** Tank Forward MAX Wheel Speed */
+	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
+	float MaxForwardWheelSpeed;
+
+	/** Tank Forward Wheel speed Range between MaxForwardWheelSpeed & -MaxForwardWheelSpeed. Set close to actual forard speed */
+	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
+	float ForwardWheelSpeed_Range;
+
+	/** Tank Turning MAX Wheel Speed */
+	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
+	float MaxTurningWheelSpeed;
+
+	/** Tank Turning Wheel speed Range between MaxTurningWheelSpeed & -MaxTurningWheelSpeed. Set close to actual turning speed */
+	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
+	float TurningWheelSpeed_Range;
 
 	/** Speed of turning for right wheels */
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
@@ -49,13 +61,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float LeftWheelYaw;
 
-	/** Speed of turning for right front and back wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float RightFrontBackYaw;
-
-	/** Speed of turning for left front and back wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float LeftFrontBackYaw;
 
 private:
 
@@ -83,44 +88,49 @@ private:
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
-	/** Previous saved rotation of tank */
-	FRotator LastYawRot;
+	/** Is tank braking */
+	bool bIsBraking;
+
+	/** Current movement speed */
+	float CurrentSpeed;
 
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Animation
 
-	/** How much to multiply wheel and track rotation by (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
-	float TurnSpeedMultiplier;
-
-	/** Crosshair to display on player ui for this weapon */
-	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track")
-	UMaterialInterface * TrackMat;
-
-	/** Element of tank to apply dynamic track material */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
+	/** Element of mesh to apply dynamic track material */
+	UPROPERTY(EditdefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f))
 	int32 LeftTrackElement;
 
-	/** Element of tank to apply dynamic track material */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f))
+	/** Element of mesh to apply dynamic track material */
+	UPROPERTY(EditdefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f))
 	int32 RightTrackElement;
 
 	/** Name of track material parameter to animate */
-	UPROPERTY(EditdefaultsOnly, Category = "Wheel/Track")
+	UPROPERTY(EditdefaultsOnly, Category = "Config Track")
 	FName TrackScalarParamName;
 
-	/** Dynamic material for track rotation */
-	UMaterialInstanceDynamic * LeftTrackMat;
+	/** Range between MaxTrackWheelSpeed & -MaxTrackWheelSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	float TrackSpeed_Range;
 
-	/** Dynamic material for track rotation */
-	UMaterialInstanceDynamic * RightTrackMat;
+	/** Dynamic material for left track rotation */
+	UMaterialInstanceDynamic* LeftTrackMat;
 
-	/** Speed of left track material animation */
-	float LeftTrackSpeed;
+	/** Dynamic material for right track rotation */
+	UMaterialInstanceDynamic* RightTrackMat;
 
-	/** Speed of right track material animation */
-	float RightTrackSpeed;
+	/** Current range of left wheel speed */
+	float LeftWheelSpeedValue;
+
+	/** Current range of right wheel speed */
+	float RightWheelSpeedValue;
+
+	/** UV offset for left track animation */
+	float LeftTrackUVOffset;
+
+	/** UV offset for right track animation */
+	float RightTrackUVOffset;
 
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -137,8 +147,21 @@ private:
 	////////////////////////////////////////////////////////////////////////////////
 	// SFX
 
-	/** Component for start & end sounds */
-	UAudioComponent * EngineAudio = nullptr;
+	/** Component for engine sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* EngineAudioComp;
+
+	/** Component for track sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* TrackAudioComp;
+
+	/** Component for stress sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* StressAudioComp;
+
+	/** Component for Collision sound */
+	UPROPERTY(VisibleDefaultsOnly)
+	UAudioComponent* CollisionAudioComp;
 
 	/** Tank engine sound loop */
 	UPROPERTY(EditdefaultsOnly, Category = "Audio")
@@ -179,7 +202,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Gets actor speed for wheel, track animations and sfx */
-	void ApplyInputAnimationValues(float TurnRate, float TurnSpeed);
+	void ApplyInputAnimationValues(float ForwardRate, float TurnRate);
+
+	/** Sets brake */
+	void ApplyBrakes(bool bApplyBrakes);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -253,12 +279,9 @@ private:
 	// Wheel animation
 
 	/** Set wheel rotation of tank */
-	void TurnWheels(float ForwardSpeed, float TurnSpeed);
+	void TurnWheels(float MaxForwardRotSpeed, float MaxTurningRotSpeed);
 
-	/** Set wheel rotation value to apply */
-	float SetWheelTurnValue(float TurnSpeed);
-
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// Track material animation
 
@@ -295,19 +318,13 @@ private:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit);
 
-	/** Play collision sound */
-	void PlayTankCollisionFX(const FHitResult & Impact);
+	/** Activates on hit */
+	void PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX);
 
-	/** Get sound to play for surface collision */
-	USoundBase * GetImpactSound(TEnumAsByte<EPhysicalSurface> SurfaceType) const;
+	/** Set pitch and volume of sound */
+	void TankDriveSFX();
 
-	/** Set pitch of sound */
-	void TankSFXPitch(float PitchRange);
-
-	/** Play sound on tank */
-	UAudioComponent * SFXPlay(USoundBase * SoundFX);
-
-	/** Stops engine sound */
-	void StopEngineSound();
+	/** Stops audio */
+	void StopAudioSound();
 
 };
