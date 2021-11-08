@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void IntendTurnRight(float value);
 
-	void SetBrakesAtStart();
+	void SetBrakesValue(bool bSetBrake);
 
 	float GetForwardValue() const { return CurrentForwardSpeed; }
 

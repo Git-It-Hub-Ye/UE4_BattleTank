@@ -58,14 +58,17 @@ public:
 	/** Update player ui of current health. Request from player pawn */
 	void UpdateHealthDisplay();
 
+	/** Update player ui of damage causer position. Request from player pawn */
+	void UpdateDamageIndicator(AActor * DamageCauser);
+
 	/** Update player ui of current firing state. Request from Aiming Component */
 	void UpdateWeaponStateDisplay();
 
-	/** Update player ui when low on ammo. Request from Aiming Component */
-	void WarnOfLowAmmo();
-
 	/** Update player ui when out of ammo. Request from Aiming Component */
 	void WarnOutOfAmmo();
+
+	/** Set player ui max ammo count */
+	void SetMaxAmmoDisplay();
 
 	/** Update player ui when out of match area */
 	void WarnOutOfCombatArea();

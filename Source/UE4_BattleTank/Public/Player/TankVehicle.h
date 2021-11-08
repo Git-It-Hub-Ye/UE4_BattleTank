@@ -193,6 +193,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetHealthPercent() const { return (float)CurrentHealth / (float)StartingHealth; }
 
+	/** Return current health */
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetHealth() const { return CurrentHealth; }
+
 	/** Return current health as a percentage of starting health, between 0 and 1 */
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetArmourPercent() const { return (float)CurrentArmour / (float)StartingArmour; }
@@ -203,7 +207,7 @@ public:
 	/** Return if current health is lower than starting health */
 	bool IsTankDamaged() const { return CurrentHealth < StartingHealth; }
 
-	void ComponentCollision(const FHitResult& Impact) { PlayTankCollisionFX(Impact, LowImpactSound); }
+	void ComponentCollision(const FHitResult& Impact) { PlayTankCollisionFX(LowImpactSound); }
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -273,6 +277,9 @@ private:
 	/** Notify player controller to update player ui */
 	void UpdatePlayerHud();
 
+	/** Notify player of damage causer on ui */
+	void UpdateDamageIndicator(AActor* DamageCauser);
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// SFX
@@ -282,7 +289,7 @@ private:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** Play collision sound */
-	void PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX);
+	void PlayTankCollisionFX(USoundBase* ImpactSFX);
 
 	/** Set pitch and volume of sound */
 	void TankDriveSFX();

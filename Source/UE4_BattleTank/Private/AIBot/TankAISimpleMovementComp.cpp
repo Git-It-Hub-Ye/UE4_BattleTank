@@ -22,7 +22,7 @@ void UTankAISimpleMovementComp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	void SetBrakesAtStart();
+	SetBrakesValue(true);
 
 	if (GetOwner() == NULL) { return; }
 	TankOwner = Cast<ATank>(GetOwner());
@@ -79,11 +79,13 @@ void UTankAISimpleMovementComp::IntendTurnRight(float Value)
 	}
 }
 
-void UTankAISimpleMovementComp::SetBrakesAtStart()
+void UTankAISimpleMovementComp::SetBrakesValue(bool bSetBrake)
 {
+	float BrakeValue = bSetBrake ? 5000.f : 0.f;
+
 	for (int32 i = 0; i < WheelSetups.Num(); i++)
 	{
-		SetBrakeTorque(5000.f, i);
+		SetBrakeTorque(BrakeValue, i);
 	}
 }
 

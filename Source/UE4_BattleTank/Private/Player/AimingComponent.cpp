@@ -23,7 +23,6 @@ UAimingComponent::UAimingComponent()
 	bWantsToFire = false;
 	bIsLoaded = false;
 	bPendingReload = false;
-	bLowAmmo = false;
 	bAmmoWarning = false;
 }
 
@@ -39,6 +38,13 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 	Turret = TurretToSet;
 	CompOwner = NewOwner;
 
+	ATankPlayerController* PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->GetController()) : nullptr;
+	ABattleHUD* BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD)
+	{
+		BHUD->SetMaxAmmoDisplay();
+	}
+	
 	if (!bIsLoaded)
 	{
 		ReloadProjectile();
@@ -47,7 +53,6 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 	if (GetOwner() != NULL)
 	{
 		ATank * OwnerPawn = Cast<ATank>(GetOwner());
-
 		if (OwnerPawn == NULL) { return; }
 		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UAimingComponent::OnOwnerDeath);
 	}
@@ -319,21 +324,13 @@ void UAimingComponent::UpdatePlayerHud()
 	{
 		BHUD->UpdateWeaponStateDisplay();
 
-		if (CurrentRoundsRemaining >= 12 && bAmmoWarning)
+		if (CurrentRoundsRemaining > 0 && bAmmoWarning)
 		{
-			bLowAmmo = false;
 			bAmmoWarning = false;
 			BHUD->RemoveAmmoWarnings();
 		}
-		else if (CurrentFiringState != EFiringState::OutOfAmmo && CurrentRoundsRemaining < 12 && !bLowAmmo)
-		{
-			bLowAmmo = true;
-			bAmmoWarning = true;
-			BHUD->WarnOfLowAmmo();
-		}
 		else if (CurrentFiringState == EFiringState::OutOfAmmo)
 		{
-			bLowAmmo = false;
 			bAmmoWarning = true;
 			BHUD->WarnOutOfAmmo();
 		}

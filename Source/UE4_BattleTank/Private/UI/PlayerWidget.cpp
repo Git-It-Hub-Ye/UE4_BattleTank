@@ -6,22 +6,20 @@
 
 #include "Components/TextBlock.h"
 #include "Components/PanelWidget.h"
+#include "Components/Overlay.h"
 #include "Components/Image.h"
+#include "Components/Border.h"
 #include "Components/ProgressBar.h"
-#include "Player/Tank.h"
+#include "Player/TankVehicle.h"
 #include "Player/AimingComponent.h"
 #include "Player/TankPlayerController.h"
+#include "DamageArrowIndicator.h"
 
 #define LOCTEXT_NAMESPACE "PlayerHud"
 
 bool UPlayerWidget::Initialize()
 {
 	if (!Super::Initialize()) { return false; }
-
-	if (Text_WarningMessage)
-	{
-		Text_WarningMessage->SetVisibility(ESlateVisibility::Hidden);
-	}
 
 	if (Panel_WarningOutOfBounds)
 	{
@@ -45,14 +43,28 @@ void UPlayerWidget::InitialiseRefs()
 	
 	if (PC && PC->GetPawn())
 	{
-		PlayerPawn = Cast<ATank>(PC->GetPawn());
+		PlayerPawn = Cast<ATankVehicle>(PC->GetPawn());
 		AimCompRef = PC->GetAimCompRef();
 	}
+
+	NumberFormat.MinimumIntegralDigits = MinDigits;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Player data display
+
+void UPlayerWidget::SetMaxAmmoDisplay()
+{
+	if (!AimCompRef) { InitialiseRefs(); }
+
+	if (AimCompRef && Text_MaxAmmo)
+	{	
+		FText AmmoText = FText::GetEmpty();
+		AmmoText = FText::AsNumber(AimCompRef->GetMaxRounds(), &NumberFormat);
+		Text_MaxAmmo->SetText(AmmoText);
+	}
+}
 
 void UPlayerWidget::UpdateWeaponDisplay()
 {
@@ -64,7 +76,7 @@ void UPlayerWidget::UpdateWeaponDisplay()
 	}
 	if (Image_Crosshair)
 	{
-		Image_Crosshair->SetColorAndOpacity(GetCrosshairColor());
+		SetCrosshairColor();
 	}
 }
 
@@ -74,94 +86,141 @@ FText UPlayerWidget::GetAmmoText() const
 
 	if (AimCompRef)
 	{
-		AmmoText = FText::AsNumber(AimCompRef->GetRoundsRemaining());
+		AmmoText = FText::AsNumber(AimCompRef->GetRoundsRemaining(), &NumberFormat);
 		return AmmoText;
 	}
 
 	return AmmoText;
 }
 
-FColor UPlayerWidget::GetCrosshairColor() const
+void UPlayerWidget::SetCrosshairColor()
 {
-	FColor NewColor = FColor::White;
-
 	if (AimCompRef)
 	{
 		if (AimCompRef->GetFiringState() == EFiringState::Reloading)
 		{
-			return NewColor = FColor::Orange;
+			PlayAnimationByName("Anim_CrosshairReload", 0.f, 0, EUMGSequencePlayMode::Forward, 1.f);
 		}
 		else if (AimCompRef->GetFiringState() == EFiringState::OutOfAmmo)
 		{
-			return NewColor = FColor::Red;
+			Image_Crosshair->SetContentColorAndOpacity(FLinearColor(0.f,0.f,0.f,0.4f));
+		}
+		else
+		{
+			StopAllAnimations();
 		}
 	}
-	return NewColor;
 }
 
 void UPlayerWidget::UpdateHealthDisplay()
 {
 	if (!PlayerPawn) { InitialiseRefs(); }
-	if (Bar_ArmourRemaining)
+	if (!PlayerPawn) { return; }
+
+	if (Text_HealthRemaining)
 	{
-		Bar_ArmourRemaining->SetPercent(GetArmourPercent());
+		FText HealthText = FText::GetEmpty();
+		HealthText = FText::AsNumber(PlayerPawn->GetHealth());
+		Text_HealthRemaining->SetText(HealthText);
 	}
+
 	if (Bar_HealthRemaining)
 	{
-		Bar_HealthRemaining->SetPercent(GetHealthPercent());
+		Bar_HealthRemaining->SetPercent(PlayerPawn->GetHealthPercent());
 	}
 }
 
-float UPlayerWidget::GetArmourPercent() const
+void UPlayerWidget::UpdateDamageIndicators(AActor * DamageCauser)
 {
-	if (PlayerPawn)
-	{
-		return PlayerPawn->GetArmourPercent();
-	}
-	return 0.0f;
-}
+	if (!PlayerPawn) { InitialiseRefs(); }
+	if (!PlayerPawn) { return; }
 
-float UPlayerWidget::GetHealthPercent() const
-{
-	if (PlayerPawn)
+	if (Panel_Damage)
 	{
-		return PlayerPawn->GetHealthPercent();
+		AddDamageIndicator(DamageCauser);
 	}
-	return 0.0f;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Warning display
 
-void UPlayerWidget::NotifyLowAmmo()
+void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
 {
-	if (Text_WarningMessage)
+	if (DamageCauser && ArrowIndicatorBlueprint)
 	{
-		Text_WarningMessage->SetText(LOCTEXT("Message", "Low Ammo"));
-		Text_WarningMessage->SetVisibility(ESlateVisibility::Visible);
-		StopAllAnimations();
-		PlayAnimationByName("Anim_WarnLowAmmo", 0.f, 0, EUMGSequencePlayMode::PingPong, 1.f);
+		/*UUserWidget * ArrowWidget = CreateWidget(this, ArrowIndicatorBlueprint);
+
+		if (ArrowWidget)
+		{
+			Panel_Damage->AddChild(ArrowWidget);
+			ArrowWidget->SetRenderAngle(RenderAngle);
+
+			RenderAngle += 30.f;
+
+			if (ArrowIndicatorArray.Num() >= MaxArrowIndicators)
+			{
+				UUserWidget* LastWidget = ArrowIndicatorArray[0];
+
+				if (LastWidget)
+				{
+					ArrowIndicatorArray.Remove(LastWidget);
+					LastWidget->SetIsEnabled(false);
+				}
+
+				if (!LastWidget)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("NULL"))
+				}
+			}
+
+			ArrowIndicatorArray.Add(ArrowWidget);
+		}*/
+
+		UUserWidget * ArrowWidget = CreateWidget(this, ArrowIndicatorBlueprint);
+
+		if (ArrowWidget)
+		{
+			ArrowIndicatorMap.GenerateKeyArray(DamageCauserArray);
+
+			if (ArrowIndicatorMap.Num() <= 0)
+			{
+				ArrowIndicatorMap.Add(DamageCauser, ArrowWidget);
+			}
+
+			for (int32 i = 0; i < DamageCauserArray.Num(); i++)
+			{
+				if (DamageCauser == DamageCauserArray[i])
+				{
+					break;
+				}
+				else
+				{
+					Panel_Damage->AddChild(ArrowWidget);
+					ArrowWidget->SetRenderAngle(RenderAngle);
+
+					RenderAngle += 30.f;
+					ArrowIndicatorMap.Add(DamageCauser, ArrowWidget);
+				}
+			}
+		}
 	}
 }
 
 void UPlayerWidget::NotifyOutOfAmmo()
 {
-	if (Text_WarningMessage)
+	if (Text_AmmoRemaining)
 	{
-		Text_WarningMessage->SetText(LOCTEXT("Message", "Out Of Ammo"));
-		Text_WarningMessage->SetVisibility(ESlateVisibility::Visible);
-		StopAllAnimations();
-		PlayAnimationByName("Anim_WarnOutOfAmmo", 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
+		Text_AmmoRemaining->SetColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)));
 	}
+	PlayAnimationByName("Anim_WarnOutOfAmmo", 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
 }
 
 void UPlayerWidget::RemoveAmmoWarnings()
 {
-	if (Text_WarningMessage)
+	if (Text_AmmoRemaining)
 	{
-		Text_WarningMessage->SetVisibility(ESlateVisibility::Hidden);
-		StopAllAnimations();
+		Text_AmmoRemaining->SetColorAndOpacity(FSlateColor(FColor::White));
 	}
 }
 

@@ -24,8 +24,8 @@ ABattleTankGameModeBase::ABattleTankGameModeBase()
 	HUDClass = ABattleHUD::StaticClass();
 	PlayerStateClass = ATankPlayerState::StaticClass();
 	DefaultPawnClass = ATank::StaticClass();
-
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_Player"));
+	
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_TankVehicle_Player"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;

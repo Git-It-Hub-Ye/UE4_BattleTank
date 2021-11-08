@@ -7,13 +7,16 @@
 #include "PlayerWidget.generated.h"
 
 class APlayerController;
-class ATank;
+class ATankVehicle;
 class UAimingComponent;
 class UTextBlock;
 class UPanelWidget;
+class UOverlay;
 class UProgressBar;
 class UImage;
+class UBorder;
 class UWidgetAnimation;
+class UDamageArrowIndicator;
 enum class EFiringState : uint8;
 
 /**
@@ -32,25 +35,29 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_AmmoRemaining;
 
+	/** Max ammo player can carry */
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock * Text_MaxAmmo;
+
+	/** How much health player has left  */
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_HealthRemaining;
+
 	/** How much health player has left */
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar * Bar_HealthRemaining;
 
-	/** How much armour player has left */
+	/** Crosshair Panel */
 	UPROPERTY(meta = (BindWidget))
-	UProgressBar * Bar_ArmourRemaining;
+	UBorder * Image_Crosshair;
 
-	/** For aiming */
+	/** Ammo image */
 	UPROPERTY(meta = (BindWidget))
-	UImage * Image_Crosshair;
+	UImage * Image_Ammo;
 
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Warning display
-
-	/** Ammo warning */
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock * Text_WarningMessage;
 
 	/** Play are warning */
 	UPROPERTY(meta = (BindWidget))
@@ -60,13 +67,17 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget * Panel_WarningOutOfBounds;
 
+	/** Damage panel */
+	UPROPERTY(meta = (BindWidget))
+	UOverlay * Panel_Damage;
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Widget data
 
 	/** Reference to player */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
-	ATank * PlayerPawn;
+	ATankVehicle * PlayerPawn;
 
 	/** Reference to aiming component */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -77,6 +88,29 @@ protected:
 	// Animations
 
 	TMap<FName, UWidgetAnimation*> AnimationsMap;
+
+private:
+	/** Minimum digits to be shown for text formating, (eg 3 or 003)*/
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	int32 MinDigits;
+
+	FNumberFormattingOptions NumberFormat;
+
+	/** Arrow widget class to spawn on damage */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UDamageArrowIndicator> ArrowIndicatorBlueprint;
+
+	/** Max amount of damage arrow indicators at a time */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	int32 MaxArrowIndicators;
+
+	/** Collection of all damage causer keys for map */
+	TArray<AActor*> DamageCauserArray;
+
+	/** Collection of all Enemies and arrow indicators currently spawned */
+	TMap<AActor*, UUserWidget*> ArrowIndicatorMap;
+
+	float RenderAngle;
 
 public:
 	virtual bool Initialize() override;
@@ -91,18 +125,24 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 	// Player data display
 
+	/** Sets UI Max ammo count */
+	void SetMaxAmmoDisplay();
+
 	/** Update ammo count and crosshair colour display */
 	void UpdateWeaponDisplay();
 
 	/** Update armour and health display */
 	void UpdateHealthDisplay();
 
+	/** Update damage indicator display */
+	void UpdateDamageIndicators(AActor * DamageCauser);
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Warning display
 
-	/** Warn when low ammo */
-	void NotifyLowAmmo();
+	/** Add damage indicator */
+	void AddDamageIndicator(AActor * DamageCauser);
 
 	/** Warn when no ammo */
 	void NotifyOutOfAmmo();
@@ -131,13 +171,7 @@ private:
 	FText GetAmmoText() const;
 
 	/** Return new crosshair color */
-	FColor GetCrosshairColor() const;
-
-	/** Return armour remaining */
-	float GetArmourPercent() const;
-
-	/** Return health remaining */
-	float GetHealthPercent() const;
+	void SetCrosshairColor();
 
 
 	////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,458 @@
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Blueprint/BP_SpawnBox_Actor.uasset" 0
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Blueprint/BP_SpawnBox_Pawn.uasset" 1
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/PM_Dirt.uasset" 2
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/PM_Grass.uasset" 3
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/PM_Rock.uasset" 4
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_circular_stamp.uasset" 5
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Burst_add.uasset" 6
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/MF_NearCameraFade.uasset" 7
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_ember.uasset" 8
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Ember.uasset" 9
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_explosion_shapes_burst_add.uasset" 10
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_ExplosionShapes_burst.uasset" 11
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_distort_channels.uasset" 12
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_FireBall_01.uasset" 13
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_FireBall_01.uasset" 14
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_cloud_graypack.uasset" 15
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_heat_normal.uasset" 16
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_HeatDistortion_mesh.uasset" 17
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_cloud_graypack_02.uasset" 18
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_NormalTest.uasset" 19
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_smokebomb.uasset" 20
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_smoke_bomb_dirlit_01.uasset" 21
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_debris_bit_gpu.uasset" 22
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_debris_SUB.uasset" 23
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_debris_single_GPU_Inst.uasset" 24
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_spark_single_dirty.uasset" 25
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Spark_dirty_Inst.uasset" 26
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Meshes/VFX_Sphere.uasset" 27
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/VFX_LTGrenadeEXP_metal.uasset" 28
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/BMP-3_battle_desert_diff.uasset" 29
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/BMP-3_battle_desert_metall_roughness.uasset" 30
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/BMP-3_battle_desert_normal.uasset" 31
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/BMP-3_battle_desert_roughness.uasset" 32
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/BMP-3_battle_green_diff.uasset" 33
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Materials/TankGreenDamaged.uasset" 34
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_body_diff.uasset" 35
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_body_gloss.uasset" 36
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_body_metall.uasset" 37
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_body_normal.uasset" 38
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Materials/MI_T-62Body_Green.uasset" 39
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_tracks_diff.uasset" 40
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_tracks_gloss.uasset" 41
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_tracks_metall.uasset" 42
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_tracks_normal.uasset" 43
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Materials/MI_T-62Wheels_Green.uasset" 44
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_turret_diff.uasset" 45
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_turret_gloss.uasset" 46
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_turret_metall.uasset" 47
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T-62_turret_normal.uasset" 48
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Materials/MI_T-62Turret_Green.uasset" 49
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Projectile/BP_DMGType_Explosion.uasset" 50
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SkeletalAssets/T-62_Body_Skeleton.uasset" 51
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/AnimBP_T-62_Tank.uasset" 52
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_smoke_gravity_2.uasset" 53
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_smoke_gravity_dirlit_02.uasset" 54
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/VFX_LTGrenadeEXP_default.uasset" 55
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_debris_grit_01.uasset" 56
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_debris_grit.uasset" 57
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_concrete_base.uasset" 58
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_conctere_normal.uasset" 59
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_DirtDebris.uasset" 60
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_smoke_fingers_SUB.uasset" 61
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_smoke_fingers_dirlit_01.uasset" 62
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_debris_GPU.uasset" 63
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_debris_roc_GPU_Inst.uasset" 64
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Meshes/SM_Dirt.uasset" 65
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/VFX_LTGrenadeEXP_dirt.uasset" 66
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/t_debris_grass_GPU.uasset" 67
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_debris_grass_GPU_Inst.uasset" 68
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/VFX_LTGrenadeEXP_grass.uasset" 69
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Explosion01.uasset" 70
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Explosion02.uasset" 71
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Explosion.uasset" 72
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_forest.uasset" 73
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_plain_medium.uasset" 74
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_plain_small.uasset" 75
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Explosion_Earth.uasset" 76
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Impact_Tank01.uasset" 77
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Impact_Tank02.uasset" 78
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Impact_Tank03.uasset" 79
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Impact_Tank04.uasset" 80
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Explosion_Metal.uasset" 81
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_rock.uasset" 82
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_Rock_medium.uasset" 83
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_Rock_small.uasset" 84
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Explosion_Rock.uasset" 85
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/BP_ExplosionFX.uasset" 86
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_ProjectileMat.uasset" 87
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Smoke_SubUV.uasset" 88
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Smoke_Tiled_D.uasset" 89
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_smoke_subUV.uasset" 90
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/P_SmokeTrail.uasset" 91
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/StaticMesh/SM_Projectile.uasset" 92
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Projectile/BP_Projectile.uasset" 93
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/BB_Data.uasset" 94
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/BP_EnvQueryContext_Enemy.uasset" 95
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/EQS_FindLineOfSight.uasset" 96
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/BT_NewLineOfSight.uasset" 97
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/BTService_FindEnemy.uasset" 98
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/BT_Behaviour.uasset" 99
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/AI/BP_TankAIController.uasset" 100
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/DA_TireConfig_Tank.uasset" 101
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/BP_TankWheel.uasset" 102
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T_MBT_90_Tracks_BaseColor.uasset" 103
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T_MBT_90_Tracks_Normal.uasset" 104
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Textures/T_MBT_90_Tracks_OcclusionRoughnessMetallic.uasset" 105
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/Materials/Materials/M_MTB_90_Tracks.uasset" 106
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Materials/MI_T-62_Tracks_Inst.uasset" 107
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/P_WeaponFire.uasset" 108
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Engine_Model_01_Loop.uasset" 109
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Engine_Loop.uasset" 110
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Impact_High.uasset" 111
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Impact_Low.uasset" 112
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Stress.uasset" 113
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/S_Tank_tracks_1.uasset" 114
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Track_Loop.uasset" 115
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/S_Turret_rotation.uasset" 116
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Turret_Loop.uasset" 117
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_WeaponFire.uasset" 118
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SkeletalAssets/T-62_Body_PhysicsAsset.uasset" 119
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SkeletalAssets/T-62_Body.uasset" 120
+"../../../Engine/Content/Functions/Engine_MaterialFunctions01/Opacity/CameraDepthFade.uasset" 121
+"../../../Engine/Content/EngineMaterials/T_Default_Material_Grid_M.uasset" 122
+"../../../Engine/Content/EngineMaterials/T_Default_Material_Grid_N.uasset" 123
+"../../../Engine/Content/EngineMaterials/WorldGridMaterial.uasset" 124
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/StaticMesh/T-62_Barrel.uasset" 125
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/StaticMesh/T-62_Turret.uasset" 126
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/BP_TankVehicle_Player.uasset" 127
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/BP_CameraShake_Fire.uasset" 128
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/Burst1.uasset" 129
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/smoothNormalSphere.uasset" 130
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/water_n.uasset" 131
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Burst1.uasset" 132
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/burstflare1.uasset" 133
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/burstflare1_Mat.uasset" 134
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Distortion1.uasset" 135
+"../../../Engine/Content/Functions/Engine_MaterialFunctions01/ImageAdjustment/DeriveHDRfromLDR.uasset" 136
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/Explodebase1_2k.uasset" 137
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Explodebase1_Mat.uasset" 138
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/Explodebase1Top_2K.uasset" 139
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Explosive2_M.uasset" 140
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/Mushroom1Side1_2K.uasset" 141
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Explosive9_M.uasset" 142
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/Fire2a_2k.uasset" 143
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Fire1_M.uasset" 144
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/RadialRamp_Mat.uasset" 145
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/Smoke1c_2k.uasset" 146
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/Smoke3_M.uasset" 147
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/VF/Fireball1_VF16.uasset" 148
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/Particles/P_ImpactExplosion6.uasset" 149
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_tank_1.uasset" 150
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_tank_4.uasset" 151
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_tank_small.uasset" 152
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Explode_Tank.uasset" 153
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Tank_reload_01.uasset" 154
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Reload.uasset" 155
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/PM_Metal.uasset" 156
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Mesh/tank_fbx_Barrel.uasset" 157
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Mesh/tank_fbx_Track.uasset" 158
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Mesh/tank_fbx_Turret.uasset" 159
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SkeletalAssets/TankBody_PhysicsAsset.uasset" 160
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SkeletalAssets/TankBody_Skeleton.uasset" 161
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SkeletalAssets/TankBody.uasset" 162
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/BP_Tank_AI.uasset" 163
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_MatchArea.uasset" 164
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_Pawn_Ammo.uasset" 165
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_Pawn_Armour.uasset" 166
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_Pawn_Repair.uasset" 167
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/Fonts/inktank.uasset" 168
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/Fonts/inktank_Font.uasset" 169
+"../../../Engine/Content/EditorBlueprintResources/StandardMacros.uasset" 170
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/Enums/EIconBaseType.uasset" 171
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/Enums/EIconGlassType.uasset" 172
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Ellipse/256x256/T_Ellipse_Base_256x256.uasset" 173
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Ellipse/256x256/T_Ellipse_Glass1_256x256.uasset" 174
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Ellipse/256x256/T_Ellipse_Glass2_256x256.uasset" 175
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Square/256x256/T_Square_Base_256x256.uasset" 176
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Square/256x256/T_Square_Glass2_256x256.uasset" 177
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Square/256x256/T_Square_Outline1_256x256.uasset" 178
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Square/256x256/T_Square_Outline2_256x256.uasset" 179
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_A1_256x256.uasset" 180
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/WBP_Icons.uasset" 181
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Ellipse/256x256/T_Ellipse_Outline1_256x256.uasset" 182
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Arrow_D_256x256.uasset" 183
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Arrow_L_256x256.uasset" 184
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Arrow_R_256x256.uasset" 185
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Arrow_U_256x256.uasset" 186
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Gamepad_256x256.uasset" 187
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Gamepad_Trigger_256x256.uasset" 188
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Keyboard_256x256.uasset" 189
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_LMB_256x256.uasset" 190
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Mouse_256x256.uasset" 191
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Background_03.uasset" 192
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Background_05.uasset" 193
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Frame_angle_2.uasset" 194
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Frame_angle_3.uasset" 195
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Frame_angle_4.uasset" 196
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_FrameLine_Fori.uasset" 197
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_FrameLine_vert.uasset" 198
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/WBP_InGameMenu.uasset" 199
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/WBP_MainMenu.uasset" 200
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/WBP_Layout_LeaderboardSlot.uasset" 201
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/WBP_MatchScoreboard.uasset" 202
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/AddColor.uasset" 203
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_CrossIconFunctionCrosshair2.uasset" 204
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_CustomDot.uasset" 205
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_TextureUVNoise.uasset" 206
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_TriangleIconFunction.uasset" 207
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_TriangleFunction.uasset" 208
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_UseCrossFunctionCrosshair.uasset" 209
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Functions/MF_AC_UseDotCrosshair.uasset" 210
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/AnimatedCrosshairs/Crosshair/Materials_Sources/M_AC_Triangle.uasset" 211
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/MI_TriangleCrosshair.uasset" 212
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Icons/T_Ammunition_06_White.uasset" 213
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Icons/Tex_Repair.uasset" 214
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Icons/Tex_Shield.uasset" 215
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/UI/WBP_PlayerHud.uasset" 216
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Burst_M.uasset" 217
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Burst.uasset" 218
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Explosion_SubUV.uasset" 219
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_explosion_subUV.uasset" 220
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Fire_SubUV.uasset" 221
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Fire_Tiled_D.uasset" 222
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Fire_SubUV.uasset" 223
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/m_flare_01.uasset" 224
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Textures/T_Water_N.uasset" 225
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Heat_Distortion.uasset" 226
+"../../../Engine/Content/Functions/Engine_MaterialFunctions01/Gradient/RadialGradient.uasset" 227
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_Radial_Gradient.uasset" 228
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_radial_ramp.uasset" 229
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Materials/M_ConcreteDebris.uasset" 230
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/FX/Meshes/SM_RockDirt.uasset" 231
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Base_Icons/Ellipse/256x256/T_Ellipse_Outline2_256x256.uasset" 232
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_A2_256x256.uasset" 233
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_B1_256x256.uasset" 234
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_B2_256x256.uasset" 235
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_X1_256x256.uasset" 236
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_X2_256x256.uasset" 237
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Y1_256x256.uasset" 238
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/ProIconPack/Textures/Controller_Icons/T_Y2_256x256.uasset" 239
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/bullet_impact_metal_heavy_01.uasset" 240
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/bullet_impact_metal_heavy_02.uasset" 241
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/bullet_impact_metal_heavy_04.uasset" 242
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/bullet_impact_metal_heavy_08.uasset" 243
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_missile_01.uasset" 244
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/explosion_missile_02.uasset" 245
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Fire01.uasset" 246
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/ImpactLand_Generic01.uasset" 247
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/ImpactLand_Generic02.uasset" 248
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/ImpactLand_Generic03.uasset" 249
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/ImpactLand_Generic04.uasset" 250
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Impact_Tank05.uasset" 251
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/Impact_Tank06.uasset" 252
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/S_Stress_1.uasset" 253
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/SFX/S_Stress_3.uasset" 254
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Icons/T_Kill_white.uasset" 255
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Background_06.uasset" 256
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Button3_Medium.uasset" 257
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Static/UI/Textures/Parts/T_Button4_Little.uasset" 258
+"../../../Engine/Content/Animation/DefaultAnimCurveCompressionSettings.uasset" 259
+"../../../Engine/Content/ArtTools/RenderToTexture/Meshes/S_1_Unit_Plane.uasset" 260
+"../../../Engine/Content/EngineMaterials/DefaultMaterial.uasset" 261
+"../../../Engine/Content/BasicShapes/Cone.uasset" 262
+"../../../Engine/Content/BasicShapes/Cube.uasset" 263
+"../../../Engine/Content/BasicShapes/Cylinder.uasset" 264
+"../../../Engine/Content/BasicShapes/Sphere.uasset" 265
+"../../../Engine/Content/EditorLandscapeResources/DataLayer.uasset" 266
+"../../../Engine/Content/EditorMaterials/GizmoMaterial.uasset" 267
+"../../../Engine/Content/EditorMaterials/MAT_Groups_Toggle.uasset" 268
+"../../../Engine/Content/EditorMaterials/MAT_Groups_Visibility.uasset" 269
+"../../../Engine/Content/EditorMaterials/PreviewShadowIndicator.uasset" 270
+"../../../Engine/Content/EditorMaterials/PreviewShadowIndicatorMaterial.uasset" 271
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_ColorTrack.uasset" 272
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Anim.uasset" 273
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_AudioMaster.uasset" 274
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Director.uasset" 275
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Event.uasset" 276
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Fade.uasset" 277
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Float.uasset" 278
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Move.uasset" 279
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Slomo.uasset" 280
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Sound.uasset" 281
+"../../../Engine/Content/EditorMaterials/MatineeGroups/MAT_Groups_Vector.uasset" 282
+"../../../Engine/Content/EditorMaterials/ParticleSystems/PSysThumbnail_NoImage.uasset" 283
+"../../../Engine/Content/EditorMaterials/ParticleSystems/PSysThumbnail_OOD.uasset" 284
+"../../../Engine/Content/EditorMaterials/Camera/CineMat.uasset" 285
+"../../../Engine/Content/EditorMaterials/Camera/MI_CineMat_Rig.uasset" 286
+"../../../Engine/Content/EditorMeshes/Camera/SM_CraneRig_Arm.uasset" 287
+"../../../Engine/Content/EditorMeshes/Camera/SM_CraneRig_Base.uasset" 288
+"../../../Engine/Content/EditorMeshes/Camera/SM_CraneRig_Body.uasset" 289
+"../../../Engine/Content/EditorMeshes/Camera/SM_CraneRig_Mount.uasset" 290
+"../../../Engine/Content/EditorMeshes/Camera/SM_RailRig_Mount.uasset" 291
+"../../../Engine/Content/EditorMeshes/Camera/SM_RailRig_Track.uasset" 292
+"../../../Engine/Content/EditorResources/BSPVertex.uasset" 293
+"../../../Engine/Content/EditorResources/EmptyActor.uasset" 294
+"../../../Engine/Content/EditorResources/S_Actor.uasset" 295
+"../../../Engine/Content/EditorResources/S_Note.uasset" 296
+"../../../Engine/Content/EditorResources/S_Trigger.uasset" 297
+"../../../Engine/Content/EditorResources/LightIcons/S_LightError.uasset" 298
+"../../../Engine/Content/EditorResources/SequenceRecorder/Countdown.uasset" 299
+"../../../Engine/Content/EditorResources/SequenceRecorder/RecordingIndicator.uasset" 300
+"../../../Engine/Content/EditorSounds/Notifications/CompileFailed.uasset" 301
+"../../../Engine/Content/EditorSounds/Notifications/CompileFailed_Cue.uasset" 302
+"../../../Engine/Content/EditorSounds/Notifications/CompileSuccess.uasset" 303
+"../../../Engine/Content/EditorSounds/Notifications/CompileStart_Cue.uasset" 304
+"../../../Engine/Content/EditorSounds/Notifications/CompileSuccess_Cue.uasset" 305
+"../../../Engine/Content/EngineDamageTypes/DmgTypeBP_Environmental.uasset" 306
+"../../../Engine/Content/EngineDebugMaterials/HeatmapGradient.uasset" 307
+"../../../Engine/Content/EngineDebugMaterials/BoneWeightMaterial.uasset" 308
+"../../../Engine/Content/EngineDebugMaterials/ClothMaterial.uasset" 309
+"../../../Engine/Content/EngineDebugMaterials/ClothMaterial_WF.uasset" 310
+"../../../Engine/Content/EngineDebugMaterials/DebugEditorMaterial.uasset" 311
+"../../../Engine/Content/EngineDebugMaterials/DebugMeshMaterial.uasset" 312
+"../../../Engine/Content/EngineDebugMaterials/GeomMaterial.uasset" 313
+"../../../Engine/Content/EngineDebugMaterials/M_SimpleTranslucent.uasset" 314
+"../../../Engine/Content/EngineFonts/Faces/RobotoBold.uasset" 315
+"../../../Engine/Content/EngineFonts/Faces/RobotoBoldItalic.uasset" 316
+"../../../Engine/Content/EngineFonts/Faces/RobotoItalic.uasset" 317
+"../../../Engine/Content/EngineFonts/Faces/RobotoLight.uasset" 318
+"../../../Engine/Content/EngineFonts/Faces/RobotoRegular.uasset" 319
+"../../../Engine/Content/EngineFonts/Roboto.uasset" 320
+"../../../Engine/Content/EngineFonts/Faces/RobotoTiny.uasset" 321
+"../../../Engine/Content/EngineFonts/RobotoTiny.uasset" 322
+"../../../Engine/Content/EngineMaterials/BaseFlattenDiffuseMap.uasset" 323
+"../../../Engine/Content/EngineMaterials/BaseFlattenEmissiveMap.uasset" 324
+"../../../Engine/Content/EngineMaterials/BaseFlattenGrayscaleMap.uasset" 325
+"../../../Engine/Content/EngineMaterials/BaseFlattenNormalMap.uasset" 326
+"../../../Engine/Content/EngineMaterials/BaseFlattenMaterial.uasset" 327
+"../../../Engine/Content/EngineMaterials/DefaultBloomKernel.uasset" 328
+"../../../Engine/Content/EngineMaterials/DefaultBokeh.uasset" 329
+"../../../Engine/Content/EngineMaterials/DefaultDiffuse.uasset" 330
+"../../../Engine/Content/EngineMaterials/DefaultDeferredDecalMaterial.uasset" 331
+"../../../Engine/Content/EngineMaterials/DefaultLightFunctionMaterial.uasset" 332
+"../../../Engine/Content/Functions/Engine_MaterialFunctions02/Utility/BreakOutFloat2Components.uasset" 333
+"../../../Engine/Content/EngineMaterials/DefaultPostProcessMaterial.uasset" 334
+"../../../Engine/Content/EngineFonts/RobotoDistanceField.uasset" 335
+"../../../Engine/Content/EngineMaterials/DefaultTextMaterialOpaque.uasset" 336
+"../../../Engine/Content/EngineMaterials/DefaultWhiteGrid.uasset" 337
+"../../../Engine/Content/EngineMaterials/EditorBrushMaterial.uasset" 338
+"../../../Engine/Content/EngineMaterials/Good64x64TilingNoiseHighFreq.uasset" 339
+"../../../Engine/Content/EngineMaterials/MiniFont.uasset" 340
+"../../../Engine/Content/EngineMaterials/InvalidLightmapSettings.uasset" 341
+"../../../Engine/Content/EngineMaterials/M_InvalidLightmapSettings.uasset" 342
+"../../../Engine/Content/Functions/Engine_MaterialFunctions02/WorldPositionOffset/CameraOffset.uasset" 343
+"../../../Engine/Content/EngineMaterials/PhAT_JointLimitMaterial.uasset" 344
+"../../../Engine/Content/EngineMaterials/PreintegratedSkinBRDF.uasset" 345
+"../../../Engine/Content/EngineMaterials/RemoveSurfaceMaterial.uasset" 346
+"../../../Engine/Content/EngineMaterials/WeightMapPlaceholderTexture.uasset" 347
+"../../../Engine/Content/EngineResources/WhiteSquareTexture.uasset" 348
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough.uasset" 349
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough_Masked.uasset" 350
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough_Opaque.uasset" 351
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough_Masked_OneSided.uasset" 352
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough_Opaque_OneSided.uasset" 353
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough_Translucent.uasset" 354
+"../../../Engine/Content/EngineMaterials/Widget3DPassThrough_Translucent_OneSided.uasset" 355
+"../../../Engine/Content/EngineMeshes/Cylinder.uasset" 356
+"../../../Engine/Content/EngineMeshes/Sphere.uasset" 357
+"../../../Engine/Content/EngineResources/Black.uasset" 358
+"../../../Engine/Content/EngineResources/DefaultTexture.uasset" 359
+"../../../Engine/Content/EngineResources/DefaultTextureCube.uasset" 360
+"../../../Engine/Content/EngineResources/DefaultVolumeTexture2D.uasset" 361
+"../../../Engine/Content/EngineResources/DefaultVolumeTexture.uasset" 362
+"../../../Engine/Content/EngineResources/GradientTexture0.uasset" 363
+"../../../Engine/Content/EngineSounds/Master.uasset" 364
+"../../../Engine/Content/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec.uasset" 365
+"../../../Engine/Content/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness.uasset" 366
+"../../../Engine/Content/Maps/Templates/Thumbnails/Default.uasset" 367
+"../../../Engine/Content/Maps/Templates/Thumbnails/VR-Basic.uasset" 368
+"../../../Engine/Content/MobileResources/T_MobileControls_texture.uasset" 369
+"../../../Engine/Content/MobileResources/T_MobileMenu2.uasset" 370
+"../../../Engine/Content/MobileResources/HUD/AnalogHat.uasset" 371
+"../../../Engine/Content/MobileResources/HUD/VirtualJoystick_Background.uasset" 372
+"../../../Engine/Content/MobileResources/HUD/VirtualJoystick_Thumb.uasset" 373
+"../../../Engine/Content/MobileResources/HUD/DefaultVirtualJoysticks.uasset" 374
+"../../../Engine/Content/MobileResources/HUD/LeftVirtualJoystickOnly.uasset" 375
+"../../../Engine/Content/MobileResources/HUD/MobileHUDButton1_off.uasset" 376
+"../../../Engine/Content/MobileResources/HUD/MobileHUDButton1_on.uasset" 377
+"../../../Engine/Content/MobileResources/HUD/MobileHUDButton2_off.uasset" 378
+"../../../Engine/Content/MobileResources/HUD/MobileHUDButton2_on.uasset" 379
+"../../../Engine/Content/MobileResources/HUD/MobileHUDButton3.uasset" 380
+"../../../Engine/Content/MobileResources/HUD/MobileHUDButtonFire.uasset" 381
+"../../../Engine/Content/MobileResources/HUD/MobileHUDDirectionPad.uasset" 382
+"../../../Engine/Content/MobileResources/HUD/MobileHUDDirectionPad2.uasset" 383
+"../../../Engine/Content/MobileResources/HUD/MobileHUDDirectionPad3.uasset" 384
+"../../../Engine/Content/MobileResources/HUD/MobileHUDDirectionStick.uasset" 385
+"../../../Engine/Content/MobileResources/HUD/T_Castle_ThumbstickInner.uasset" 386
+"../../../Engine/Content/MobileResources/HUD/T_Castle_ThumbstickOutter.uasset" 387
+"../../../Engine/Content/Tutorial/ContentIntroCurve.uasset" 388
+"../../../Engine/Content/Tutorial/Basics/LevelEditorAttract.uasset" 389
+"../../../Engine/Content/Tutorial/Basics/TutorialAssets/icon_tab_Levels_40x.uasset" 390
+"../../../Engine/Content/Tutorial/Basics/LevelEditorOverview.uasset" 391
+"../../../Engine/Content/VREditor/LaserPointer/VR_LaserPower_01.uasset" 392
+"../../../Engine/Content/VREditor/TransformGizmo/TransformGizmoMaterial.uasset" 393
+"../../../Engine/Content/VREditor/TransformGizmo/TranslucentTransformGizmoMaterial.uasset" 394
+"../../../Engine/Content/VREditor/TransformGizmo/BoundingBoxCorner.uasset" 395
+"../../../Engine/Content/VREditor/TransformGizmo/BoundingBoxEdge.uasset" 396
+"../../../Engine/Content/VREditor/TransformGizmo/PlaneTranslationHandle.uasset" 397
+"../../../Engine/Content/VREditor/TransformGizmo/Main.uasset" 398
+"../../../Engine/Content/VREditor/TransformGizmo/Xray.uasset" 399
+"../../../Engine/Content/VREditor/TransformGizmo/SM_Sequencer_Key.uasset" 400
+"../../../Engine/Content/VREditor/TransformGizmo/SM_Sequencer_Node.uasset" 401
+"../../Plugins/2D/Paper2D/Content/PlaceholderTextures/DummySpriteTexture.uasset" 402
+"../../Plugins/2D/Paper2D/Content/DummySprite.uasset" 403
+"../../Plugins/2D/Paper2D/Content/DefaultPaperTerrainMaterial.uasset" 404
+"../../Plugins/2D/Paper2D/Content/DummySpriteTexture.uasset" 405
+"../../Plugins/2D/Paper2D/Content/DefaultSpriteMaterial.uasset" 406
+"../../Plugins/2D/Paper2D/Content/MaskedUnlitSpriteMaterial.uasset" 407
+"../../Plugins/2D/Paper2D/Content/OpaqueUnlitSpriteMaterial.uasset" 408
+"../../Plugins/Runtime/Oculus/OculusVR/Content/OculusMR_RenderTarget.uasset" 409
+"../../../Engine/Content/Functions/Engine_MaterialFunctions02/Utility/BreakOutFloat4Components.uasset" 410
+"../../../Engine/Content/Functions/Engine_MaterialFunctions02/Utility/MakeFloat2.uasset" 411
+"../../../Engine/Content/Functions/Engine_MaterialFunctions02/Utility/MakeFloat3.uasset" 412
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/OculusMR_ChromaKey.uasset" 413
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/OculusMR_ChromaKey_Lit.uasset" 414
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/OculusMR_OpaqueColoredMaterial.uasset" 415
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/OculusMR_WhiteMaterial.uasset" 416
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/PokeAHoleMaterial.uasset" 417
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Textures/GearVRController_AO.uasset" 418
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Textures/GearVRController_Color.uasset" 419
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Textures/GearVRController_Normal.uasset" 420
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/GearVRControllerMaterial.uasset" 421
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Meshes/GearVrController.uasset" 422
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Textures/touchController_albedo.uasset" 423
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Textures/touchController_controlmap.uasset" 424
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Materials/touchController_mat.uasset" 425
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Meshes/LeftTouchController.uasset" 426
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Meshes/RiftHMD.uasset" 427
+"../../Plugins/Runtime/Oculus/OculusVR/Content/Meshes/RightTouchController.uasset" 428
+"../../../Engine/Content/EngineSky/C_Sky_Cloud_Color.uasset" 429
+"../../../Engine/Content/EngineSky/C_Sky_Horizon_Color.uasset" 430
+"../../../Engine/Content/EngineSky/C_Sky_Zenith_Color.uasset" 431
+"../../../Engine/Content/EngineSky/T_Sky_Blue.uasset" 432
+"../../../Engine/Content/EngineSky/T_Sky_Clouds_M.uasset" 433
+"../../../Engine/Content/EngineSky/T_Sky_Stars.uasset" 434
+"../../../Engine/Content/EngineSky/M_Sky_Panning_Clouds2.uasset" 435
+"../../../Engine/Content/EngineSky/SM_SkySphere.uasset" 436
+"../../../Engine/Content/EngineSky/BP_Sky_Sphere.uasset" 437
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Blueprint/BP_BattleHud.uasset" 438
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Blueprint/BP_MapCamera.uasset" 439
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Blueprint/BP_TankPlayerController.uasset" 440
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/AnimBP_T-62_Tank_AI.uasset" 441
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Engine_Loop_AI.uasset" 442
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Stress_AI.uasset" 443
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Effects/SFX/Cue_Track_Loop_AI.uasset" 444
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Tank/Behaviour/BP_Tank_SimpleAI.uasset" 445
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_AllPlayer_Ammo.uasset" 446
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_AllPlayer_Armour.uasset" 447
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Triggers/BP_Trigger_AllPlayer_Repair.uasset" 448
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Blueprint/BP_GameMode_Horde.uasset" 449
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Levels/BattleGround_BuiltData.uasset" 450
+"../../../Engine/Content/BasicShapes/BasicShapeMaterial.uasset" 451
+"../../../Engine/Content/BasicShapes/Plane.uasset" 452
+"../../../Engine/Content/EngineMaterials/DefaultPhysicalMaterial.uasset" 453
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Levels/BattleGround.umap" 454
+"../../../../../../Users/Stuart/Documents/Unreal Projects/BattleTank/Content/Dynamic/Levels/MainMenu.umap" 455
+"../../../Engine/Content/Maps/Entry_BuiltData.uasset" 456
+"../../../Engine/Content/Maps/Entry.umap" 457

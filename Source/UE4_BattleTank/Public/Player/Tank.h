@@ -94,6 +94,9 @@ private:
 	/** Current movement speed */
 	float CurrentSpeed;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	float AmountOfForce;
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Animation
@@ -185,11 +188,12 @@ private:
 
 	/** Sounds of tank impacting metal objects */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
-	USoundBase * MetalImpactSound;
+	USoundBase* HighImpactSound;
 
 	/** Sounds of tank impacting landscape */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
-	USoundBase * LandImpactSound;
+	USoundBase* LowImpactSound;
+
 
 public:
 	ATank();
@@ -319,7 +323,7 @@ private:
 	void OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit);
 
 	/** Activates on hit */
-	void PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX);
+	void PlayTankCollisionFX(USoundBase* ImpactSFX);
 
 	/** Set pitch and volume of sound */
 	void TankDriveSFX();

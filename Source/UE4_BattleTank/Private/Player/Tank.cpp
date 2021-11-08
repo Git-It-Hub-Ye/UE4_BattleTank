@@ -135,6 +135,7 @@ void ATank::ApplyBrakes(bool bApplyBrakes)
 			}
 		}
 		bIsBraking = true;
+		CurrentSpeed = 0.f;
 	}
 	else if (!bApplyBrakes)
 	{
@@ -387,21 +388,21 @@ void ATank::OutOfCombatArea(bool bWarnPlayer)
 
 void ATank::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	/*if (FMath::Abs(MovementComp->GetForwardSpeed()) > 450.f)
+	if (CurrentSpeed > 3.5f)
 	{
-		PlayTankCollisionFX(Hit, HighImpactSound);
+		PlayTankCollisionFX(HighImpactSound);
 	}
-	else if (FMath::Abs(MovementComp->GetForwardSpeed()) > 100.f || SFXTrackSpeedValue > 5.f)
+	else if (CurrentSpeed > 0.1f)
 	{
-		PlayTankCollisionFX(Hit, LowImpactSound);
-	}*/
+		PlayTankCollisionFX(LowImpactSound);
+	}
 }
 
-void ATank::PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX)
+void ATank::PlayTankCollisionFX(USoundBase* ImpactSFX)
 {
 	if (ImpactSFX != NULL)
 	{
-		CollisionAudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
+		CollisionAudioComp = UGameplayStatics::SpawnSoundAttached(ImpactSFX, TankBody);
 	}
 }
 

@@ -53,7 +53,7 @@ struct FWeaponData {
 	FWeaponData()
 	{
 		bInfiniteAmmo = false;
-		MaxRounds = 20.f;
+		MaxRounds = 20;
 		LaunchSpeed = 4000.f;
 		ReloadTimeInSeconds = 3.f;
 	}
@@ -98,8 +98,7 @@ private:
 	/** Owner need to reload */
 	bool bPendingReload;
 
-	bool bLowAmmo;
-
+	/** Owner warned of ammo */
 	bool bAmmoWarning;
 
 	/** Direction component is aiming */
@@ -173,6 +172,10 @@ public:
 	/** Rounds remaing */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	int32 GetRoundsRemaining() const { return CurrentRoundsRemaining; }
+
+	/** Max Rounds */
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	int32 GetMaxRounds() const { return WeaponData.MaxRounds; }
 
 	/** Is current round less than max rounds */
 	bool NeedAmmo() { return CurrentRoundsRemaining < WeaponData.MaxRounds; }

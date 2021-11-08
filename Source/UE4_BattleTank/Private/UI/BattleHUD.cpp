@@ -117,6 +117,14 @@ void ABattleHUD::UpdateHealthDisplay()
 	}
 }
 
+void ABattleHUD::UpdateDamageIndicator(AActor* DamageCauser)
+{
+	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
+	{
+		PlayerWidget->UpdateDamageIndicators(DamageCauser);
+	}
+}
+
 void ABattleHUD::UpdateWeaponStateDisplay()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
@@ -125,19 +133,19 @@ void ABattleHUD::UpdateWeaponStateDisplay()
 	}
 }
 
-void ABattleHUD::WarnOfLowAmmo()
-{
-	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
-	{
-		PlayerWidget->NotifyLowAmmo();
-	}
-}
-
 void ABattleHUD::WarnOutOfAmmo()
 {
 	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
 	{
 		PlayerWidget->NotifyOutOfAmmo();
+	}
+}
+
+void ABattleHUD::SetMaxAmmoDisplay()
+{
+	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
+	{
+		PlayerWidget->SetMaxAmmoDisplay();
 	}
 }
 

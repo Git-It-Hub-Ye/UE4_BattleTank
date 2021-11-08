@@ -186,7 +186,7 @@ float ATankVehicle::TakeDamage(float DamageAmount, struct FDamageEvent const& Da
 			CurrentHealth -= DamageDealt;
 		}
 
-		UpdatePlayerHud();
+		UpdateDamageIndicator(EventInstigator->GetPawn());
 
 		if (CurrentHealth <= 0)
 		{
@@ -316,11 +316,22 @@ void ATankVehicle::AnimateTrackMatRight(float PositionOffset)
 
 void ATankVehicle::UpdatePlayerHud()
 {
-	ATankPlayerController* PC = Cast<ATankPlayerController>(GetController());
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
 	ABattleHUD* BHUD = PC ? PC->GetPlayerHud() : nullptr;
 	if (BHUD != NULL)
 	{
 		BHUD->UpdateHealthDisplay();
+	}
+}
+
+void ATankVehicle::UpdateDamageIndicator(AActor* DamageCauser)
+{
+	ATankPlayerController * PC = Cast<ATankPlayerController>(GetController());
+	ABattleHUD* BHUD = PC ? PC->GetPlayerHud() : nullptr;
+	if (BHUD != NULL)
+	{
+		BHUD->UpdateHealthDisplay();
+		BHUD->UpdateDamageIndicator(DamageCauser);
 	}
 }
 
@@ -340,21 +351,21 @@ void ATankVehicle::OutOfCombatArea(bool bWarnPlayer)
 
 void ATankVehicle::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (FMath::Abs(MovementComp->GetForwardSpeed()) > 450.f)
+	if (FMath::Abs(MovementComp->GetForwardSpeed()) > 250.f)
 	{
-		PlayTankCollisionFX(Hit, HighImpactSound);
+		PlayTankCollisionFX(HighImpactSound);
 	}
-	else if (FMath::Abs(MovementComp->GetForwardSpeed()) > 100.f || SFXTrackSpeedValue > 5.f)
+	else if (FMath::Abs(MovementComp->GetForwardSpeed()) > 50.f || SFXTrackSpeedValue > 5.f)
 	{
-		PlayTankCollisionFX(Hit, LowImpactSound);
+		PlayTankCollisionFX(LowImpactSound);
 	}
 }
 
-void ATankVehicle::PlayTankCollisionFX(const FHitResult& Impact, USoundBase* ImpactSFX)
+void ATankVehicle::PlayTankCollisionFX(USoundBase* ImpactSFX)
 {
 	if (ImpactSFX != NULL)
 	{
-		CollisionAudioComp = UGameplayStatics::SpawnSoundAtLocation(this, ImpactSFX, Impact.ImpactPoint);
+		CollisionAudioComp = UGameplayStatics::SpawnSoundAttached(ImpactSFX, GetMesh());
 	}
 }
 

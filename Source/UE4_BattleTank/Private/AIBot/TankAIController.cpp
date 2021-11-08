@@ -6,6 +6,7 @@
 
 #include "Online/BattleTankGameModeBase.h"
 #include "Tank.h"
+#include "TankVehicle.h"
 #include "Player/AimingComponent.h"
 
 
@@ -44,13 +45,13 @@ void ATankAIController::FindEnemy()
 
 	const FVector MyLoc = AIPawn->GetActorLocation();
 	float BestDistSq = MAX_FLT;
-	ATank * BestEnemy = nullptr;
+	ATankVehicle * BestEnemy = nullptr;
 
 	// Get all Pawns in world
 	for (FConstPawnIterator i = GetWorld()->GetPawnIterator(); i; i++)
 	{
 		// Is pawn controlled by a player
-		ATank * EnemyPawn = Cast<ATank>(*i);
+		ATankVehicle * EnemyPawn = Cast<ATankVehicle>(*i);
 		if (EnemyPawn && !EnemyPawn->IsTankDestroyed() && EnemyPawn->IsPlayerControlled())
 		{
 			// If this Player is closest to AI Pawn set as enemy
@@ -75,7 +76,7 @@ void ATankAIController::FindEnemy()
 void ATankAIController::FireWeapon()
 {
 	ATank * AIBot = Cast<ATank>(GetPawn());
-	ATank * Enemy = Cast<ATank>(BB->GetValueAsObject(EnemyKeyId));
+	ATankVehicle * Enemy = Cast<ATankVehicle>(BB->GetValueAsObject(EnemyKeyId));
 	bool bCanShoot = false;
 	if (AIBot && Enemy)
 	{

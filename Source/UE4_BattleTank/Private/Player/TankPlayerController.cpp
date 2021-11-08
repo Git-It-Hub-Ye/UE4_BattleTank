@@ -282,6 +282,7 @@ FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, F
 		EndLocation,
 		ECollisionChannel::ECC_Camera
 	);
+
 	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;
 }
 

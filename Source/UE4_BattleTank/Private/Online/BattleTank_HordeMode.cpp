@@ -15,7 +15,7 @@ ABattleTank_HordeMode::ABattleTank_HordeMode()
 {
 	DefaultPawnAIClass = ATank::StaticClass();
 
-	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_AI"));
+	static ConstructorHelpers::FClassFinder<APawn> AIBotPawnBPClass(TEXT("/Game/Dynamic/Tank/Behaviour/BP_Tank_SimpleAI"));
 	if (AIBotPawnBPClass.Class != NULL)
 	{
 		DefaultPawnAIClass = AIBotPawnBPClass.Class;
