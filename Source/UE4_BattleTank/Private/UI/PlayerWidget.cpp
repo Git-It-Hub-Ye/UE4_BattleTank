@@ -130,6 +130,41 @@ void UPlayerWidget::UpdateHealthDisplay()
 	}
 }
 
+void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
+{
+	if (DmgIndicatorBlueprint)
+	{
+		UDamageArrowIndicator* DmgIndWidget = Cast<UDamageArrowIndicator>(CreateWidget(this, DmgIndicatorBlueprint));
+		ArrowIndicatorMap.GenerateKeyArray(DamageCauserArray);
+
+		if (ArrowIndicatorMap.Num() <= 0)
+		{
+			ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
+			Panel_Damage->AddChild(DmgIndWidget);
+			DmgIndWidget->SetValues(DamageCauser);
+		}
+		else
+		{
+			if (DamageCauserArray.Contains(DamageCauser))
+			{
+				if (ArrowIndicatorMap[DamageCauser])
+				{
+					ArrowIndicatorMap[DamageCauser]->ResetIndicator();
+				}
+			}
+			else
+			{
+				ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
+				Panel_Damage->AddChild(DmgIndWidget);
+			}
+		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Warning display
+
 void UPlayerWidget::UpdateDamageIndicators(AActor * DamageCauser)
 {
 	if (!PlayerPawn) { InitialiseRefs(); }
@@ -138,72 +173,6 @@ void UPlayerWidget::UpdateDamageIndicators(AActor * DamageCauser)
 	if (Panel_Damage)
 	{
 		AddDamageIndicator(DamageCauser);
-	}
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Warning display
-
-void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
-{
-	if (DamageCauser && ArrowIndicatorBlueprint)
-	{
-		/*UUserWidget * ArrowWidget = CreateWidget(this, ArrowIndicatorBlueprint);
-
-		if (ArrowWidget)
-		{
-			Panel_Damage->AddChild(ArrowWidget);
-			ArrowWidget->SetRenderAngle(RenderAngle);
-
-			RenderAngle += 30.f;
-
-			if (ArrowIndicatorArray.Num() >= MaxArrowIndicators)
-			{
-				UUserWidget* LastWidget = ArrowIndicatorArray[0];
-
-				if (LastWidget)
-				{
-					ArrowIndicatorArray.Remove(LastWidget);
-					LastWidget->SetIsEnabled(false);
-				}
-
-				if (!LastWidget)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("NULL"))
-				}
-			}
-
-			ArrowIndicatorArray.Add(ArrowWidget);
-		}*/
-
-		UUserWidget * ArrowWidget = CreateWidget(this, ArrowIndicatorBlueprint);
-
-		if (ArrowWidget)
-		{
-			ArrowIndicatorMap.GenerateKeyArray(DamageCauserArray);
-
-			if (ArrowIndicatorMap.Num() <= 0)
-			{
-				ArrowIndicatorMap.Add(DamageCauser, ArrowWidget);
-			}
-
-			for (int32 i = 0; i < DamageCauserArray.Num(); i++)
-			{
-				if (DamageCauser == DamageCauserArray[i])
-				{
-					break;
-				}
-				else
-				{
-					Panel_Damage->AddChild(ArrowWidget);
-					ArrowWidget->SetRenderAngle(RenderAngle);
-
-					RenderAngle += 30.f;
-					ArrowIndicatorMap.Add(DamageCauser, ArrowWidget);
-				}
-			}
-		}
 	}
 }
 

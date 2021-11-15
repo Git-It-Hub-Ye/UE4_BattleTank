@@ -166,22 +166,6 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 	UAudioComponent* CollisionAudioComp;
 
-	/** Tank engine sound loop */
-	UPROPERTY(EditdefaultsOnly, Category = "Audio")
-	USoundBase * EngineLoopSfx;
-
-	/** Max pitch for tank sound, when moving fast */
-	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
-	float MaxSoundPitch = 2.f;
-
-	/** Min pitch for tank sound, when rotating slow */
-	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
-	float MinSoundPitch = 1.f;
-
-	/** Max pitch for tank sound, when rotating fast */
-	UPROPERTY(EditAnywhere, Category = "Audio", meta = (ClampMin = 0.f, ClampMax = 2.f))
-	float MaxTurnSoundPitch = 2.f;
-
 	/** Sound of tank being destroyed */
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	USoundBase * DestroyedSound;

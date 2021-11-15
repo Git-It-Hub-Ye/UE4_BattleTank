@@ -25,10 +25,9 @@ protected:
 
 	/** Aim tank weapons */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	UAimingComponent* AimingComp = nullptr;
+	UAimingComponent * AimingComp = nullptr;
 
 private:
-
 	////////////////////////////////////////////////////////////////////////////////////
 	// Tank data
 

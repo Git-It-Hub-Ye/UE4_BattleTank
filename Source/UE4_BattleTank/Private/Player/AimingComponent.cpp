@@ -106,7 +106,7 @@ void UAimingComponent::AimAt(FVector HitLocation)
 void UAimingComponent::MoveBarrelTowards(FVector Direction)
 {
 	if (!ensure(Barrel)) { return; }
-	// Workout difference between barrell location and aim direction.
+	// Workout difference between barrel location and aim direction.
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = Direction.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;

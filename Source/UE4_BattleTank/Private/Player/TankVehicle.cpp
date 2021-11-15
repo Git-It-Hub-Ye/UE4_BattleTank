@@ -194,6 +194,7 @@ float ATankVehicle::TakeDamage(float DamageAmount, struct FDamageEvent const& Da
 			OnDeathBehaviour(EventInstigator);
 		}
 	}
+
 	return DamageToApply;
 }
 

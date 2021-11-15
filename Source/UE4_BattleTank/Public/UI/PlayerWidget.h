@@ -98,7 +98,7 @@ private:
 
 	/** Arrow widget class to spawn on damage */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UDamageArrowIndicator> ArrowIndicatorBlueprint;
+	TSubclassOf<UDamageArrowIndicator> DmgIndicatorBlueprint;
 
 	/** Max amount of damage arrow indicators at a time */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
@@ -108,9 +108,7 @@ private:
 	TArray<AActor*> DamageCauserArray;
 
 	/** Collection of all Enemies and arrow indicators currently spawned */
-	TMap<AActor*, UUserWidget*> ArrowIndicatorMap;
-
-	float RenderAngle;
+	TMap<AActor*, UDamageArrowIndicator*> ArrowIndicatorMap;
 
 public:
 	virtual bool Initialize() override;
@@ -134,15 +132,12 @@ public:
 	/** Update armour and health display */
 	void UpdateHealthDisplay();
 
-	/** Update damage indicator display */
-	void UpdateDamageIndicators(AActor * DamageCauser);
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Warning display
 
-	/** Add damage indicator */
-	void AddDamageIndicator(AActor * DamageCauser);
+	/** Update damage indicator display */
+	void UpdateDamageIndicators(AActor* DamageCauser);
 
 	/** Warn when no ammo */
 	void NotifyOutOfAmmo();
@@ -154,7 +149,6 @@ public:
 	void NotifyOutOfMatchArea();
 
 	void RemoveCombatAreaWarning();
-	
 
 protected:
 	////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +166,9 @@ private:
 
 	/** Return new crosshair color */
 	void SetCrosshairColor();
+
+	/** Add damage indicator */
+	void AddDamageIndicator(AActor* DamageCauser);
 
 
 	////////////////////////////////////////////////////////////////////////////////
