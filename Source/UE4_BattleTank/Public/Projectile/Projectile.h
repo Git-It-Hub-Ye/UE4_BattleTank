@@ -73,8 +73,8 @@ private:
 	UParticleSystemComponent * TrailFX = nullptr;
 
 	/** Projectile movement sound fx */
-	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	UAudioComponent * ProjectileSound;
+	UPROPERTY(VisibleDefaultsOnly, Category = "FX")
+	UAudioComponent * FlybyAudioComp;
 
 	/** FX for surface type */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
@@ -108,6 +108,10 @@ private:
 	/** Deals damage within radius and plays fx on hit */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit);
+
+	/** Checks for overlaps */
+	UFUNCTION()
+	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	/** Destroys actor */
 	void OnTimerExpire();

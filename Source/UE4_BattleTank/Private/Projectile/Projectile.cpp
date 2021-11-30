@@ -24,13 +24,14 @@ AProjectile::AProjectile()
 	CollisionMesh->SetNotifyRigidBodyCollision(true);
 	CollisionMesh->SetVisibility(true);
 	CollisionMesh->bReturnMaterialOnMove = true;
+	CollisionMesh->SetGenerateOverlapEvents(true);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Projectile Movement"));
 	ProjectileMovement->bAutoActivate = false;
 
-	ProjectileSound = CreateDefaultSubobject<UAudioComponent>(FName("Audio FX"));
-	ProjectileSound->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	ProjectileSound->bAutoActivate = true;
+	FlybyAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("Audio FX"));
+	FlybyAudioComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	FlybyAudioComp->SetAutoActivate(false);
 
 	ExplosionForce = CreateDefaultSubobject<URadialForceComponent>(FName("Explosion Force"));
 	ExplosionForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -44,6 +45,7 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+	CollisionMesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlap);
 
 	// Setup instigator controller, as instigator may be null if dead before projectile hits
 	EventInstigator = GetInstigatorController();
@@ -53,7 +55,7 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 {
 	GetWorldTimerManager().ClearTimer(Timer);
 
-	ProjectileSound->Deactivate();
+	FlybyAudioComp->Stop();
 	TrailFX->Deactivate();
 	ProjectileMovement->Deactivate();
 
@@ -76,6 +78,17 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 	);
 
 	GetWorldTimerManager().SetTimer(Timer, this, &AProjectile::OnTimerExpire, ProjectileData.DestroyDelay, false);
+}
+
+void AProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (FlybyAudioComp && OtherActor && GetOwner())
+	{
+		if (OtherActor != GetOwner())
+		{
+			FlybyAudioComp->Play();
+		}
+	}
 }
 
 void AProjectile::OnTimerExpire()

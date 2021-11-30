@@ -18,7 +18,6 @@ void ABattleTankGameState::SetGameDataUsed(bool bTimer, bool bRounds)
 
 void ABattleTankGameState::GetRankedPlayers(TArray<ATankPlayerState*>& OutRankedPlayerState)
 {
-	//TMap<int32, ATankPlayerState*> SortedMap;
 	TMultiMap<int32, ATankPlayerState*> SortedMap;
 
 	// Get all player states and scores and add to tmap

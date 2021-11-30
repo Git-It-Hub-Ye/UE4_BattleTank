@@ -31,6 +31,8 @@ protected:
 	////////////////////////////////////////////////////////////////////////////////
 	// Player data display
 
+	bool ReachMax = false;
+
 	/** How much ammo player has left */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_AmmoRemaining;
@@ -54,7 +56,7 @@ protected:
 	/** Ammo image */
 	UPROPERTY(meta = (BindWidget))
 	UImage * Image_Ammo;
-
+	int32 Val = 0;
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Warning display

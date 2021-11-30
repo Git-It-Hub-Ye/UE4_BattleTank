@@ -10,6 +10,7 @@ class UAimingComponent;
 class UTankVehicleMovementComponent;
 class UAudioComponent;
 class UParticleSystemComponent;
+class USphereComponent;
 
 /**
  * Tank vehicle, can be controlled by player and ai
@@ -26,6 +27,10 @@ protected:
 	/** Aim tank weapons */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UAimingComponent * AimingComp = nullptr;
+
+	/** Volume to trigger SFX on projectile when overlaps */
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent * SFXVolume = nullptr;
 
 private:
 	////////////////////////////////////////////////////////////////////////////////////

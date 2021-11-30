@@ -14,6 +14,7 @@
 #include "TankPlayerController.h"
 #include "TankVehicleMovementComponent.h"
 #include "AimingComponent.h"
+#include "Components/SphereComponent.h"
 #include "UI/BattleHUD.h"
 
 
@@ -28,6 +29,12 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 
 	// Create Tank Components
 	AimingComp = CreateDefaultSubobject<UAimingComponent>(FName("AimComponent"));
+
+	SFXVolume = CreateDefaultSubobject<USphereComponent >(FName("SFX Projectile Volume"));
+	SFXVolume->SetupAttachment(GetMesh());
+	SFXVolume->SetGenerateOverlapEvents(true);
+	SFXVolume->bHiddenInGame = true;
+	SFXVolume->SetWorldScale3D(FVector(50.f, 50.f, 50.f));
 
 	// Setup Audio Components
 	EngineAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("EngineAudio"));

@@ -134,29 +134,61 @@ void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
 {
 	if (DmgIndicatorBlueprint)
 	{
-		UDamageArrowIndicator* DmgIndWidget = Cast<UDamageArrowIndicator>(CreateWidget(this, DmgIndicatorBlueprint));
-		ArrowIndicatorMap.GenerateKeyArray(DamageCauserArray);
-
-		if (ArrowIndicatorMap.Num() <= 0)
+		if (ArrowIndicatorMap.Contains(DamageCauser))
 		{
-			ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
-			Panel_Damage->AddChild(DmgIndWidget);
-			DmgIndWidget->SetValues(DamageCauser);
-		}
-		else
-		{
-			if (DamageCauserArray.Contains(DamageCauser))
-			{
-				if (ArrowIndicatorMap[DamageCauser])
-				{
-					ArrowIndicatorMap[DamageCauser]->ResetIndicator();
-				}
+			DamageCauserArray.Remove(DamageCauser);
+			DamageCauserArray.Insert(DamageCauser, 0);
+			if (ArrowIndicatorMap[DamageCauser] && ArrowIndicatorMap[DamageCauser]->GetIsEnabled())
+			{		
+				ArrowIndicatorMap[DamageCauser]->ResetIndicator();
 			}
 			else
 			{
+				UDamageArrowIndicator * DmgIndWidget = Cast<UDamageArrowIndicator>(CreateWidget(this, DmgIndicatorBlueprint));
+				if (DmgIndWidget)
+				{
+					ArrowIndicatorMap.Emplace(DamageCauser, DmgIndWidget);
+					Panel_Damage->AddChild(DmgIndWidget);
+					DmgIndWidget->SetValues(DamageCauser);
+				}
+			}
+		}
+		else if (ArrowIndicatorMap.Num() < MaxArrowIndicators)
+		{
+			DamageCauserArray.Insert(DamageCauser, 0);
+			UDamageArrowIndicator * DmgIndWidget = Cast<UDamageArrowIndicator>(CreateWidget(this, DmgIndicatorBlueprint));
+
+			if (DmgIndWidget)
+			{
 				ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
 				Panel_Damage->AddChild(DmgIndWidget);
+				DmgIndWidget->SetValues(DamageCauser);
 			}
+		}
+		else if (ArrowIndicatorMap.Contains(DamageCauserArray.Last()))
+		{
+			UDamageArrowIndicator * DmgIndWidget = Cast<UDamageArrowIndicator>(CreateWidget(this, DmgIndicatorBlueprint));
+
+			if (DmgIndWidget)
+			{
+				if (ArrowIndicatorMap[DamageCauserArray.Last()]->GetIsEnabled())
+				{
+					ArrowIndicatorMap[DamageCauserArray.Last()]->RemoveFromViewport();
+					ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
+					Panel_Damage->AddChild(DmgIndWidget);
+					DmgIndWidget->SetValues(DamageCauser);
+				}
+				else
+				{
+					ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
+					Panel_Damage->AddChild(DmgIndWidget);
+					DmgIndWidget->SetValues(DamageCauser);
+				}
+			}
+			
+			ArrowIndicatorMap.Remove(DamageCauserArray.Last());
+			DamageCauserArray.RemoveAt(DamageCauserArray.Num() - 1);
+			DamageCauserArray.Insert(DamageCauser, 0);
 		}
 	}
 }
