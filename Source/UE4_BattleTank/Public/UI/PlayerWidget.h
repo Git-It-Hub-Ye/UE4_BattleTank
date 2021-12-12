@@ -31,8 +31,6 @@ protected:
 	////////////////////////////////////////////////////////////////////////////////
 	// Player data display
 
-	bool ReachMax = false;
-
 	/** How much ammo player has left */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock * Text_AmmoRemaining;
@@ -56,7 +54,7 @@ protected:
 	/** Ammo image */
 	UPROPERTY(meta = (BindWidget))
 	UImage * Image_Ammo;
-	int32 Val = 0;
+	
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Warning display
@@ -72,7 +70,6 @@ protected:
 	/** Damage panel */
 	UPROPERTY(meta = (BindWidget))
 	UOverlay * Panel_Damage;
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Widget data
@@ -111,6 +108,13 @@ private:
 
 	/** Collection of all Enemies and arrow indicators currently spawned */
 	TMap<AActor*, UDamageArrowIndicator*> ArrowIndicatorMap;
+
+	/** Is low health warning enabled */
+	bool bLowHealthWarning = false;
+
+	/** Low health warning threshold */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	int32 LowHealthThreshold = 50.f;
 
 public:
 	virtual bool Initialize() override;

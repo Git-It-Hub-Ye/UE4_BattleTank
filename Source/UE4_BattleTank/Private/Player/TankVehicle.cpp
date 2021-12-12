@@ -9,6 +9,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "Online/BattleTankGameModeBase.h"
 #include "TankPlayerController.h"
@@ -35,6 +37,9 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	SFXVolume->SetGenerateOverlapEvents(true);
 	SFXVolume->bHiddenInGame = true;
 	SFXVolume->SetWorldScale3D(FVector(50.f, 50.f, 50.f));
+
+	FireForce = CreateDefaultSubobject<URadialForceComponent>(FName("Firing Force"));
+	FireForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Setup Audio Components
 	EngineAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("EngineAudio"));
@@ -139,6 +144,11 @@ void ATankVehicle::ApplyBrakes(bool bApplyBrake)
 	}
 }
 
+void ATankVehicle::UpdateFireForceLocation(FVector NewLoc)
+{
+	FireForce->SetRelativeLocation(NewLoc);
+}
+
 void ATankVehicle::ApplyInputAnimationValues()
 {
 	// Only do calculations when brakes are not applied
@@ -166,7 +176,7 @@ void ATankVehicle::SetMovementComp()
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Health, Damage & Death
+// Tank Behaviour
 
 float ATankVehicle::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
@@ -251,6 +261,11 @@ void ATankVehicle::ReplenishArmour()
 {
 	CurrentArmour = StartingArmour;
 	UpdatePlayerHud();
+}
+
+void ATankVehicle::ActivateFireImpulse(FVector Torque)
+{
+	GetMesh()->AddImpulse(Torque, "T-62_body");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

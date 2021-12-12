@@ -23,7 +23,7 @@ private:
 
 	/** Time for turret audio to fade out */
 	UPROPERTY(EditAnywhere, Category = "Sound")
-	float FadeOutTime_SFX;
+	float FadeOutTime_SFX = 0.2;
 
 	/** Component for start & end sounds */
 	UPROPERTY(VisibleDefaultsOnly)

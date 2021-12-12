@@ -54,11 +54,9 @@ protected:
 	float TurningWheelSpeed_Range;
 
 	/** Speed of turning for right wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float RightWheelYaw;
 
 	/** Speed of turning for left wheels */
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float LeftWheelYaw;
 
 
@@ -227,6 +225,14 @@ public:
 
 	/** Return if current health is lower than starting health */
 	bool IsTankDamaged() const { return CurrentHealth < StartingHealth; }
+
+	/** Return current speed of Right wheel */
+	UFUNCTION(BlueprintPure, Category = "Movement")
+	float GetRightWheelYaw() const { return RightWheelYaw; }
+
+	/** Return current speed of left wheel */
+	UFUNCTION(BlueprintPure, Category = "Movement")
+	float GetLeftWheelYaw() const { return LeftWheelYaw; }
 
 
 	////////////////////////////////////////////////////////////////////////////////

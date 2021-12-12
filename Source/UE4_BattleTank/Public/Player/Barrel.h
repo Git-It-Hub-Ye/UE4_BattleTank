@@ -6,7 +6,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Barrel.generated.h"
 
-
 /**
 * Responsible for rotating the barrel.
 */

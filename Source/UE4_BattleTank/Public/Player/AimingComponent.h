@@ -76,6 +76,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FWeaponData WeaponData;
 
+	/** Impulse to pawn to represent fore of firing a projectile */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FVector FiringImpulse;
+
 private:
 	/** Barrel of component for elevation */
 	UBarrel * Barrel = nullptr;

@@ -276,11 +276,16 @@ FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, F
 	auto StartLocation = PlayerCameraManager->GetCameraLocation();
 	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
 
+	FCollisionQueryParams TraceParams;
+	TraceParams.bTraceComplex = true;
+	TraceParams.AddIgnoredActor(GetPawn());
+
 	GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		StartLocation,
 		EndLocation,
-		ECollisionChannel::ECC_Camera
+		ECollisionChannel::ECC_Camera,
+		TraceParams
 	);
 
 	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;

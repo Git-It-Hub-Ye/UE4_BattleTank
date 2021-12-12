@@ -11,6 +11,7 @@ class UTankVehicleMovementComponent;
 class UAudioComponent;
 class UParticleSystemComponent;
 class USphereComponent;
+class URadialForceComponent;
 
 /**
  * Tank vehicle, can be controlled by player and ai
@@ -31,6 +32,10 @@ protected:
 	/** Volume to trigger SFX on projectile when overlaps */
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent * SFXVolume = nullptr;
+
+	/** Force added to self on Fire */
+	UPROPERTY(VisibleAnywhere, Category = "FX")
+	URadialForceComponent* FireForce = nullptr;
 
 private:
 	////////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +179,10 @@ public:
 	/** Stop tank */
 	void ApplyBrakes(bool bApplyBrake);
 
+	/** Adjusts FireForce location */
+	UFUNCTION(BlueprintCallable, Category = "Aim")
+	void UpdateFireForceLocation(FVector NewLoc);
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Tank Behaviour
@@ -188,6 +197,9 @@ public:
 
 	/** Death delegate for controllers */
 	//FTankDelegate OnDeath;
+
+	/** Fires impulse */
+	void ActivateFireImpulse(FVector Torque);
 
 
 	////////////////////////////////////////////////////////////////////////////////

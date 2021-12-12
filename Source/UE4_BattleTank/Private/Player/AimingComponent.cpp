@@ -3,12 +3,14 @@
 #include "AimingComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 
 #include "Components/AudioComponent.h"
 #include "TankPlayerController.h"
 #include "AIBot/TankAIController.h"
 #include "Tank.h"
+#include "TankVehicle.h"
 #include "Turret.h"
 #include "Barrel.h"
 #include "Projectile.h"
@@ -50,11 +52,11 @@ void UAimingComponent::Initialise(UBarrel * BarrelToSet, UTurret * TurretToSet, 
 		ReloadProjectile();
 	}
 
-	if (GetOwner() != NULL)
+	if (CompOwner != NULL)
 	{
-		ATank * OwnerPawn = Cast<ATank>(GetOwner());
+		ATankVehicle * OwnerPawn = Cast<ATankVehicle>(CompOwner);
 		if (OwnerPawn == NULL) { return; }
-		OwnerPawn->OnDeath.AddUniqueDynamic(this, &UAimingComponent::OnOwnerDeath);
+		//OwnerPawn->OnDeath.AddUniqueDynamic(this, &UAimingComponent::OnOwnerDeath);
 	}
 }
 
@@ -219,6 +221,14 @@ void UAimingComponent::OnFire()
 			UGameplayStatics::FinishSpawningActor(Projectile, SpawnT);
 			Projectile->LaunchProjectile(WeaponData.LaunchSpeed);
 			PlaySoundFX(FireSound);
+
+			ATankVehicle * OwnerPawn = Cast<ATankVehicle>(GetOwner());
+			if (OwnerPawn && Turret)
+			{
+				FTransform BoneTransform = Turret->GetSocketTransform("Barrel", ERelativeTransformSpace::RTS_World);
+				FVector Torque = UKismetMathLibrary::TransformDirection(BoneTransform, FiringImpulse);
+				OwnerPawn->ActivateFireImpulse(Torque);
+			}
 
 			ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
 			if (PC)

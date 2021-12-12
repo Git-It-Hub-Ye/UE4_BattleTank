@@ -127,6 +127,17 @@ void UPlayerWidget::UpdateHealthDisplay()
 	if (Bar_HealthRemaining)
 	{
 		Bar_HealthRemaining->SetPercent(PlayerPawn->GetHealthPercent());
+
+		if (!bLowHealthWarning && PlayerPawn->GetHealth() <= LowHealthThreshold)
+		{
+			bLowHealthWarning = true;
+			Bar_HealthRemaining->SetFillColorAndOpacity(FLinearColor::Red);
+		}
+		else if (bLowHealthWarning && PlayerPawn->GetHealth() > LowHealthThreshold)
+		{
+			bLowHealthWarning = false;
+			Bar_HealthRemaining->SetFillColorAndOpacity(FLinearColor::White);
+		}
 	}
 }
 
