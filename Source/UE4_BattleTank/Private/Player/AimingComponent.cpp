@@ -180,23 +180,6 @@ void UAimingComponent::SetWeaponState(EFiringState State)
 	}
 }
 
-FVector UAimingComponent::GetAdjustedAim() const
-{
-	ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
-	FVector FinalAim = FVector::ZeroVector;
-	// If we have a player controller use it for the aim
-	if (PC)
-	{
-		FinalAim = (PC->GetCrosshairLocation() - Barrel->GetSocketLocation(FName("Projectile"))).GetSafeNormal();
-	}
-	else if (CompOwner)
-	{
-		FinalAim = Barrel->GetSocketRotation(FName("Projectile")).Vector();
-	}
-
-	return FinalAim;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Weapon Usage
@@ -208,8 +191,7 @@ void UAimingComponent::OnFire()
 		// Spawn a projectile at the socket location on the barrel.
 		if (!ensure(Barrel)) { return; }
 
-		FTransform SpawnT(GetAdjustedAim().Rotation(), Barrel->GetSocketLocation(FName("Projectile")));
-
+		FTransform SpawnT(Barrel->GetSocketRotation(FName("Projectile")), Barrel->GetSocketLocation(FName("Projectile")));		
 		AProjectile * Projectile = Cast<AProjectile>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, WeaponData.ProjectileBlueprint, SpawnT));
 		if (Projectile && CompOwner)
 		{

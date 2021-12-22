@@ -30,9 +30,11 @@ private:
 	TSubclassOf<UUserWidget> ScoreboardUI;
 
 	/** Player ui */
+	UPROPERTY()
 	UPlayerWidget * PlayerWidget;
 
 	/** Scoreboard */
+	UPROPERTY()
 	UScoreboardWidget * ScoreboardWidget;
 
 public:
@@ -54,6 +56,9 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Updating to hud
+
+	/** Update player ui of current crosshair. Request from player pawn */
+	void UpdateCrosshairDisplay(bool bThirdPersonView, bool bZoomDisplay);
 
 	/** Update player ui of current health. Request from player pawn */
 	void UpdateHealthDisplay();

@@ -24,22 +24,6 @@ private:
 	/** Location for camera to aim on death */
 	FVector LocationOfEnemy;
 
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Weapon usuage
-
-	/** Location along width of viewport */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 1.f))
-	float CrosshairXLocation;
-
-	/** Location along height of viewport */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.0f, ClampMax = 1.f))
-	float CrosshairYLocation;
-
-	/** Distance to perform line trace */
-	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 100.f, ClampMax = 100000.f))
-	float LineTraceRange;
-
 public:
 	ATankPlayerController();
 
@@ -80,13 +64,6 @@ public:
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Weapon usuage
-
-	/** Get the crosshair location to perform line trace along */
-	FVector GetCrosshairLocation() const;
-
-
-	////////////////////////////////////////////////////////////////////////////////
 	// Controller data
 
 	/** Returns an aiming component used by player pawn */
@@ -115,19 +92,6 @@ private:
 
 	/** Ends and/or destroys game session */
 	void CleanupSessionOnReturnToMenu();
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Weapon usage
-
-	/** Returns an out parameter, true if hit landscape */
-	FVector GetSightRayHitLocation(FVector & HitLocation) const;
-
-	/** Returns Look Direction of player crosshair */
-	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;
-
-	/** Get Hit Location */
-	FVector GetLookVectorHitLocation(FVector LookDirection, FVector & HitLocation) const;
 
 
 	////////////////////////////////////////////////////////////////////////////////

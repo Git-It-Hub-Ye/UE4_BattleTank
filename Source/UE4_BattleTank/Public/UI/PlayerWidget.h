@@ -17,6 +17,7 @@ class UImage;
 class UBorder;
 class UWidgetAnimation;
 class UDamageArrowIndicator;
+class UWidgetSwitcher;
 enum class EFiringState : uint8;
 
 /**
@@ -49,12 +50,32 @@ protected:
 
 	/** Crosshair Panel */
 	UPROPERTY(meta = (BindWidget))
-	UBorder * Image_Crosshair;
+	UBorder * Image_Crosshair_TP;
+
+	/** Crosshair Panel */
+	UPROPERTY(meta = (BindWidget))
+	UBorder * Image_Crosshair_FP;
 
 	/** Ammo image */
 	UPROPERTY(meta = (BindWidget))
 	UImage * Image_Ammo;
+
+	/** Switch between crosshairs */
+	UPROPERTY(meta = (BindWidget))
+	UWidgetSwitcher * WS_Crosshairs;
 	
+	/** Third person panel */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_TPCrosshair;
+
+	/** First person panel */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_FPCrosshair;
+
+	/** Zoom panel */
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget * Panel_ZoomCrosshair;
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Warning display
@@ -70,6 +91,7 @@ protected:
 	/** Damage panel */
 	UPROPERTY(meta = (BindWidget))
 	UOverlay * Panel_Damage;
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Widget data
@@ -137,6 +159,9 @@ public:
 
 	/** Update armour and health display */
 	void UpdateHealthDisplay();
+
+	/** Update player ui of current crosshair */
+	void UpdateCrosshairDisplay(bool bThirdPersonView, bool bZoomDisplay);
 
 
 	////////////////////////////////////////////////////////////////////////////////

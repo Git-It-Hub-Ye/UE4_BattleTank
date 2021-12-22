@@ -38,9 +38,6 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	SFXVolume->bHiddenInGame = true;
 	SFXVolume->SetWorldScale3D(FVector(50.f, 50.f, 50.f));
 
-	FireForce = CreateDefaultSubobject<URadialForceComponent>(FName("Firing Force"));
-	FireForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-
 	// Setup Audio Components
 	EngineAudioComp = CreateDefaultSubobject<UAudioComponent>(FName("EngineAudio"));
 	EngineAudioComp->SetupAttachment(GetMesh());
@@ -144,11 +141,6 @@ void ATankVehicle::ApplyBrakes(bool bApplyBrake)
 	}
 }
 
-void ATankVehicle::UpdateFireForceLocation(FVector NewLoc)
-{
-	FireForce->SetRelativeLocation(NewLoc);
-}
-
 void ATankVehicle::ApplyInputAnimationValues()
 {
 	// Only do calculations when brakes are not applied
@@ -172,6 +164,17 @@ void ATankVehicle::ApplyInputAnimationValues()
 void ATankVehicle::SetMovementComp()
 {
 	MovementComp = Cast<UTankVehicleMovementComponent>(GetMovementComponent());
+}
+
+void ATankVehicle::SwitchCameraView(bool bThirdPersonView, bool bZoomMode)
+{
+	ATankPlayerController* const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
+	ABattleHUD* BHUD = PC ? PC->GetPlayerHud() : nullptr;
+
+	if (BHUD != NULL)
+	{
+		BHUD->UpdateCrosshairDisplay(bThirdPersonView, bZoomMode);
+	}
 }
 
 

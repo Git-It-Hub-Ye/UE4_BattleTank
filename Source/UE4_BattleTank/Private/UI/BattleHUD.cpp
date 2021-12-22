@@ -71,17 +71,14 @@ void ABattleHUD::DisplayScoreboard(bool bDisplayThisUI)
 	if (bDisplayThisUI)
 	{
 		ScoreboardWidget = CreateWidget<UScoreboardWidget>(PlayerOwner, ScoreboardUI);
-		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && !ScoreboardWidget->IsVisible())
+		if (ScoreboardWidget)
 		{
 			ScoreboardWidget->AddToViewport();
 		}
 	}
-	else
+	else if (ScoreboardWidget)
 	{
-		if (ScoreboardWidget && ScoreboardWidget->IsValidLowLevel() && ScoreboardWidget->IsVisible())
-		{
-			ScoreboardWidget->RemoveFromViewport();
-		}
+		ScoreboardWidget->RemoveFromViewport();
 	}
 }
 
@@ -108,6 +105,14 @@ void ABattleHUD::DisplayLeaderboard(bool bDisplayThisUI)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Updating player hud
+
+void ABattleHUD::UpdateCrosshairDisplay(bool bThirdPersonView, bool bZoomDisplay)
+{
+	if (PlayerWidget && PlayerWidget->IsValidLowLevel() && PlayerWidget->IsVisible())
+	{
+		PlayerWidget->UpdateCrosshairDisplay(bThirdPersonView, bZoomDisplay);
+	}
+}
 
 void ABattleHUD::UpdateHealthDisplay()
 {

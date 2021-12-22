@@ -13,9 +13,6 @@
 
 ATankPlayerController::ATankPlayerController()
 {
-	CrosshairXLocation = 0.5f;
-	CrosshairYLocation = 0.33333f;
-	LineTraceRange = 100000.f;
 	bAllowPawnInput = false;
 	bInGameMenuInViewport = false;
 }
@@ -223,72 +220,6 @@ void ATankPlayerController::RemoveMatchScoreboard()
 	{
 		BHUD->ShowScoreboard(false);
 	}
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Weapon usage
-
-FVector ATankPlayerController::GetCrosshairLocation() const
-{
-	// Find crosshair position in pixel coordinates.
-	int32 ViewportSizeX, ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
-	auto ScreenLocation = FVector2D(ViewportSizeX * CrosshairXLocation, ViewportSizeY * CrosshairYLocation);
-	FVector HitLocation;
-
-	return GetSightRayHitLocation(HitLocation);
-}
-
-FVector ATankPlayerController::GetSightRayHitLocation(FVector & HitLocation) const
-{
-	// Find crosshair position in pixel coordinates.
-	int32 ViewportSizeX, ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
-	auto ScreenLocation = FVector2D(ViewportSizeX * CrosshairXLocation, ViewportSizeY * CrosshairYLocation);
-
-	// De-project the screen position of crosshair to a world position.
-	FVector LookDirection;
-
-	if (GetLookDirection(ScreenLocation, LookDirection))
-	{
-		// LineTrace along the look direction and see what is hit (upto a max range).
-		return GetLookVectorHitLocation(LookDirection, HitLocation);
-	}
-
-	return PlayerCameraManager->GetCameraLocation().ForwardVector;
-}
-
-bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const
-{
-	FVector CameraWorldLocation; // To be discarded.
-	return DeprojectScreenPositionToWorld(
-		ScreenLocation.X,
-		ScreenLocation.Y,
-		CameraWorldLocation,
-		LookDirection
-	);
-}
-
-FVector ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVector & HitLocation) const
-{
-	FHitResult HitResult;
-	auto StartLocation = PlayerCameraManager->GetCameraLocation();
-	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
-
-	FCollisionQueryParams TraceParams;
-	TraceParams.bTraceComplex = true;
-	TraceParams.AddIgnoredActor(GetPawn());
-
-	GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ECollisionChannel::ECC_Camera,
-		TraceParams
-	);
-
-	return HitLocation = HitResult.GetActor() ? HitResult.ImpactPoint : EndLocation;
 }
 
 

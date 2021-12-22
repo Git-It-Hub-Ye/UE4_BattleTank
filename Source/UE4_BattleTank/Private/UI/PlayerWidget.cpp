@@ -10,6 +10,7 @@
 #include "Components/Image.h"
 #include "Components/Border.h"
 #include "Components/ProgressBar.h"
+#include "Components/WidgetSwitcher.h"
 #include "Player/TankVehicle.h"
 #include "Player/AimingComponent.h"
 #include "Player/TankPlayerController.h"
@@ -74,7 +75,7 @@ void UPlayerWidget::UpdateWeaponDisplay()
 	{
 		Text_AmmoRemaining->SetText(GetAmmoText());
 	}
-	if (Image_Crosshair)
+	if (Image_Crosshair_TP && Image_Crosshair_FP)
 	{
 		SetCrosshairColor();
 	}
@@ -103,7 +104,8 @@ void UPlayerWidget::SetCrosshairColor()
 		}
 		else if (AimCompRef->GetFiringState() == EFiringState::OutOfAmmo)
 		{
-			Image_Crosshair->SetContentColorAndOpacity(FLinearColor(0.f,0.f,0.f,0.4f));
+			Image_Crosshair_TP->SetContentColorAndOpacity(FLinearColor(0.f,0.f,0.f,0.4f));
+			Image_Crosshair_FP->SetContentColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.4f));
 		}
 		else
 		{
@@ -137,6 +139,28 @@ void UPlayerWidget::UpdateHealthDisplay()
 		{
 			bLowHealthWarning = false;
 			Bar_HealthRemaining->SetFillColorAndOpacity(FLinearColor::White);
+		}
+	}
+}
+
+void UPlayerWidget::UpdateCrosshairDisplay(bool bThirdPersonView, bool bZoomDisplay)
+{
+	if (WS_Crosshairs)
+	{
+		if (bThirdPersonView && Panel_TPCrosshair)
+		{
+			WS_Crosshairs->SetActiveWidget(Panel_TPCrosshair);
+		}
+		else if (!bThirdPersonView)
+		{
+			if (bZoomDisplay && Panel_ZoomCrosshair)
+			{
+				WS_Crosshairs->SetActiveWidget(Panel_ZoomCrosshair);
+			}
+			else if (Panel_FPCrosshair)
+			{
+				WS_Crosshairs->SetActiveWidget(Panel_FPCrosshair);
+			}
 		}
 	}
 }

@@ -219,9 +219,6 @@ private:
 	/** Sets the current state of component */
 	void SetWeaponState(EFiringState State);
 
-	/** Get aim direction & rotation depending on controller */
-	FVector GetAdjustedAim() const;
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// FX

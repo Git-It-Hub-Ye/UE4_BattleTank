@@ -11,7 +11,6 @@ class UTankVehicleMovementComponent;
 class UAudioComponent;
 class UParticleSystemComponent;
 class USphereComponent;
-class URadialForceComponent;
 
 /**
  * Tank vehicle, can be controlled by player and ai
@@ -32,10 +31,6 @@ protected:
 	/** Volume to trigger SFX on projectile when overlaps */
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent * SFXVolume = nullptr;
-
-	/** Force added to self on Fire */
-	UPROPERTY(VisibleAnywhere, Category = "FX")
-	URadialForceComponent* FireForce = nullptr;
 
 private:
 	////////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +60,7 @@ private:
 	/** Track if tank is alive */
 	bool bHasBeenDestroyed;
 
+	/** Is braking */
 	bool bIsBraking;
 
 
@@ -179,10 +175,6 @@ public:
 	/** Stop tank */
 	void ApplyBrakes(bool bApplyBrake);
 
-	/** Adjusts FireForce location */
-	UFUNCTION(BlueprintCallable, Category = "Aim")
-	void UpdateFireForceLocation(FVector NewLoc);
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Tank Behaviour
@@ -249,6 +241,10 @@ protected:
 	/** Move tank right and left with gamepad */
 	void TurnRight(float Value);
 
+	/** Set new camera view mode */
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void SwitchCameraView(bool bThirdPersonView, bool bZoomMode);
+
 private:
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -264,6 +260,7 @@ private:
 	void ApplyInputAnimationValues();
 
 	void SetMovementComp();
+
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Track material animation
