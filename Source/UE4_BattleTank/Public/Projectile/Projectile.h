@@ -68,10 +68,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	URadialForceComponent * ExplosionForce = nullptr;
 
-	/** FX component for trail */
-	UPROPERTY(VisibleAnywhere, Category = "FX")
-	UParticleSystemComponent * TrailFX = nullptr;
-
 	/** Projectile movement sound fx */
 	UPROPERTY(VisibleDefaultsOnly, Category = "FX")
 	UAudioComponent * FlybyAudioComp;

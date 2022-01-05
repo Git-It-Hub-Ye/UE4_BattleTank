@@ -37,6 +37,7 @@ void UDamageArrowIndicator::SetValues(AActor * DamageCauser)
 
 void UDamageArrowIndicator::ResetIndicator()
 {
+	SetIsEnabled(true);
 	PlayAnimationAtTime(Anim_Indicator);
 }
 

@@ -122,6 +122,7 @@ private:
 	/** Component for fx on component */
 	UParticleSystemComponent * ParticleComp;
 
+	/** Firing fx */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UParticleSystem * FireFX;
 

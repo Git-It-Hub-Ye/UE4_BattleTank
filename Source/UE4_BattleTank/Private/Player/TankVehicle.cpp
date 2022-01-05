@@ -11,12 +11,13 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/SphereComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 #include "Online/BattleTankGameModeBase.h"
 #include "TankPlayerController.h"
 #include "TankVehicleMovementComponent.h"
 #include "AimingComponent.h"
-#include "Components/SphereComponent.h"
 #include "UI/BattleHUD.h"
 
 
@@ -51,9 +52,39 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	StressAudioComp->SetupAttachment(GetMesh());
 	StressAudioComp->SetAutoActivate(false);
 
+	// Setup Particle Components
+	ExhaustFX = CreateDefaultSubobject<UParticleSystemComponent>(FName("ExhaustFX"));
+	ExhaustFX->SetupAttachment(GetMesh());
+	ExhaustFX->SetAutoActivate(false);
+
+	LowHealthFX = CreateDefaultSubobject<UParticleSystemComponent>(FName("LowHealthFX"));
+	LowHealthFX->SetupAttachment(GetMesh());
+	LowHealthFX->SetAutoActivate(false);
+
+	DestroyedFX = CreateDefaultSubobject<UParticleSystemComponent>(FName("DestroyedFX"));
+	DestroyedFX->SetupAttachment(GetMesh());
+	DestroyedFX->SetAutoActivate(false);
+
+	LeftTrackKickupFX_Front = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Kickup FX Front"));
+	LeftTrackKickupFX_Front->SetupAttachment(GetMesh());
+	LeftTrackKickupFX_Front->SetAutoActivate(false);
+
+	RightTrackKickupFX_Front = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Kickup FX Front"));
+	RightTrackKickupFX_Front->SetupAttachment(GetMesh());
+	RightTrackKickupFX_Front->SetAutoActivate(false);
+
+	LeftTrackKickupFX_Back = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Kickup FX Back"));
+	LeftTrackKickupFX_Back->SetupAttachment(GetMesh());
+	LeftTrackKickupFX_Back->SetAutoActivate(false);
+
+	RightTrackKickupFX_Back = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Kickup FX Back"));
+	RightTrackKickupFX_Back->SetupAttachment(GetMesh());
+	RightTrackKickupFX_Back->SetAutoActivate(false);
+
 	// Setup default variables
 	StartingHealth = 100;
 	StartingArmour = 50;
+	LowHealthThreshold = 25;
 	DestroyTimer = 5.f;
 	bHasBeenDestroyed = false;
 
@@ -72,6 +103,7 @@ void ATankVehicle::BeginPlay()
 	CurrentHealth = StartingHealth;
 	CurrentArmour = StartingArmour;
 	UpdatePlayerHud();
+	ExhaustFX->Activate();
 
 	if (GetMesh() == NULL) { return; }
 	GetMesh()->SetSimulatePhysics(true);
@@ -184,37 +216,42 @@ void ATankVehicle::SwitchCameraView(bool bThirdPersonView, bool bZoomMode)
 float ATankVehicle::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
 	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
 	int32 DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentHealth + CurrentArmour);
 
-	if (IsTankDestroyed() == false)
+	if (DamageToApply > 0)
 	{
-		int32 DamageDealt = DamageToApply;
-		if (CurrentArmour > 0)
+		if (IsTankDestroyed() == false)
 		{
-			int32 InitalArmour = CurrentArmour;
-			CurrentArmour -= DamageDealt;
-			CurrentArmour = FMath::Clamp<int32>(CurrentArmour, 0, InitalArmour);
+			int32 DamageDealt = DamageToApply;
+			if (CurrentArmour > 0)
+			{
+				int32 InitalArmour = CurrentArmour;
+				CurrentArmour -= DamageDealt;
+				CurrentArmour = FMath::Clamp<int32>(CurrentArmour, 0, InitalArmour);
 
-			int32 ReducedDamage = InitalArmour - CurrentArmour;
-			DamageDealt -= ReducedDamage;
-		}
+				int32 ReducedDamage = InitalArmour - CurrentArmour;
+				DamageDealt -= ReducedDamage;
+			}
 
-		if (DamageDealt > 0)
-		{
-			CurrentHealth -= DamageDealt;
-		}
+			if (DamageDealt > 0)
+			{
+				CurrentHealth -= DamageDealt;
+			}
 
-		UpdateDamageIndicator(EventInstigator->GetPawn());
+			UpdateDamageIndicator(EventInstigator->GetPawn());
 
-		if (CurrentHealth <= 0)
-		{
-			bHasBeenDestroyed = true;
-			OnDeathBehaviour(EventInstigator);
+			if (CurrentHealth <= 0)
+			{
+				bHasBeenDestroyed = true;
+				OnDeathBehaviour(EventInstigator);
+			}
+			else if (CurrentHealth <= LowHealthThreshold)
+			{
+				LowHealthFX->Activate();
+			}
 		}
 	}
-
 	return DamageToApply;
 }
 
@@ -222,13 +259,11 @@ void ATankVehicle::OnDeathBehaviour(AController* EventInstigator)
 {
 	//ApplyBrakes(true);
 	
-	if (DestroyedFX != NULL)
-	{
-		UGameplayStatics::SpawnEmitterAttached(DestroyedFX, GetMesh());
-		CollisionAudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
-	}
+	DestroyedFX->Activate();
+	CollisionAudioComp = UGameplayStatics::SpawnSoundAttached(DestroyedSound, GetMesh());
 
 	StopAudioSound();
+	ExhaustFX->DeactivateSystem();
 
 	GetMesh()->SetCollisionProfileName("DestroyedTank");
 
@@ -257,6 +292,12 @@ void ATankVehicle::ReplenishHealth(float HealthToAdd)
 {
 	CurrentHealth = CurrentHealth + HealthToAdd;
 	CurrentHealth = FMath::Clamp<int32>(CurrentHealth, 0, StartingHealth);
+
+	if (CurrentHealth > LowHealthThreshold)
+	{
+		LowHealthFX->DeactivateSystem();
+	}
+
 	UpdatePlayerHud();
 }
 
@@ -439,10 +480,6 @@ void ATankVehicle::TankDriveSFX()
 
 void ATankVehicle::StopAudioSound()
 {
-	if (CollisionAudioComp && CollisionAudioComp->IsPlaying())
-	{
-		CollisionAudioComp->Stop();
-	}
 	if (EngineAudioComp && EngineAudioComp->IsPlaying())
 	{
 		EngineAudioComp->Stop();

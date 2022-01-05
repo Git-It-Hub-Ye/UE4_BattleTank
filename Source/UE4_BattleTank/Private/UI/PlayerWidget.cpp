@@ -173,7 +173,7 @@ void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
 		{
 			DamageCauserArray.Remove(DamageCauser);
 			DamageCauserArray.Insert(DamageCauser, 0);
-			if (ArrowIndicatorMap[DamageCauser] && ArrowIndicatorMap[DamageCauser]->GetIsEnabled())
+			if (ArrowIndicatorMap[DamageCauser] && ArrowIndicatorMap[DamageCauser]->IsInViewport())
 			{		
 				ArrowIndicatorMap[DamageCauser]->ResetIndicator();
 			}
@@ -206,7 +206,7 @@ void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
 
 			if (DmgIndWidget)
 			{
-				if (ArrowIndicatorMap[DamageCauserArray.Last()]->GetIsEnabled())
+				if (ArrowIndicatorMap[DamageCauserArray.Last()]->IsInViewport())
 				{
 					ArrowIndicatorMap[DamageCauserArray.Last()]->RemoveFromViewport();
 					ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);
@@ -247,7 +247,7 @@ void UPlayerWidget::NotifyOutOfAmmo()
 {
 	if (Text_AmmoRemaining)
 	{
-		Text_AmmoRemaining->SetColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)));
+		Text_AmmoRemaining->SetColorAndOpacity(FSlateColor(FLinearColor(0.1f, 0.1f, 0.1f)));
 	}
 	PlayAnimationByName("Anim_WarnOutOfAmmo", 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
 }

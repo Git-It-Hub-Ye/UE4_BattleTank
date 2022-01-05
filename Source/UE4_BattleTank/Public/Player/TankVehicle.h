@@ -47,6 +47,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 100.f))
 	int32 StartingArmour;
 
+	/** Threshold for to activate low health warnings */
+	UPROPERTY(EditDefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	int32 LowHealthThreshold;
+
 	/** Curent health, Initialised in BeginPlay() */
 	int32 CurrentHealth;
 
@@ -109,12 +113,49 @@ private:
 	////////////////////////////////////////////////////////////////////////////////////
 	// VFX
 
-	/** Component for fx on actor */
-	UParticleSystemComponent* ParticleComp;
+	/** Component for exhaust fx on actor */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * ExhaustFX;
 
-	/** Destroy fx */
+	/** Component for low health fx on actor */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * LowHealthFX;
+
+	/** Component for destroyed fx on actor */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * DestroyedFX;
+
+	/** Component for right track kick up fx on actor */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * LeftTrackKickupFX;
+
+	/** Component for right track kick up fx on actor */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * RightTrackKickupFX;
+
+	/** Component for right track kick up fx on actor front*/
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent* LeftTrackKickupFX_Front;
+
+	/** Component for right track kick up fx on actor front*/
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent* RightTrackKickupFX_Front;
+
+	/** Component for right track kick up fx on actor back*/
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent* LeftTrackKickupFX_Back;
+
+	/** Component for right track kick up fx on actor back */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent* RightTrackKickupFX_Back;
+
+	/** Rock fx */
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
-	UParticleSystem* DestroyedFX;
+	UParticleSystem * WheelRockFX;
+
+	/** Dirt fx */
+	UPROPERTY(EditDefaultsOnly, Category = "Particles")
+	UParticleSystem * WheelDirtFX;
 
 
 	////////////////////////////////////////////////////////////////////////////////

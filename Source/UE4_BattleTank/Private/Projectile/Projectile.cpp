@@ -35,10 +35,6 @@ AProjectile::AProjectile()
 
 	ExplosionForce = CreateDefaultSubobject<URadialForceComponent>(FName("Explosion Force"));
 	ExplosionForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-
-	TrailFX = CreateDefaultSubobject<UParticleSystemComponent>(FName("TrailFX"));
-	TrailFX->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	TrailFX->bAutoActivate = false;
 }
 
 void AProjectile::BeginPlay()
@@ -56,13 +52,9 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 	GetWorldTimerManager().ClearTimer(Timer);
 
 	FlybyAudioComp->Stop();
-	TrailFX->Deactivate();
 	ProjectileMovement->Deactivate();
 
-	SetRootComponent(TrailFX);
-	CollisionMesh->DestroyComponent();
 	ExplosionForce->FireImpulse();
-
 	SpawnExplosionFX(Hit);
 
 	UGameplayStatics::ApplyRadialDamage(
@@ -77,7 +69,7 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 		false
 	);
 
-	GetWorldTimerManager().SetTimer(Timer, this, &AProjectile::OnTimerExpire, ProjectileData.DestroyDelay, false);
+	Destroy();
 }
 
 void AProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -100,7 +92,6 @@ void AProjectile::LaunchProjectile(float Speed)
 {
 	ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * Speed);
 	ProjectileMovement->Activate();
-	TrailFX->Activate();
 	GetWorldTimerManager().SetTimer(Timer, this, &AProjectile::OnTimerExpire, ProjectileData.DestroyDelay, false);
 }
 

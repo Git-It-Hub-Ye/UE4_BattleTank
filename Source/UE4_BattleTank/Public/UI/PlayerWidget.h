@@ -129,6 +129,7 @@ private:
 	TArray<AActor*> DamageCauserArray;
 
 	/** Collection of all Enemies and arrow indicators currently spawned */
+	UPROPERTY()
 	TMap<AActor*, UDamageArrowIndicator*> ArrowIndicatorMap;
 
 	/** Is low health warning enabled */
