@@ -65,21 +65,39 @@ ATankVehicle::ATankVehicle(const FObjectInitializer& ObjectInitializer)
 	DestroyedFX->SetupAttachment(GetMesh());
 	DestroyedFX->SetAutoActivate(false);
 
+	// Left Track Setup Particle Components
 	LeftTrackKickupFX_Front = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Kickup FX Front"));
-	LeftTrackKickupFX_Front->SetupAttachment(GetMesh());
+	LeftTrackKickupFX_Front->SetupAttachment(GetMesh(), FName("L_Track_1"));
 	LeftTrackKickupFX_Front->SetAutoActivate(false);
 
+	LeftTrackKickupFX_Rear = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Kickup FX Rear"));
+	LeftTrackKickupFX_Rear->SetupAttachment(GetMesh(), FName("L_Track_5"));
+	LeftTrackKickupFX_Rear->SetAutoActivate(false);
+
+	LeftTrackDebrisFX_Front = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Debris FX Front"));
+	LeftTrackDebrisFX_Front->SetupAttachment(GetMesh());
+	LeftTrackDebrisFX_Front->SetAutoActivate(false);
+
+	LeftTrackDebrisFX_Rear = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Debris FX Rear"));
+	LeftTrackDebrisFX_Rear->SetupAttachment(GetMesh());
+	LeftTrackDebrisFX_Rear->SetAutoActivate(false);
+
+	// Right Track Setup Particle Components
 	RightTrackKickupFX_Front = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Kickup FX Front"));
-	RightTrackKickupFX_Front->SetupAttachment(GetMesh());
+	RightTrackKickupFX_Front->SetupAttachment(GetMesh(), FName("R_Track_1"));
 	RightTrackKickupFX_Front->SetAutoActivate(false);
 
-	LeftTrackKickupFX_Back = CreateDefaultSubobject<UParticleSystemComponent>(FName("Left Track Kickup FX Back"));
-	LeftTrackKickupFX_Back->SetupAttachment(GetMesh());
-	LeftTrackKickupFX_Back->SetAutoActivate(false);
+	RightTrackKickupFX_Rear = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Kickup FX Rear"));
+	RightTrackKickupFX_Rear->SetupAttachment(GetMesh(), FName("R_Track_5"));
+	RightTrackKickupFX_Rear->SetAutoActivate(false);
 
-	RightTrackKickupFX_Back = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Kickup FX Back"));
-	RightTrackKickupFX_Back->SetupAttachment(GetMesh());
-	RightTrackKickupFX_Back->SetAutoActivate(false);
+	RightTrackDebrisFX_Front = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Debris FX Front"));
+	RightTrackDebrisFX_Front->SetupAttachment(GetMesh());
+	RightTrackDebrisFX_Front->SetAutoActivate(false);
+
+	RightTrackDebrisFX_Rear = CreateDefaultSubobject<UParticleSystemComponent>(FName("Right Track Debris FX Rear"));
+	RightTrackDebrisFX_Rear->SetupAttachment(GetMesh());
+	RightTrackDebrisFX_Rear->SetAutoActivate(false);
 
 	// Setup default variables
 	StartingHealth = 100;
@@ -182,8 +200,9 @@ void ATankVehicle::ApplyInputAnimationValues()
 		RightWheelSpeedValue = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), MovementComp->GetRightWheelSpeed());
 	
 		AnimateTracks(LeftWheelSpeedValue, RightWheelSpeedValue);
-
 		SFXTrackSpeedValue = FMath::Max(FMath::Abs(MovementComp->GetLeftWheelSpeed()), FMath::Abs(MovementComp->GetRightWheelSpeed()));
+
+		TankParticleFX(MovementComp->GetThrottleInputValue(), MovementComp->GetSteeringInputValue(), MovementComp->GetLeftWheelSpeed(), MovementComp->GetRightWheelSpeed());
 	}
 	else
 	{
@@ -487,6 +506,127 @@ void ATankVehicle::StopAudioSound()
 	if (TrackAudioComp && TrackAudioComp->IsPlaying())
 	{
 		TrackAudioComp->Stop();
+	}
+}
+
+void ATankVehicle::TankParticleFX(float Throttle, float Steering, float LeftWheelSpeedVal, float RightWheelSpeedVal)
+{
+	float Steer = LeftWheelSpeedVal;
+
+	ExhaustFX->SetVectorParameter("Velocity", FVector(Steer, Throttle, 0.f));
+	ExhaustFX->SetFloatParameter("SpawnRate", Throttle);
+
+	LeftTrackParticleFX(LeftWheelSpeedVal);
+	RightTrackParticleFX(RightWheelSpeedVal);
+}
+
+void ATankVehicle::LeftTrackParticleFX(float LeftWheelSpeedVal)
+{
+	if (LeftWheelSpeedVal > 0.f)
+	{
+		if (LeftTrackKickupFX_Rear->IsActive() && LeftTrackDebrisFX_Front->IsActive())
+		{
+			LeftTrackKickupFX_Rear->SetVectorParameter("WheelSpeed", FVector(LeftWheelSpeedVal));
+			LeftTrackKickupFX_Rear->SetFloatParameter("WheelSpeed", LeftWheelSpeedVal);
+
+			LeftTrackDebrisFX_Front->SetVectorParameter("WheelSpeed", FVector(LeftWheelSpeedVal));
+			LeftTrackDebrisFX_Front->SetFloatParameter("WheelSpeed", LeftWheelSpeedVal);
+		}
+		else
+		{
+			LeftTrackKickupFX_Rear->Activate();
+			LeftTrackDebrisFX_Front->Activate();
+		}
+
+		if (LeftTrackKickupFX_Front->IsActive() || LeftTrackDebrisFX_Rear->IsActive())
+		{
+			LeftTrackKickupFX_Front->Deactivate();
+			LeftTrackDebrisFX_Rear->Deactivate();
+		}
+	}
+	else if (LeftWheelSpeedVal < 0.f)
+	{
+		if (LeftTrackKickupFX_Front->IsActive() && LeftTrackDebrisFX_Rear->IsActive())
+		{
+			LeftTrackKickupFX_Front->SetVectorParameter("WheelSpeed", FVector(LeftWheelSpeedVal));
+			LeftTrackKickupFX_Front->SetFloatParameter("WheelSpeed", LeftWheelSpeedVal);
+
+			LeftTrackDebrisFX_Rear->SetVectorParameter("WheelSpeed", FVector(LeftWheelSpeedVal));
+			LeftTrackDebrisFX_Rear->SetFloatParameter("WheelSpeed", LeftWheelSpeedVal);
+		}
+		else
+		{
+			LeftTrackKickupFX_Front->Activate();
+			LeftTrackDebrisFX_Rear->Activate();
+		}
+
+		if (LeftTrackKickupFX_Rear->IsActive() || LeftTrackDebrisFX_Front->IsActive())
+		{
+			LeftTrackKickupFX_Rear->Deactivate();
+			LeftTrackDebrisFX_Front->Deactivate();
+		}
+	}
+	else
+	{
+		LeftTrackKickupFX_Front->Deactivate();
+		LeftTrackKickupFX_Rear->Deactivate();
+		LeftTrackDebrisFX_Front->Deactivate();
+		LeftTrackDebrisFX_Rear->Deactivate();
+	}
+}
+
+void ATankVehicle::RightTrackParticleFX(float RightWheelSpeedVal)
+{
+	if (RightWheelSpeedVal > 0.f)
+	{
+		if (RightTrackKickupFX_Rear->IsActive() && RightTrackDebrisFX_Front->IsActive())
+		{
+			RightTrackKickupFX_Rear->SetVectorParameter("WheelSpeed", FVector(RightWheelSpeedVal));
+			RightTrackKickupFX_Rear->SetFloatParameter("WheelSpeed", RightWheelSpeedVal);
+
+			RightTrackDebrisFX_Front->SetVectorParameter("WheelSpeed", FVector(RightWheelSpeedVal));
+			RightTrackDebrisFX_Front->SetFloatParameter("WheelSpeed", RightWheelSpeedVal);
+		}
+		else
+		{
+			RightTrackKickupFX_Rear->Activate();
+			RightTrackDebrisFX_Front->Activate();
+		}
+
+		if (RightTrackKickupFX_Front->IsActive() || RightTrackDebrisFX_Rear->IsActive())
+		{
+			RightTrackKickupFX_Front->Deactivate();
+			RightTrackDebrisFX_Rear->Deactivate();
+		}
+	}
+	else if (RightWheelSpeedVal < 0.f)
+	{
+		if (RightTrackKickupFX_Front->IsActive() && RightTrackDebrisFX_Rear->IsActive())
+		{
+			RightTrackKickupFX_Front->SetVectorParameter("WheelSpeed", FVector(RightWheelSpeedVal));
+			RightTrackKickupFX_Front->SetFloatParameter("WheelSpeed", RightWheelSpeedVal);
+
+			RightTrackDebrisFX_Rear->SetVectorParameter("WheelSpeed", FVector(RightWheelSpeedVal));
+			RightTrackDebrisFX_Rear->SetFloatParameter("WheelSpeed", RightWheelSpeedVal);
+		}
+		else
+		{
+			RightTrackKickupFX_Front->Activate();
+			RightTrackDebrisFX_Rear->Activate();
+		}
+
+		if (RightTrackKickupFX_Rear->IsActive() || RightTrackDebrisFX_Front->IsActive())
+		{
+			RightTrackKickupFX_Rear->Deactivate();
+			RightTrackDebrisFX_Front->Deactivate();
+		}
+	}
+	else
+	{
+		RightTrackKickupFX_Front->Deactivate();
+		RightTrackKickupFX_Rear->Deactivate();
+		RightTrackDebrisFX_Front->Deactivate();
+		RightTrackDebrisFX_Rear->Deactivate();
 	}
 }
 

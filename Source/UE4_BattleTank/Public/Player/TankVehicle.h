@@ -125,29 +125,45 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
 	UParticleSystemComponent * DestroyedFX;
 
-	/** Component for right track kick up fx on actor */
-	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
-	UParticleSystemComponent * LeftTrackKickupFX;
 
-	/** Component for right track kick up fx on actor */
-	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
-	UParticleSystemComponent * RightTrackKickupFX;
+	////////////////////////////////////////////////////////////////////////////////////
+	// Left VFX
 
-	/** Component for right track kick up fx on actor front*/
+	/** Component for left track kick up fx on actor front */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
-	UParticleSystemComponent* LeftTrackKickupFX_Front;
+	UParticleSystemComponent * LeftTrackKickupFX_Front;
 
-	/** Component for right track kick up fx on actor front*/
+	/** Component for left track kick up fx on actor rear */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
-	UParticleSystemComponent* RightTrackKickupFX_Front;
+	UParticleSystemComponent * LeftTrackKickupFX_Rear;
 
-	/** Component for right track kick up fx on actor back*/
+	/** Component for left track debris fx on actor front */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
-	UParticleSystemComponent* LeftTrackKickupFX_Back;
+	UParticleSystemComponent* LeftTrackDebrisFX_Front;
 
-	/** Component for right track kick up fx on actor back */
+	/** Component for left track debris fx on actor rear */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
-	UParticleSystemComponent* RightTrackKickupFX_Back;
+	UParticleSystemComponent* LeftTrackDebrisFX_Rear;
+
+
+	////////////////////////////////////////////////////////////////////////////////////
+	// Right VFX
+
+	/** Component for right track kick up fx on actor front */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * RightTrackKickupFX_Front;
+
+	/** Component for right track kick up fx on actor rear */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * RightTrackKickupFX_Rear;
+
+	/** Component for right track debris fx on actor front */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * RightTrackDebrisFX_Front;
+
+	/** Component for right track debris fx on actor rear */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Particles")
+	UParticleSystemComponent * RightTrackDebrisFX_Rear;
 
 	/** Rock fx */
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
@@ -336,7 +352,7 @@ private:
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// SFX
+	// Paly FX
 
 	/** Activates on hit */
 	UFUNCTION()
@@ -350,5 +366,14 @@ private:
 
 	/** Stops audio */
 	void StopAudioSound();
+
+	/** Set particle fx variables */
+	void TankParticleFX(float Throttle, float Steering, float LeftWheelSpeedVal, float RightWheelSpeedVal);
+
+	/** Plays track fx */
+	void LeftTrackParticleFX(float LeftWheelSpeedVal);
+
+	/** Plays track fx */
+	void RightTrackParticleFX(float RightWheelSpeedVal);
 
 };
