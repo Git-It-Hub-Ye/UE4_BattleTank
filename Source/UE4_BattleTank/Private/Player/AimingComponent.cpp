@@ -1,4 +1,4 @@
-// Copyright 2018 - 2021 Stuart McDonald.
+// Copyright 2018 - 2022 Stuart McDonald.
 
 #include "AimingComponent.h"
 #include "Engine/World.h"
@@ -184,41 +184,63 @@ void UAimingComponent::SetWeaponState(EFiringState State)
 ////////////////////////////////////////////////////////////////////////////////
 // Weapon Usage
 
+FVector UAimingComponent::GetProjectileSpawnLocation()
+{
+	FHitResult HitResult;
+	auto StartLocation = Turret->GetSocketLocation(FName("Barrel"));
+	auto EndLocation = Barrel->GetSocketLocation(FName("Projectile"));
+
+	FCollisionQueryParams TraceParams;
+	TraceParams.bTraceComplex = true;
+	TraceParams.AddIgnoredActor(CompOwner);
+
+	GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECollisionChannel::ECC_Camera,
+		TraceParams
+	);
+
+	// return hit location if barrel is overlapping another actor
+	return HitResult.bBlockingHit ? HitResult.ImpactPoint : Barrel->GetSocketLocation(FName("Projectile"));
+}
+
 void UAimingComponent::OnFire()
 {
 	if (CanFire())
 	{
-		// Spawn a projectile at the socket location on the barrel.
-		if (!ensure(Barrel)) { return; }
-
-		FTransform SpawnT(Barrel->GetSocketRotation(FName("Projectile")), Barrel->GetSocketLocation(FName("Projectile")));		
-		AProjectile * Projectile = Cast<AProjectile>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, WeaponData.ProjectileBlueprint, SpawnT));
-		if (Projectile && CompOwner)
+		if (Turret && Barrel)
 		{
-			SpawnParticleEffect(FireFX);
-
-			Projectile->Instigator = CompOwner;
-			Projectile->SetOwner(CompOwner);
-
-			UGameplayStatics::FinishSpawningActor(Projectile, SpawnT);
-			Projectile->LaunchProjectile(WeaponData.LaunchSpeed);
-			PlaySoundFX(FireSound);
-
-			ATankVehicle * OwnerPawn = Cast<ATankVehicle>(GetOwner());
-			if (OwnerPawn && Turret)
+			FTransform SpawnT(Barrel->GetSocketRotation(FName("Projectile")), GetProjectileSpawnLocation());
+			AProjectile* Projectile = Cast<AProjectile>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, WeaponData.ProjectileBlueprint, SpawnT));
+			if (Projectile && CompOwner)
 			{
-				FTransform BoneTransform = Turret->GetSocketTransform("Barrel", ERelativeTransformSpace::RTS_World);
-				FVector Torque = UKismetMathLibrary::TransformDirection(BoneTransform, FiringImpulse);
-				OwnerPawn->ActivateFireImpulse(Torque);
-			}
+				SpawnParticleEffect(FireFX);
 
-			ATankPlayerController * const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
-			if (PC)
-			{
-				PC->ClientPlayCameraShake(FireCamShakeBP);
-			}
+				Projectile->Instigator = CompOwner;
+				Projectile->SetOwner(CompOwner);
 
-			ReloadProjectile();
+				UGameplayStatics::FinishSpawningActor(Projectile, SpawnT);
+				Projectile->LaunchProjectile(WeaponData.LaunchSpeed);
+				PlaySoundFX(FireSound);
+
+				ATankVehicle* OwnerPawn = Cast<ATankVehicle>(GetOwner());
+				if (OwnerPawn)
+				{
+					FTransform BoneTransform = Turret->GetSocketTransform("Barrel", ERelativeTransformSpace::RTS_World);
+					FVector Torque = UKismetMathLibrary::TransformDirection(BoneTransform, FiringImpulse);
+					OwnerPawn->ActivateFireImpulse(Torque);
+				}
+
+				ATankPlayerController* const PC = CompOwner ? Cast<ATankPlayerController>(CompOwner->Controller) : nullptr;
+				if (PC)
+				{
+					PC->ClientPlayCameraShake(FireCamShakeBP);
+				}
+
+				ReloadProjectile();
+			}
 		}
 	}
 }

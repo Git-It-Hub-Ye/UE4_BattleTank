@@ -1,4 +1,4 @@
-// Copyright 2018 - 2021 Stuart McDonald.
+// Copyright 2018 - 2022 Stuart McDonald.
 
 #include "Track.h"
 #include "Engine/StaticMesh.h"

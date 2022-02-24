@@ -1,4 +1,4 @@
-// Copyright 2018 - 2021 Stuart McDonald.
+// Copyright 2018 - 2022 Stuart McDonald.
 
 #include "PlayerWidget.h"
 #include "Animation/WidgetAnimation.h"
@@ -173,7 +173,7 @@ void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
 		{
 			DamageCauserArray.Remove(DamageCauser);
 			DamageCauserArray.Insert(DamageCauser, 0);
-			if (ArrowIndicatorMap[DamageCauser] && ArrowIndicatorMap[DamageCauser]->IsInViewport())
+			if (ArrowIndicatorMap[DamageCauser] && Panel_Damage->HasChild(ArrowIndicatorMap[DamageCauser]))
 			{		
 				ArrowIndicatorMap[DamageCauser]->ResetIndicator();
 			}
@@ -206,7 +206,7 @@ void UPlayerWidget::AddDamageIndicator(AActor * DamageCauser)
 
 			if (DmgIndWidget)
 			{
-				if (ArrowIndicatorMap[DamageCauserArray.Last()]->IsInViewport())
+				if (Panel_Damage->HasChild(ArrowIndicatorMap[DamageCauserArray.Last()]))
 				{
 					ArrowIndicatorMap[DamageCauserArray.Last()]->RemoveFromViewport();
 					ArrowIndicatorMap.Add(DamageCauser, DmgIndWidget);

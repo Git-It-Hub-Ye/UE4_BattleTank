@@ -1,4 +1,4 @@
-// Copyright 2018 - 2021 Stuart McDonald.
+// Copyright 2018 - 2022 Stuart McDonald.
 
 #pragma once
 
@@ -196,6 +196,9 @@ protected:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Weapon usage
+
+	/** Get projectile spawn location */
+	FVector GetProjectileSpawnLocation();
 
 	/** Try fire a projectile */
 	void OnFire();
