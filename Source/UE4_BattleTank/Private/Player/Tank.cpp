@@ -47,11 +47,7 @@ ATank::ATank()
 	DestroyTimer = 5.f;
 	bHasBeenDestroyed = false;
 
-	MaxForwardWheelSpeed = 10.f;
-	ForwardWheelSpeed_Range = 5.f;
-	MaxTurningWheelSpeed = 5.f;
-	TurningWheelSpeed_Range = 0.5f;
-
+	MaxTrackWheelSpeed = 30.f;
 	TrackSpeed_Range = 1.f;
 
 	LeftTrackUVOffset = 0.f;
@@ -112,71 +108,70 @@ void ATank::TurnRight(float Value)
 	}
 }
 
-void ATank::ApplyBrakes(bool bApplyBrakes)
+void ATank::ApplyInputAnimationValues(float RightWheelRate, float LeftWheelRate)
 {
-	if (bApplyBrakes)
-	{
-		if (EngineAudioComp)
-		{
-			EngineAudioComp->SetFloatParameter("RPM", 0.f);
-		}
-
-		if (TrackAudioComp->IsPlaying())
-		{
-			if (!bIsBraking)
-			{
-				if (CurrentSpeed >= 2.f && StressAudioComp)
-				{
-					StressAudioComp->Play();
-					StressAudioComp->SetFloatParameter("Speed", CurrentSpeed);
-					StressAudioComp->FadeOut(1.f, 0.f);
-				}
-				TrackAudioComp->FadeOut(0.2f, 0.f);
-			}
-		}
-		bIsBraking = true;
-		CurrentSpeed = 0.f;
-	}
-	else if (!bApplyBrakes)
-	{
-		bIsBraking = false;
-		if (StressAudioComp && !StressAudioComp->IsPlaying())
-		{
-			StressAudioComp->Play();
-			StressAudioComp->SetFloatParameter("Speed", 150.f);
-			StressAudioComp->FadeOut(1.f, 0.f);
-		}
-		if (TrackAudioComp)
-		{
-			TrackAudioComp->Play();
-		}
-	}
-}
-
-void ATank::ApplyInputAnimationValues(float ForwardRate, float TurnRate)
-{
-	float CurrentForwardWheelSpeed = 0.f;
-	float CurrentTurningWheelSpeed = 0.f;
 	float CurrentLeftTrackSpeed = 0.f;
 	float CurrentRightTrackSpeed = 0.f;
 
-	if (ForwardRate != 0.f)
+	if (RightWheelRate != 0.f)
 	{
-		CurrentForwardWheelSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-ForwardWheelSpeed_Range, ForwardWheelSpeed_Range), FVector2D(-MaxForwardWheelSpeed, MaxForwardWheelSpeed), ForwardRate);
-		CurrentLeftTrackSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-MaxForwardWheelSpeed, MaxForwardWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), ForwardRate);
-		CurrentRightTrackSpeed = CurrentLeftTrackSpeed;
-	}
-	else if (TurnRate != 0.f)
-	{
-		CurrentTurningWheelSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-TurningWheelSpeed_Range, TurningWheelSpeed_Range), FVector2D(-MaxTurningWheelSpeed, MaxTurningWheelSpeed), TurnRate);
-		CurrentLeftTrackSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTurningWheelSpeed, MaxTurningWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), TurnRate);
-		CurrentRightTrackSpeed = -CurrentLeftTrackSpeed;
+		CurrentRightTrackSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), RightWheelRate);
 	}
 
-	TurnWheels(CurrentForwardWheelSpeed, CurrentTurningWheelSpeed);
+	if (LeftWheelRate != 0.f)
+	{
+		CurrentLeftTrackSpeed = FMath::GetMappedRangeValueClamped(FVector2D(-MaxTrackWheelSpeed, MaxTrackWheelSpeed), FVector2D(-TrackSpeed_Range, TrackSpeed_Range), LeftWheelRate);
+	}
+
 	AnimateTracks(CurrentLeftTrackSpeed, CurrentRightTrackSpeed);
+	TankDriveSFX(FMath::Max(RightWheelRate, LeftWheelRate));
+}
 
-	TankDriveSFX();
+void ATank::ApplyBrakes(bool bApplyBrakes)
+{
+	if (MovementComp != NULL)
+	{
+		MovementComp->SetBrakesValue(bApplyBrakes);
+
+		if (bApplyBrakes)
+		{
+			if (TrackAudioComp->IsPlaying())
+			{
+				if (!bIsBraking)
+				{
+					if (StressAudioComp)
+					{
+						StressAudioComp->Play();
+						StressAudioComp->SetFloatParameter("Speed", 300.f);
+						StressAudioComp->FadeOut(1.f, 0.f);
+					}
+					TrackAudioComp->FadeOut(1.f, 0.f);
+
+				}
+			}
+
+			if (EngineAudioComp)
+			{
+				EngineAudioComp->SetFloatParameter("RPM", 0);
+			}
+
+			bIsBraking = true;
+		}
+		else if (!bApplyBrakes)
+		{
+			bIsBraking = false;
+			if (StressAudioComp)
+			{
+				StressAudioComp->Play();
+				StressAudioComp->SetFloatParameter("Speed", 150.f);
+				StressAudioComp->FadeOut(1.f, 0.f);
+			}
+			if (TrackAudioComp)
+			{
+				TrackAudioComp->Play();
+			}
+		}
+	}
 }
 
 
@@ -267,33 +262,6 @@ void ATank::ReplenishArmour()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Wheel animation
-
-void ATank::TurnWheels(float MaxForwardRotSpeed, float MaxTurningRotSpeed)
-{
-	if (MaxForwardRotSpeed != 0.f)
-	{
-		LeftWheelYaw -= MaxForwardRotSpeed;
-		RightWheelYaw -= MaxForwardRotSpeed;
-	}
-	else if (MaxTurningRotSpeed != 0.f)
-	{
-		LeftWheelYaw -= MaxTurningRotSpeed;
-		RightWheelYaw += MaxTurningRotSpeed;
-	}
-
-	if (FMath::Abs(LeftWheelYaw) >= 3600.f)
-	{
-		LeftWheelYaw = 0.f;
-	}
-	if (FMath::Abs(RightWheelYaw) >= 3600.f)
-	{
-		RightWheelYaw = 0.f;
-	}
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
 // Track animation
 
 UMaterialInstanceDynamic* ATank::SetTrackMats(int32 Element, UMaterialInterface* Mat)
@@ -315,7 +283,6 @@ void ATank::SetRightTrackMat(UMaterialInstanceDynamic* Mat)
 
 void ATank::AnimateTracks(float LeftRangeValue, float RightRangeValue)
 {
-	if (MovementComp == NULL) { return; }
 	float LeftOffset = 0;
 	float RightOffset = 0;
 
@@ -388,14 +355,8 @@ void ATank::OutOfCombatArea(bool bWarnPlayer)
 
 void ATank::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (CurrentSpeed > 3.5f)
-	{
-		PlayTankCollisionFX(HighImpactSound);
-	}
-	else if (CurrentSpeed > 0.1f)
-	{
-		PlayTankCollisionFX(LowImpactSound);
-	}
+	
+	PlayTankCollisionFX(HighImpactSound);
 }
 
 void ATank::PlayTankCollisionFX(USoundBase* ImpactSFX)
@@ -406,27 +367,25 @@ void ATank::PlayTankCollisionFX(USoundBase* ImpactSFX)
 	}
 }
 
-void ATank::TankDriveSFX()
+void ATank::TankDriveSFX(float TrackSpeed)
 {
 	if (MovementComp == NULL) { return; }
 
-	float ForwardSpeed = FMath::Abs(MovementComp->GetForwardValue());
-	float TurnSpeed = FMath::Abs(MovementComp->GetTurnRightValue());
-	float TotalSpeed = ForwardSpeed + TurnSpeed;
+	float Speed = FMath::Abs(MovementComp->GetForwardTorque());
 
 	if (EngineAudioComp)
 	{
-		EngineAudioComp->SetFloatParameter("RPM", TotalSpeed);
+		EngineAudioComp->SetFloatParameter("RPM", Speed);
 	}
 	if (TrackAudioComp)
 	{
 		if (TrackAudioComp->IsPlaying())
 		{
-			TrackAudioComp->SetFloatParameter("Speed", TotalSpeed);
+			TrackAudioComp->SetFloatParameter("Speed", TrackSpeed);
 		}
 	}
 
-	CurrentSpeed = TotalSpeed;
+	CurrentSpeed = Speed;
 }
 
 void ATank::StopAudioSound()

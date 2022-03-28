@@ -21,27 +21,30 @@ private:
 	/** Owning actor of this component */
 	ATank* TankOwner;
 
+	USkeletalMeshComponent * TankMesh;
+
 	////////////////////////////////////////////////////////////////////////////////
 	// Drive data
 
 	/** Are wheel brakes currently on */
 	bool bBrakesApplied;
 
-	float CurrentForwardSpeed;
+	/** Current Forward Value */
+	float CurrentForwardValue;
 
-	float CurrentTurningSpeed;
+	float WheelTorque;
+
+	/** Rotation force added to each wheel */
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	float ForcePerWheel;
+
+	/** Rotation force added to mesh */
+	UPROPERTY(EditdefaultsOnly, Category = "Config")
+	float TurnForce;
 
 	/** Rate of max forward speed */
-	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 1000.f))
-	float ForwardMovementRate;
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Tank rotation
-
-	/** How fast to rotate tank (Higher values = faster) */
-	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f, ClampMax = 1.f))
-	float TurnRate;
+	UPROPERTY(EditdefaultsOnly, Category = "Config", meta = (ClampMin = 0.f))
+	float BrakeTorque;
 
 
 public:
@@ -61,9 +64,9 @@ public:
 
 	void SetBrakesValue(bool bSetBrake);
 
-	float GetForwardValue() const { return CurrentForwardSpeed; }
+	float GetForwardValue() const { return CurrentForwardValue; }
 
-	float GetTurnRightValue() const { return CurrentTurningSpeed; }
+	float GetForwardTorque() const { return WheelTorque; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -71,10 +74,15 @@ protected:
 private:
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Drive tank
+	// Drive data
 
 	/** Add torque to wheels to restrict ai movement to same as players */
 	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
 
 	void MovementValuesForAnimation();
+
+	float GetLeftWheelSpeed();
+
+	float GetRightWheelSpeed();
+
 };

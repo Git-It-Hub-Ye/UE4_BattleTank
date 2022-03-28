@@ -34,32 +34,6 @@ protected:
 	UTankAISimpleMovementComp* MovementComp = nullptr;
 
 
-	////////////////////////////////////////////////////////////////////////////////
-	// Animation wheel data
-
-	/** Tank Forward MAX Wheel Speed */
-	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
-	float MaxForwardWheelSpeed;
-
-	/** Tank Forward Wheel speed Range between MaxForwardWheelSpeed & -MaxForwardWheelSpeed. Set close to actual forard speed */
-	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
-	float ForwardWheelSpeed_Range;
-
-	/** Tank Turning MAX Wheel Speed */
-	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
-	float MaxTurningWheelSpeed;
-
-	/** Tank Turning Wheel speed Range between MaxTurningWheelSpeed & -MaxTurningWheelSpeed. Set close to actual turning speed */
-	UPROPERTY(EditDefaultsOnly, Category = "Wheel/Track", meta = (ClampMin = 0.f, ClampMax = 1000.f))
-	float TurningWheelSpeed_Range;
-
-	/** Speed of turning for right wheels */
-	float RightWheelYaw;
-
-	/** Speed of turning for left wheels */
-	float LeftWheelYaw;
-
-
 private:
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +85,11 @@ private:
 	UPROPERTY(EditdefaultsOnly, Category = "Config Track")
 	FName TrackScalarParamName;
 
-	/** Range between MaxTrackWheelSpeed & -MaxTrackWheelSpeed, adjusting this value will alter track speed easier. A value of 0 will stop track movement, higher value will speed up. */
+	/** Max range of Wheel Speed for track animation. Closer to actual speed of wheel will create more accurate movement. */
+	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
+	float MaxTrackWheelSpeed;
+
+	/** Range between MaxTrackWheelSpeed & -MaxTrackWheelSpeed, adjusting this value will alter track speed. A value of 0 will stop track movement, higher value will speed up. */
 	UPROPERTY(EditDefaultsOnly, Category = "Config Track", meta = (ClampMin = 0.f, ClampMax = 100.f))
 	float TrackSpeed_Range;
 
@@ -120,12 +98,6 @@ private:
 
 	/** Dynamic material for right track rotation */
 	UMaterialInstanceDynamic* RightTrackMat;
-
-	/** Current range of left wheel speed */
-	float LeftWheelSpeedValue;
-
-	/** Current range of right wheel speed */
-	float RightWheelSpeedValue;
 
 	/** UV offset for left track animation */
 	float LeftTrackUVOffset;
@@ -188,10 +160,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Gets actor speed for wheel, track animations and sfx */
-	void ApplyInputAnimationValues(float ForwardRate, float TurnRate);
-
-	/** Sets brake */
-	void ApplyBrakes(bool bApplyBrakes);
+	void ApplyInputAnimationValues(float RightWheelRate, float LeftWheelRate);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +177,8 @@ public:
 	/** Death delegate for controllers */
 	FTankDelegate OnDeath;
 
+	/** Apply brakes and resets SFX sounds whle braking */
+	void ApplyBrakes(bool bApplyBrakes);
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Tank Data
@@ -225,14 +196,6 @@ public:
 
 	/** Return if current health is lower than starting health */
 	bool IsTankDamaged() const { return CurrentHealth < StartingHealth; }
-
-	/** Return current speed of Right wheel */
-	UFUNCTION(BlueprintPure, Category = "Movement")
-	float GetRightWheelYaw() const { return RightWheelYaw; }
-
-	/** Return current speed of left wheel */
-	UFUNCTION(BlueprintPure, Category = "Movement")
-	float GetLeftWheelYaw() const { return LeftWheelYaw; }
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -267,13 +230,6 @@ private:
 
 	/** Death behaviour */
 	void OnDeathBehaviour(AController * EventInstigator);
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Wheel animation
-
-	/** Set wheel rotation of tank */
-	void TurnWheels(float MaxForwardRotSpeed, float MaxTurningRotSpeed);
 
 	
 	////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +272,7 @@ private:
 	void PlayTankCollisionFX(USoundBase* ImpactSFX);
 
 	/** Set pitch and volume of sound */
-	void TankDriveSFX();
+	void TankDriveSFX(float TrackSpeed);
 
 	/** Stops audio */
 	void StopAudioSound();

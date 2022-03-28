@@ -433,7 +433,7 @@ void ATankVehicle::OutOfCombatArea(bool bWarnPlayer)
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Play FX
+// Play SFX
 
 void ATankVehicle::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -508,6 +508,9 @@ void ATankVehicle::StopAudioSound()
 		TrackAudioComp->Stop();
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////
+// Play FX
 
 void ATankVehicle::TankParticleFX(float Throttle, float Steering, float LeftWheelSpeedVal, float RightWheelSpeedVal)
 {

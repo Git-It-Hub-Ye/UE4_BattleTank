@@ -6,15 +6,18 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Components/AudioComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Tank.h"
+
+#if WITH_PHYSX
+#include "PhysXPublic.h"
+#endif // WITH_PHYSX
 
 
 UTankAISimpleMovementComp::UTankAISimpleMovementComp()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	ForwardMovementRate = 100.f;
-	TurnRate = 30.f;
 	bBrakesApplied = true;
 }
 
@@ -26,6 +29,8 @@ void UTankAISimpleMovementComp::BeginPlay()
 
 	if (GetOwner() == NULL) { return; }
 	TankOwner = Cast<ATank>(GetOwner());
+
+	TankMesh = Cast<USkeletalMeshComponent>(TankOwner->GetRootComponent());
 }
 
 
@@ -48,16 +53,17 @@ void UTankAISimpleMovementComp::RequestDirectMove(const FVector& MoveVelocity, b
 void UTankAISimpleMovementComp::IntendMoveForward(float Value)
 {
 	float MoveForwardValue = FMath::Clamp<float>(Value, -0.5, 1.f);
-	float MaxSpeed = FGenericPlatformMath::Abs<float>(MoveForwardValue * ForwardMovementRate);
+	WheelTorque = MoveForwardValue * ForcePerWheel * GetWorld()->GetDeltaSeconds();
 
-	float ForwardSpeed  = MoveForwardValue * ForwardMovementRate;
-	CurrentForwardSpeed += ForwardSpeed * GetWorld()->GetDeltaSeconds();
-	CurrentForwardSpeed = FMath::Clamp<float>(CurrentForwardSpeed, -MaxSpeed, MaxSpeed);
-
-	if (Value != 0)
+	if (Value != 0 && Value != CurrentForwardValue)
 	{
-		if (GetOwner() == NULL) { return; }
-		GetOwner()->AddActorLocalOffset(FVector(CurrentForwardSpeed, 0.f, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+		CurrentForwardValue = Value;
+
+		if (TankOwner == NULL) { return; }
+		for (int32 i = 0; i < WheelSetups.Num(); i++)
+		{
+			SetDriveTorque(WheelTorque, i);
+		}
 	}
 
 	MovementValuesForAnimation();
@@ -66,22 +72,19 @@ void UTankAISimpleMovementComp::IntendMoveForward(float Value)
 void UTankAISimpleMovementComp::IntendTurnRight(float Value)
 {
 	float TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
-	float MaxSpeed = FGenericPlatformMath::Abs<float>(TurnRightValue * TurnRate);
-
-	float TurningSpeed = TurnRightValue * TurnRate;
-	CurrentTurningSpeed += TurningSpeed * GetWorld()->DeltaTimeSeconds;
-	CurrentTurningSpeed = FMath::Clamp<float>(CurrentTurningSpeed, -MaxSpeed, MaxSpeed);
+	float TurnTorque = TurnRightValue * TurnForce * GetWorld()->GetDeltaSeconds();
 
 	if (Value != 0)
 	{
-		if (GetOwner() == NULL) { return; }
-		GetOwner()->AddActorLocalRotation(FRotator(0.f, CurrentTurningSpeed, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+		if (TankMesh == NULL) { return; }
+		TankMesh->AddTorqueInRadians(FVector(0.f, 0.f, TurnTorque), FName("T-62_body"), true);
 	}
 }
 
 void UTankAISimpleMovementComp::SetBrakesValue(bool bSetBrake)
 {
-	float BrakeValue = bSetBrake ? 5000.f : 0.f;
+	float BrakeValue = bSetBrake ? BrakeTorque : 0.f;
+	CurrentForwardValue = 0;
 
 	for (int32 i = 0; i < WheelSetups.Num(); i++)
 	{
@@ -89,11 +92,46 @@ void UTankAISimpleMovementComp::SetBrakesValue(bool bSetBrake)
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Drive data
+
 void UTankAISimpleMovementComp::MovementValuesForAnimation()
 {
 	if (TankOwner != NULL)
 	{
-		TankOwner->ApplyInputAnimationValues(CurrentForwardSpeed, CurrentTurningSpeed);
+		TankOwner->ApplyInputAnimationValues(GetRightWheelSpeed(), GetLeftWheelSpeed());
 	}
+}
+
+float UTankAISimpleMovementComp::GetLeftWheelSpeed()
+{
+#if WITH_PHYSX_VEHICLES
+
+	if (PVehicle && Wheels.Num() > 0)
+	{
+		float RotationSpeed = PVehicle->mWheelsDynData.getWheelRotationSpeed(0);
+		return FMath::RoundToFloat(RotationSpeed);
+	}
+
+#endif // WITH_PHYSX
+
+	return 0.f;
+}
+
+float UTankAISimpleMovementComp::GetRightWheelSpeed()
+{
+#if WITH_PHYSX_VEHICLES
+
+	if (PVehicle && Wheels.Num() > 1)
+	{
+		float RotationSpeed = PVehicle->mWheelsDynData.getWheelRotationSpeed(1);
+
+		return FMath::RoundToFloat(RotationSpeed);
+	}
+
+#endif // WITH_PHYSX
+
+	return 0.f;
 }
 
