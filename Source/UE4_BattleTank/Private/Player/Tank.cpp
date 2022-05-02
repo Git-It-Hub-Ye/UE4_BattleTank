@@ -226,6 +226,11 @@ void ATank::OnDeathBehaviour(AController * EventInstigator)
 
 	TankBody->SetCollisionProfileName("DestroyedTank");
 
+	if (MovementComp)
+	{
+		MovementComp->SetBrakesValue(true);
+	}
+
 	ATankPlayerController * const PC = this->Controller ? Cast<ATankPlayerController>(this->Controller) : nullptr;
 	if (PC != NULL && EventInstigator != NULL && EventInstigator->GetPawn() != NULL)
 	{

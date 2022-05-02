@@ -30,6 +30,7 @@ void UTankAISimpleMovementComp::BeginPlay()
 	if (GetOwner() == NULL) { return; }
 	TankOwner = Cast<ATank>(GetOwner());
 
+	if (TankOwner == NULL) { return; }
 	TankMesh = Cast<USkeletalMeshComponent>(TankOwner->GetRootComponent());
 }
 
@@ -74,7 +75,7 @@ void UTankAISimpleMovementComp::IntendTurnRight(float Value)
 	float TurnRightValue = FMath::Clamp<float>(Value, -1, 1);
 	float TurnTorque = TurnRightValue * TurnForce * GetWorld()->GetDeltaSeconds();
 
-	if (Value != 0)
+	if (Value != 0 && CurrentForwardValue != 0)
 	{
 		if (TankMesh == NULL) { return; }
 		TankMesh->AddTorqueInRadians(FVector(0.f, 0.f, TurnTorque), FName("T-62_body"), true);
